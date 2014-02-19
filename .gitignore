@@ -18,3 +18,4 @@ anta/static/js/tooltipsy.min.js
 *.db
 *.log
 *.db-journal
+*.sublime-workspace

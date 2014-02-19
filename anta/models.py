@@ -386,6 +386,8 @@ class Document_Concept( models.Model):
 
 # Segment is the base class for POS tagging, it will contain NP, VP accoring to analysis chosen.
 class Segment( models.Model):	
+	STATUS_OUT = 'OUT'
+	STATUS_IN = 'IN'
 	
 	content 	= models.CharField( max_length=128 )
 	pos			= models.CharField( max_length=3, choices=POS_CHOICES )
