@@ -11,6 +11,7 @@ from pattern.vector import Corpus, Document, stopwords, count
 from pattern.search import search as p_search
 import pattern.nl #     import parse as nlparse, split as nlsplit, Sentence as nlSentence, Text as nlText
 import pattern.en  #   import parse as enparse, Sentence as enSentence, Text as enText
+import pattern.fr
 
 import codecs, re, logging
 from datetime import datetime
@@ -25,7 +26,7 @@ logger = logging.getLogger("sven.anta.api")
 #
 NL_STOPWORDS = ["aan","af","al","alles","als","altijd","andere","ben","bij","daar","dan","dat","de","der","deze","die","dit","doch","doen","door","dus","een","eens","en","er","ge","geen","geweest","haar","had","heb","hebben","heeft","hem","het","hier","hij","hij ","hoe","hun","iemand","iets","ik","in","is","ja","je","je ","kan","kon","kunnen","maar","me","meer","men","met","mij","mijn","moet","na","naar","niet","niets","nog","nu","of","om","omdat","onder","ons","ook","op","over","reeds","te","tegen","toch","toen","tot","u","uit","uw","van","veel","voor","want","waren","was","wat","we","wel","werd","wezen","wie","wij","wil","worden","wordt","zal","ze","zei","zelf","zich","zij","zijn","zo","zonder","zou"]
 EN_STOPWORDS = ["i","me","my","myself","we","us","our","ours","ourselves","you","your","yours","yourself","yourselves","he","him","his","himself","she","her","hers","herself","it","its","itself","they","them","their","theirs","themselves","what","which","who","whom","this","that","these","those","am","is","are","was","were","be","been","being","have","has","had","having","do","does","did","doing","will","would","shall","should","can","could","may","might","must","ought","i'm","you're","he's","she's","it's","we're","they're","i've","you've","we've","they've","i'd","you'd","he'd","she'd","we'd","they'd","i'll","you'll","he'll","she'll","we'll","they'll","isn't","aren't","wasn't","weren't","hasn't","haven't","hadn't","doesn't","don't","didn't","won't","wouldn't","shan't","shouldn't","can't","cannot","couldn't","mustn't","let's","that's","who's","what's","here's","there's","when's","where's","why's","how's","daren't","needn't","oughtn't","mightn't","a","an","the","and","but","if","or","because","as","until","while","of","at","by","for","with","about","against","between","into","through","during","before","after","above","below","to","from","up","down","in","out","on","off","over","under","again","further","then","once","here","there","when","where","why","how","all","any","both","each","few","more","most","other","some","such","no","nor","not","only","own","same","so","than","too","very"]
-
+FR_STOPWORDS = ["alors","au","aucuns","aussi","autre","avant","avec","avoir","bon","car","ce","cela","ces","ceux","chaque","ci","comme","comment","dans","des","du","dedans","dehors","depuis","deux","devrait","doit","donc","dos","droite","début","elle","elles","en","encore","essai","est","et","eu","fait","faites","fois","font","force","haut","hors","ici","il","ils","je  juste","la","le","les","leur","là","ma","maintenant","mais","mes","mine","moins","mon","mot","même","ni","nommés","notre","nous","nouveaux","ou","où","par","parce","parole","pas","personnes","peut","peu","pièce","plupart","pour","pourquoi","quand","que","quel","quelle","quelles","quels","qui","sa","sans","ses","seulement","si","sien","son","sont","sous","soyez sujet","sur","ta","tandis","tellement","tels","tes","ton","tous","tout","trop","très","tu","valeur","voie","voient","vont","votre","vous","vu","ça","étaient","état","étions","été","être"]
 
 #
 #    =======================
@@ -192,6 +193,8 @@ def decant( corpus, routine, settings, ref_completion=1.0 ):
 			stopwords = NL_STOPWORDS
 		elif d.language == "EN":
 			stopwords = EN_STOPWORDS
+    elif d.language == "FR":
+      stopwords = FR_STOPWORDS
 		else:
 			stopwords = []
 
@@ -415,10 +418,14 @@ def distill( filename, language="en", regexp="NP", stopwords=["the","this","a", 
 
 	if language == "nl":
 		text = pattern.nl.Text( pattern.nl.parse( content, lemmata=True ) )
-	else:
+	else if language == "fr":
 		# default: language == "en":
-		text = pattern.en.Text( pattern.en.parse( content, lemmata=True ) )
-		
+		text = pattern.fr.Text( pattern.fr.parse( content, lemmata=True ) )
+	else:
+    # default: language == "en":
+    text = pattern.en.Text( pattern.en.parse( content, lemmata=True ) )
+    
+
 	document =  [ p_search('NP', s) for s in text ]
 	
 	return evaporate( 

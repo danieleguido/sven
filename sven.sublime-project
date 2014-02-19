@@ -1,0 +1,22 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				".gitignore",
+        "*.LGPL",
+        "*.CECILL*",
+        "COPYING",
+        "requirements.txt"
+			],
+			"path": "."
+		}
+	],
+	"settings":
+    {
+        "tab_size": 2,
+        "translate_tabs_to_spaces": true,
+        "detect_indentation": false
+    }
+}

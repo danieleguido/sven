@@ -5,7 +5,8 @@ import colorsys
 
 LANGUAGE_CHOICES = (
 	(u'NL', u'Dutch'),
-    (u'EN', u'English'),
+  (u'EN', u'English'),
+  (u'FR', u'French'),
 )
 
 CREATION_CHOICES = (

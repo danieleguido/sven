@@ -18,6 +18,11 @@ class Command(BaseCommand):
           dest='csv',
           default=False,
           help='csv file of references'),
+      make_option('--lang',
+          action='store',
+          dest='language',
+          default=False,
+          help='language uppercase e.g EN FR NL or IT'),
       make_option('--owner',
           action='store',
           dest='owner',
@@ -49,6 +54,7 @@ class Command(BaseCommand):
           default=False,
           help='comma separated field names for the _tag_ columns. Cell values containing a PIPE char are then splitted'),
   )
+
 
   def handle(self, *args, **options):
     self.stdout.write("\n------------------------------------------\n\n    welcome to loadcorpus script\n    ==================================\n\n\n\n")
@@ -130,7 +136,7 @@ class Command(BaseCommand):
         f = codecs.open(filepath, encoding='utf-8', mode='w')
         f.write(content)
 
-        d = Document(title=title, corpus=corpus, language='EN', mime_type="text/plain", status=Document.STATUS_NEW, url=os.path.basename(filepath))
+        d = Document(title=title, corpus=corpus, language=options['language'], mime_type="text/plain", status=Document.STATUS_NEW, url=os.path.basename(filepath))
         
         d.save()
 
