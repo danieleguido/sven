@@ -84,5 +84,14 @@ USE_TZ = True
 
 STATIC_URL = local_settings.STATIC_URL
 
-
 MEDIA_ROOT = local_settings.MEDIA_ROOT
+
+
+
+STATICFILES_DIRS = (
+  os.path.join(BASE_DIR, 'static'),
+)
+
+TEMPLATE_DIRS = (
+  os.path.join(BASE_DIR, 'templates'),
+)

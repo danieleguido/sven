@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" ng-app="sven">
+<head>
+  <meta charset="utf-8">
+  <title>sven beta</title>
+  <link rel="stylesheet" href="css/app.css"/>
+</head>
+<body>
+  <h1>Sven</h1>
+  <ul class="menu">
+    <li><a href="#/corpus">view1</a></li>
+    <li><a href="#/document">view2</a></li>
+  </ul>
+
+  <div ng-view></div>
+
+  <div>Angular seed app: v<span app-version></span></div>
+
+  <!-- In production use: -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+  
+  <script src="{{ STATIC_URL }}/js/app.js"></script>
+  <script src="{{ STATIC_URL }}/js/services.js"></script>
+  <script src="{{ STATIC_URL }}/js/controllers.js"></script>
+  <script src="{{ STATIC_URL }}/js/filters.js"></script>
+  <script src="{{ STATIC_URL }}/js/directives.js"></script>
+</body>
+</html>
