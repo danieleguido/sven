@@ -47,6 +47,11 @@ class Corpus(models.Model):
       os.makedirs(path)
     super(Corpus, self).save()
 
+  def json(self):
+    d = {
+      'pk': self.pk
+    }
+    return d
 
 
 class Document(models.Model):

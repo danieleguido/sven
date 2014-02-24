@@ -1,0 +1,3 @@
+[submodule "django-glue"]
+	path = django-glue
+	url = https://github.com/danieleguido/django-glue.git

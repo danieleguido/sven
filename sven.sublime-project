@@ -4,11 +4,9 @@
 		{
 			"file_exclude_patterns":
 			[
-				".gitignore",
         "*.LGPL",
         "*.CECILL*",
-        "COPYING",
-        "requirements.txt"
+        "COPYING"
 			],
 			"path": "."
 		}

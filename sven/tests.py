@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
 import pattern.en, pattern.fr
 
 from pattern.search import search
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.test import TestCase
@@ -11,19 +13,46 @@ from django.test import TestCase
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
 from sven.models import Segment, Corpus, Document
 
+from django.test.client import RequestFactory
+import glue.api
+
+
+class OSTest(TestCase):
+  def test_permissions(self):
+    cond = settings.MEDIA_ROOT is not None and os.path.exists(settings.MEDIA_ROOT)
+    self.assertEqual(cond, True)
+
 
 
 class CorpusTest(TestCase):
-  def test_create_corpus(self):
-    user = User(username=u'new-user')
-    user.save()
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.factory = RequestFactory()
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.admin = User(
+      username='jacob_admin', email='jacob@…', password='top_secret', is_staff=True)
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
 
-    corpus = Corpus(name=u'----test----')
+
+  def test_create_corpus(self):
+    user = self.user
+
+    corpus = self.corpus
     corpus.save()
     corpus.owners.add(user)
     corpus.save()
     
     self.assertEqual(corpus.slug, u'-test-')
+
+
+  def test_get_corpus_via_glue(self):
+    request = self.factory.get('/glue/sven/corpus/')
+    request.user = self.admin
+
+    response = glue.api.get_objects(request, 'sven', 'corpus')
+    self.assertEqual('%s' % response, 'Content-Type: application/json\r\n\r\n{"status": "ok", "meta": {"total_count": 1, "module": "sven.models.Corpus", "user": "jacob_admin", "action": "get_objects", "model": "Corpus", "method": "GET"}, "objects": [{"pk": 1}]}')
+
 
 
 class DocumentTest(TestCase):

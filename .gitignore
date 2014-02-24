@@ -1,21 +1,16 @@
-# 
-# ignore settings and all pyc files
-#
-settings.py
-# manage.py
+local_settings.py
 sven.wsgi
 
 media/*
-env/*
-libs/*
+
 *.pyc
 *~
-core/*~
-anta/*~
-.DS_Store
-sven.db
-anta/static/js/tooltipsy.min.js
+
 *.db
+*.sqlite3
+
 *.log
 *.db-journal
 *.sublime-workspace
+
+.DS_Store
