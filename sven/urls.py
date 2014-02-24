@@ -1,22 +1,26 @@
 from django.conf.urls import patterns, include, url
-
 from django.contrib import admin
 
 import glue.urls
+
+
 
 admin.autodiscover()
 
 apipatterns = patterns('sven.api',
   url(r'^$', 'home', name='sven_api_home'),
-  url(r'^corpus/$', 'corpus', name='sven_api_corpora'),
-  url(r'^corpus/(?P<slug>[:a-zA-Z\-\.\d]+)/$', 'corpus', name='sven_api_corpus'),
+  url(r'^corpus$', 'corpora', name='sven_api_corpora'),
+  url(r'^corpus/(?P<pk>\d+)$', 'corpus', name='sven_api_corpus'),
+  url(r'^corpus/(?P<corpus_pk>\d+)/document$', 'documents', name='sven_api_documents'),
   url(r'^.*$', 'not_found', name='sven_api_not_found'),
 )
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'sven.views.home', name='home'),
-    url(r'^api/', include('blog.urls')),
+    url(r'^$', 'sven.views.home', name='sven_home'),
+    url(r'^login/$', 'sven.views.login_view', name='sven_login'),
+    
+    url(r'^api/', include(apipatterns)),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^glue/', include(glue.urls)),

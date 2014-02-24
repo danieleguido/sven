@@ -1,10 +1,12 @@
-import os, mimetypes
+import re, os, mimetypes, shutil
 from datetime import datetime 
 
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import pre_delete
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.dispatch import receiver
 
 
 
@@ -29,6 +31,14 @@ def helper_get_document_path(instance, filename):
 
 
 
+def helper_user_to_dict(user):
+  d = {
+    'username': user.username
+  }
+  return d
+
+
+
 class Corpus(models.Model):
   name = models.CharField(max_length=32)
   slug = models.CharField(max_length=32, unique=True)
@@ -37,8 +47,10 @@ class Corpus(models.Model):
 
   owners = models.ManyToManyField(User)
 
+
   def get_path(self):
     return os.path.join(settings.MEDIA_ROOT, self.slug)
+
 
   def save(self, **kwargs):
     self.slug = helper_uuslug(model=Corpus, instance=self, value=self.name)
@@ -47,11 +59,31 @@ class Corpus(models.Model):
       os.makedirs(path)
     super(Corpus, self).save()
 
-  def json(self):
+
+  def json(self, deep=False):
     d = {
-      'pk': self.pk
+      'id': self.id,
+      'name': self.name,
+      'slug': self.slug
     }
+    if deep:
+      d.update({
+        'owners': [helper_user_to_dict(u) for u in self.owners.all()]
+      })
     return d
+
+
+
+@receiver(pre_delete, sender=Corpus)
+def delete_corpus(sender, instance, **kwargs):
+  '''
+  rename or delete the corpus path linked to the corpus instance.
+  We should provide a zip with the whole text content under the name <user>.<YYYYmmdd>.<corpus-name>.zip, @todo
+  '''
+  path = instance.get_path()
+
+  shutil.rmtree(path)
+
 
 
 class Document(models.Model):
@@ -59,11 +91,22 @@ class Document(models.Model):
   slug = models.CharField(max_length=128, unique=True)
   corpus = models.ForeignKey(Corpus)
   
-  raw  = models.FileField(upload_to=helper_get_document_path)
+  raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True)
   mimetype = models.CharField(max_length = 100)
 
   date_created = models.DateTimeField(auto_now=True)
   date_last_modified = models.DateTimeField(auto_now_add=True)
+
+  def json(self, deep=False):
+    d = {
+      'id': self.id,
+      'name': self.name,
+      'slug': self.slug,
+      'date_created': self.date_created.isoformat(),
+      'date_last_modified': self.date_last_modified.isoformat()
+    }
+    
+    return d
 
 
   def text(self):

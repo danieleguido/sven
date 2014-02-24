@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
+import os, json
 import pattern.en, pattern.fr
 
 from pattern.search import search
@@ -8,6 +8,7 @@ from pattern.search import search
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
@@ -15,6 +16,7 @@ from sven.models import Segment, Corpus, Document
 
 from django.test.client import RequestFactory
 import glue.api
+import sven.api
 
 
 class OSTest(TestCase):
@@ -46,12 +48,16 @@ class CorpusTest(TestCase):
     self.assertEqual(corpus.slug, u'-test-')
 
 
-  def test_get_corpus_via_glue(self):
-    request = self.factory.get('/glue/sven/corpus/')
+  def test_delete_corpus(self):
+    request = self.factory.get(reverse('sven_api_corpus', args=[self.corpus.pk]))
+    request.method='DELETE'
     request.user = self.admin
 
-    response = glue.api.get_objects(request, 'sven', 'corpus')
-    self.assertEqual('%s' % response, 'Content-Type: application/json\r\n\r\n{"status": "ok", "meta": {"total_count": 1, "module": "sven.models.Corpus", "user": "jacob_admin", "action": "get_objects", "model": "Corpus", "method": "GET"}, "objects": [{"pk": 1}]}')
+    # admin is among owners
+    response = sven.api.corpus(request, pk=self.corpus.pk)
+    jresponse = json.loads(response.content)
+
+    self.assertEqual('%s-%s-%s' % (jresponse['meta']['action'], jresponse['meta']['method'], jresponse['status']), 'corpus-DELETE-ok')
 
 
 
@@ -69,8 +75,6 @@ class DocumentTest(TestCase):
     document = Document(corpus=corpus)
     document.raw.save('test.txt', ContentFile(u'Mary had a little lamb.'.encode('UTF-8')), save=False)
     document.save()
-    print document.text()
-    print document.mimetype
     self.assertEqual(True, True)
 
 
