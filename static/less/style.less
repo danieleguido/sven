@@ -1,0 +1,146 @@
+@import 'base.less';
+
+
+html {
+  font-size: 62.5%;
+  height: 100%;
+}
+
+
+body{
+  font: 1.3em/1.618em 'Source Sans Pro', sans-serif;
+  background-color: #fff;
+  height:100%;
+  padding: 0;
+  margin: 0;
+  color: #001A25;
+}
+
+
+h1,h2,h3,h4,h5{
+  font: 2rem/1.618em 'Source Sans Pro', sans-serif;
+}
+
+a{
+  color: #046971;
+  text-decoration: none;
+}
+/* #Page Styles
+================================================== */
+button, a.boo {
+  font: 1.2rem/1.618em 'Source Code Pro', sans-serif;
+  font-weight: normal;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: #ec5148;
+  color: #f9eedc;
+  text-align: center;
+  display: inline-block;
+  border-radius:2px;
+  padding: 6px 12px;
+  margin:0;
+  text-shadow: none;
+  border-width: 0px;
+  -webkit-transition: background 200ms ease-in-out;
+   -moz-transition: background 200ms ease-in-out;
+     -o-transition: background 200ms ease-in-out;
+        transition: background 200ms ease-in-out; /* easeOutQuint */
+}
+
+
+button:hover, a.boo:hover{
+  background: #ff5450;
+  color: white;
+  border-width: 0px;
+}
+
+
+button::disabled{
+  background: #ccc;
+}
+
+
+label{
+  display: block;
+  font-size: 1.2rem;
+}
+
+
+@mod: 6px;
+@mod2: 36px;
+@margin: @mod * 4;
+@header_height: @mod * 6;
+@sidebar_width: @mod * 24;
+
+header{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: @header_height;
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  >.wrapper{
+    margin: 0 @mod*4;
+    padding: 0;
+    border-bottom: 1px solid #EADBC4;
+    background: #ffffff;
+  }
+
+  h1{
+    font: 1.2rem/@mod2 'Source Code Pro', sans-serif;
+    text-transform: uppercase;
+    margin-left: @margin;
+    color: #D70206;
+  }
+}
+
+
+sidebar{
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  padding: 0;
+  width: @sidebar_width;
+    
+  
+  >.wrapper{
+    margin: @header_height 0 0 @margin;
+    padding: @margin;
+    border-right: 1px solid #EADBC4;
+    min-height: 400px;
+  }
+}
+
+
+.main{
+  margin: @header_height @margin @header_height @sidebar_width;
+ 
+  >.wrapper{
+     padding: @margin;
+  }
+
+  .view-nav{
+    border-bottom: 1px solid #EADBC4;
+    >.wrapper{
+      padding: @margin;
+    }
+  }
+
+  .view{
+    >.wrapper{
+      padding: @margin;
+    }
+  }
+}
+
+#login{
+  margin: 0 auto;
+  width: @mod * 40;
+
+  p{
+    margin: @mod*4 0;
+  }
+}

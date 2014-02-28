@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, redirect, get_object_or_404
@@ -13,7 +14,7 @@ from sven.forms import LoginForm
 @login_required
 def home(request):
   d = _shared_context(request)
-  return render_to_response("sven/index.html", RequestContext(request, d) )
+  return render_to_response("sven/index.html", RequestContext(request, d))
 
 
 
@@ -64,4 +65,7 @@ def _shared_context(request, tags=[], d={}):
   '''
   Return an happy shared contex for your view
   '''
+  d.update({
+    'DEBUG': settings.DEBUG
+  })
   return d

@@ -5,10 +5,13 @@
   login
 {% endblock %}
 
-  {% block content %}
-    <div class="container">
-      <div class="sixteen columns" style="height: 300px">
-        <h1>{% trans "login" %}</h1>
+{% block sidebar %}
+
+{% endblock %}
+
+{% block page %}
+  <div id="login">
+    <h1>{% trans "login" %}</h1>
         
         {% if error %}
         <p class="red">
@@ -35,6 +38,5 @@
           </p>
           <button>{% trans "login" %} <i class="fa fa-unlock"></i></button>
         </form>
-      </div>
-    </div>
-  {% endblock %}
+  </div>
+{% endblock %}

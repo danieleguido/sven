@@ -3,21 +3,42 @@
 <head>
   <meta charset="utf-8">
   <title>sven beta {% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="css/app.css"/>
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  {% if DEBUG %}
+  <link rel="stylesheet/less" type="text/css" href="{{STATIC_URL}}/less/style.less" />
+  <script src="{{ STATIC_URL }}/js/libs/less-1.7.0.min.js" type="text/javascript"></script>
+  {% else %}
+  {% endif %}
 </head>
 <body>
-  <h1>Sven</h1>
-  {% block content %}
-  <ul class="menu">
-    <li><a href="#/corpus">view1</a></li>
-    <li><a href="#/document">view2</a></li>
-  </ul>
+  <header>
+    <div class="wrapper">
+      <h1>sven</h1>
+    </div>
+  </header>
+
+  <div class="main">
+    {% block sidebar %}
+    <sidebar>
+      <div class="wrapper">
+      <ul class="nav">
+        <li><a href="#/corpus">addproject</a></li>
+        <div ng-repeat="corpus in corpora">
+          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}}</a></div>
+        </div>
+      </ul>
+    </div>
+    </sidebar>
+  {% endblock %}
+  {% block page %}
+  
+  
 
   <div ng-view></div>
 
-  <div>Angular seed app: v<span app-version></span></div>
-
   <!-- In production use: -->
+  {% if DEBUG %}
+  
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
@@ -26,7 +47,9 @@
   <script src="{{ STATIC_URL }}/js/controllers.js"></script>
   <script src="{{ STATIC_URL }}/js/filters.js"></script>
   <script src="{{ STATIC_URL }}/js/directives.js"></script>
-
+  {% else %}
+  {% endif %}
   {% endblock %}
+  </div>
 </body>
 </html>
