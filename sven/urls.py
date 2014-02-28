@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'sven.views.home', name='sven_home'),
     url(r'^login/$', 'sven.views.login_view', name='sven_login'),
+    url(r'^logout/$', 'sven.views.logout_view', name='sven_logout'),
     
     url(r'^api/', include(apipatterns)),
 

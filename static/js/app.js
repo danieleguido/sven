@@ -39,8 +39,8 @@ angular.module('sven', [
   'd3'
 ]).
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/corpus', {templateUrl: '/static/partials/corpus.list.html', controller: 'corpusListCtrl'});
+  $routeProvider.when('/', {templateUrl: '/static/partials/corpus.list.html', controller: 'indexCtrl'});
   $routeProvider.when('/corpus/:id', {templateUrl: '/static/partials/corpus.html', controller: 'corpusCtrl'});
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});
-  $routeProvider.otherwise({redirectTo: '/corpus'});
+  $routeProvider.otherwise({redirectTo: '/'});
 }]);

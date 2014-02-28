@@ -82,6 +82,7 @@ header{
   left: 0;
 
   >.wrapper{
+    position: relative;
     margin: 0 @mod*4;
     padding: 0;
     border-bottom: 1px solid #EADBC4;
@@ -143,4 +144,11 @@ sidebar{
   p{
     margin: @mod*4 0;
   }
+}
+
+#user{
+  position: absolute;
+  top: 0;
+  right: @margin;
+  line-height: @header_height;
 }

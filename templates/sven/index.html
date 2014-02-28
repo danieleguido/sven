@@ -1,3 +1,5 @@
+
+{% load i18n %}
 <!doctype html>
 <html lang="en" ng-app="sven">
 <head>
@@ -11,23 +13,30 @@
   {% endif %}
 </head>
 <body>
-  <header>
+  <header scroll-shadow>
     <div class="wrapper">
-      <h1>sven</h1>
+      <h1>test</h1>
+      <div id="user">
+        <span class="username">{{user.username}}</span> / 
+        <a href="{% url 'sven_logout'%}">{% trans "logout"%}</a>
+      </div>
     </div>
   </header>
 
   <div class="main">
     {% block sidebar %}
-    <sidebar>
-      <div class="wrapper">
-      <ul class="nav">
-        <li><a href="#/corpus">addproject</a></li>
-        <div ng-repeat="corpus in corpora">
+    <sidebar >
+      <div class="wrapper" ng-controller="corpusListCtrl">
+        {% verbatim %}
+        <ul class="nav">
+          <li><a href="#/corpus/create">add project</a></li>
+        </ul>
+
+        <div ng-repeat="corpus in items">
           <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}}</a></div>
         </div>
-      </ul>
-    </div>
+        {% endverbatim %}
+      </div>
     </sidebar>
   {% endblock %}
   {% block page %}

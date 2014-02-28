@@ -3,12 +3,26 @@
 /* Directives */
 
 
-angular.module('sven.directives', []).
-  directive('appVersion', ['version', function(version) {
+angular.module('sven.directives', [])
+  .directive('appVersion', ['version', function(version) {
     return function(scope, elm, attrs) {
       elm.text(version);
     };
-  }]).
+  }])
+  .directive("scrollShadow", function ($window) {
+    return function(scope, element, attrs) {
+        angular.element($window).bind("scroll", function() {
+             if (this.pageYOffset >= 100) {
+                 scope.boolChangeClass = true;
+                 console.log('Scrolled below header.');
+             } else {
+                 scope.boolChangeClass = false;
+                 console.log('Header is in view.');
+             }
+            scope.$apply();
+        });
+    };
+  }).
   directive('d3Bars', ['d3Service',  function(d3Service) {
     return  {
       restrict: 'EA',

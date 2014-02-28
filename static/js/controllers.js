@@ -2,12 +2,20 @@
 
 /* Controllers */
 
-angular.module('sven.controllers', []).
-  controller('corpusListCtrl', ['$scope', 'CorpusListFactory', function($scope, CorpusListFactory) {
+angular.module('sven.controllers', [])
+  /*
+    Handle the main view. Unused
+  */
+  .controller('indexCtrl', ['$scope', function($scope) {
+    
+  }])
+  .controller('corpusListCtrl', ['$scope', 'CorpusListFactory', function($scope, CorpusListFactory) {
+    $scope.items =[]
+
     CorpusListFactory.query(function(data){
+      console.log(data)
       $scope.howmany = data.meta.total_count;
-      $scope.corpora = data.objects;
-      
+      $scope.items = data.objects;
     });
   }])
   .controller('corpusCtrl', ['$scope','$routeParams','CorpusFactory', 'DocumentListFactory', function($scope, $routeParams, CorpusFactory, DocumentListFactory) {
