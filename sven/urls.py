@@ -12,6 +12,10 @@ apipatterns = patterns('sven.api',
   url(r'^corpus$', 'corpora', name='sven_api_corpora'),
   url(r'^corpus/(?P<pk>\d+)$', 'corpus', name='sven_api_corpus'),
   url(r'^corpus/(?P<corpus_pk>\d+)/document$', 'documents', name='sven_api_documents'),
+  
+  url(r'^profile$', 'profile', name='sven_api_profile'), # just single profile for security sake!
+  url(r'^profile/(?P<pk>\d+)$', 'profile', name='sven_api_staff_profile'), # just single profile for security sake!
+  
   url(r'^.*$', 'not_found', name='sven_api_not_found'),
 )
 

@@ -4,11 +4,34 @@
 
 angular.module('sven.controllers', [])
   /*
+
     Handle the main view. Unused
+    ===
+  
   */
   .controller('indexCtrl', ['$scope', function($scope) {
     
   }])
+  /*
+
+    Handle the profile view.
+    ===
+  
+  */
+  .controller('profileCtrl', ['$scope', 'ProfileFactory', function($scope, ProfileFactory) {
+    $scope.profile = {};
+
+    ProfileFactory.query(function(data){
+      console.log(data)
+      $scope.profile = data.object;
+    });
+  }])
+  /*
+
+    Handle the corpus list view.
+    ===
+  
+  */
   .controller('corpusListCtrl', ['$scope', 'CorpusListFactory', function($scope, CorpusListFactory) {
     $scope.items =[]
 

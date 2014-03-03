@@ -15,10 +15,16 @@
 <body>
   <header scroll-shadow>
     <div class="wrapper">
-      <h1>test</h1>
-      <div id="user">
-        <span class="username">{{user.username}}</span> / 
-        <a href="{% url 'sven_logout'%}">{% trans "logout"%}</a>
+      <div class="bottom-line"></div>
+      <h1>{{ SVEN_NAME }}</h1>
+      <div id="user" ng-controller="profileCtrl">
+        {% verbatim %}
+        <div class="picture"><img src="{{profile.picture}}"></div>
+        {% endverbatim %}
+        <div class="username">
+          {{user.username}} / 
+          <a href="{% url 'sven_logout'%}">{% trans "logout"%}</a>
+        </div>
       </div>
     </div>
   </header>

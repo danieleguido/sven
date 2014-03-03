@@ -66,6 +66,7 @@ def _shared_context(request, tags=[], d={}):
   Return an happy shared contex for your view
   '''
   d.update({
+    'SVEN_NAME': settings.SVEN_NAME,
     'DEBUG': settings.DEBUG
   })
   return d
