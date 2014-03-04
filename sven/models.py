@@ -1,4 +1,4 @@
-import re, os, signal, mimetypes, shutil, subprocess
+import re, os, signal, mimetypes, shutil, urllib2, json, subprocess
 from datetime import datetime 
 
 from django.conf import settings
@@ -36,6 +36,46 @@ def helper_user_to_dict(user):
     'username': user.username
   }
   return d
+
+
+
+def helper_palette():
+  '''
+  return a json dict containing a random generate palette.
+  first result image, e.g http://www.colourlovers.com/paletteImg/94582D/B97820/F3B503/EA8407/957649/ThePeanuttyProfessor.png
+    
+    print helper_palette().pop()['imageUrl']
+  
+  '''
+  request = urllib2.Request('http://www.colourlovers.com/api/palettes/random?format=json',
+    headers={'User-Agent': "ColourLovers Browser"}
+  )
+  
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)
+  
+
+
+class Profile(models.Model):
+  user = models.OneToOneField(User)
+  bio = models.TextField()
+  picture = models.URLField(max_length=160, blank=True, null=True)
+
+
+  def json(self, deep=False):
+    d = {
+      'id': self.id,
+      'bio_raw': self.bio,
+      'picture': self.picture,
+      'username': self.user.username
+    }
+    return d
+
+  def save(self, **kwargs):
+    if self.pk is None or len(self.picture) == 0:
+      self.picture = helper_palette()[0]['imageUrl']
+    
+    super(Profile, self).save()
 
 
 

@@ -6,6 +6,12 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('sven.services', ['ngResource'])
+  .factory('ProfileFactory', function($resource) {
+    return $resource('/api/profile', {}, {
+        query: { method: 'GET' },
+        update: { method: 'POST' }
+    });
+  })
   .factory('CorpusListFactory', function($resource) {
     return $resource('/api/corpus', {}, {
         query: { method: 'GET', isArray: false },

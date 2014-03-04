@@ -13,6 +13,7 @@ import os
 import local_settings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+SVEN_NAME = local_settings.SVEN_NAME
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/

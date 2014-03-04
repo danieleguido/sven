@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm
-from sven.models import Corpus, Document
+from sven.models import Corpus, Document, Profile
 
 
 
@@ -51,6 +52,7 @@ def documents(request, corpus_pk):
 
 
 
+@login_required
 def corpora(request):
   result = Epoxy(request)
 
@@ -65,7 +67,7 @@ def corpora(request):
     else:
       return result.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
-  result.queryset(Corpus.objects.filter(owners=request.user))
+  result.queryset(Corpus.objects.filter(owners__in=[request.user]))
   return result.json()
 
 
@@ -84,3 +86,21 @@ def corpus(request, pk):
     result.item(corpus, deep=True)
 
   return result.json()
+
+
+
+@login_required
+def profile(request, pk=None):
+  '''
+  return authenticated user's profile.
+  If user is staff he can see everything
+  '''
+  epoxy = Epoxy(request)
+
+  try:
+    pro = User.objects.get(pk=pk).profile if pk is not None and request.user.is_staff else request.user.profile
+  except Profile.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  return epoxy.item(pro, deep=True).json()
+  

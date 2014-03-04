@@ -76,10 +76,11 @@ header{
   margin: 0;
   padding: 0;
   width: 100%;
-  height: @header_height;
+  height: @header_height + 2px;
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
 
   >.wrapper{
     position: relative;
@@ -87,13 +88,25 @@ header{
     padding: 0;
     border-bottom: 1px solid #EADBC4;
     background: #ffffff;
+    height: @header_height + 2px;
+  
   }
 
   h1{
     font: 1.2rem/@mod2 'Source Code Pro', sans-serif;
     text-transform: uppercase;
-    margin-left: @margin;
+    margin-left: @margin/2;
     color: #D70206;
+  }
+
+  .bottom-line{
+    position: absolute;
+    bottom: 1px;
+    left: 0;
+    background-color: #181818;
+    height: 1px;
+    width: 100%;
+
   }
 }
 
@@ -105,10 +118,10 @@ sidebar{
   height: 100%;
   padding: 0;
   width: @sidebar_width;
-    
+  z-index: 999;
   
   >.wrapper{
-    margin: @header_height 0 0 @margin;
+    margin: @header_height + 2px 0 0 @margin;
     padding: @margin;
     border-right: 1px solid #EADBC4;
     min-height: 400px;
@@ -149,6 +162,26 @@ sidebar{
 #user{
   position: absolute;
   top: 0;
-  right: @margin;
+  right: @margin/2;
   line-height: @header_height;
+
+  .picture{
+    display: block;
+    float: left;
+    height: 24px;
+    overflow: hidden;
+    width: 24px;
+    border-radius: 12px;
+    margin: @header_height/2 - 24px/2 0 0 0;
+
+    img{
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .username{
+    float: left;
+    margin-left: @mod*2;
+  }
 }
