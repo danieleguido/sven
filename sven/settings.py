@@ -95,3 +95,5 @@ STATICFILES_DIRS = (
 TEMPLATE_DIRS = (
   os.path.join(BASE_DIR, 'templates'),
 )
+
+PYTHON_INTERPRETER = local_settings.PYTHON_INTERPRETER

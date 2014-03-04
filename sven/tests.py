@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
-from sven.models import Segment, Corpus, Document
+from sven.models import Segment, Corpus, Document, Job
 
 from django.test.client import RequestFactory
 import glue.api
@@ -24,6 +24,17 @@ class OSTest(TestCase):
     cond = settings.MEDIA_ROOT is not None and os.path.exists(settings.MEDIA_ROOT)
     self.assertEqual(cond, True)
 
+
+
+class JobTest(TestCase):
+  def test_start_job_harvest(self):
+    # Every test needs access to the request factory.
+    corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    job = Job.start(corpus=corpus, command='harvest')
+
+    # stop job
+    job.stop()
+    
 
 
 class CorpusTest(TestCase):
@@ -58,6 +69,11 @@ class CorpusTest(TestCase):
     jresponse = json.loads(response.content)
 
     self.assertEqual('%s-%s-%s' % (jresponse['meta']['action'], jresponse['meta']['method'], jresponse['status']), 'corpus-DELETE-ok')
+
+
+  def text_delete_all_corpora(self):
+    Corpus.objects.delete()
+    self.assertEqual(0, Corpus.objects.count())
 
 
 
