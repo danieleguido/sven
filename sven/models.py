@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.dispatch import receiver
@@ -53,7 +53,25 @@ def helper_palette():
   
   contents = urllib2.urlopen(request).read()
   return json.loads(contents)
+
+
+
+def helper_colour():
+  '''
+  return a json dict containing a random generate color with a generated image.
+  first result image, e.g http://www.colourlovers.com/paletteImg/94582D/B97820/F3B503/EA8407/957649/ThePeanuttyProfessor.png
+    
+    print helper_colour().pop()['hex']
+    print helper_colour().pop()['imageUrl'] "hex":"A5CA68"
   
+  '''
+  request = urllib2.Request('http://www.colourlovers.com/api/colors/random?format=json',
+    headers={'User-Agent': "ColourLovers Browser"}
+  )
+  
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)  
+
 
 
 class Profile(models.Model):
@@ -79,9 +97,19 @@ class Profile(models.Model):
 
 
 
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+  if created:
+    pro = Profile(user=instance, bio="")
+    pro.save()
+
+
+
 class Corpus(models.Model):
   name = models.CharField(max_length=32)
   slug = models.CharField(max_length=32, unique=True)
+  color = models.CharField(max_length=6, blank=True, null=True)
+
   date_created = models.DateTimeField(auto_now=True)
   date_last_modified = models.DateTimeField(auto_now_add=True)
 
@@ -97,6 +125,10 @@ class Corpus(models.Model):
     path = self.get_path()
     if not os.path.exists(path):
       os.makedirs(path)
+
+    if self.pk is None or len(self.color) == 0:
+      self.color = helper_colour()[0]['hex']
+    
     super(Corpus, self).save()
 
 
@@ -115,6 +147,10 @@ class Corpus(models.Model):
         'owners': [helper_user_to_dict(u) for u in self.owners.all()]
       })
     return d
+
+
+  class Meta:
+    verbose_name_plural = 'corpora'
 
 
 

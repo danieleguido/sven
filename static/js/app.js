@@ -38,7 +38,10 @@ angular.module('sven', [
   'sven.controllers',
   'd3'
 ]).
-config(['$routeProvider', function($routeProvider) {
+config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider, $cookies) {
+  $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+  $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+
   $routeProvider.when('/', {templateUrl: '/static/partials/corpus.list.html', controller: 'indexCtrl'});
   $routeProvider.when('/corpus/:id', {templateUrl: '/static/partials/corpus.html', controller: 'corpusCtrl'});
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});

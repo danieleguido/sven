@@ -45,6 +45,8 @@ button, a.boo {
    -moz-transition: background 200ms ease-in-out;
      -o-transition: background 200ms ease-in-out;
         transition: background 200ms ease-in-out; /* easeOutQuint */
+
+
 }
 
 
@@ -70,7 +72,7 @@ label{
 @mod2: 36px;
 @margin: @mod * 4;
 @header_height: @mod * 6;
-@sidebar_width: @mod * 24;
+@sidebar_width: @mod * 36;
 
 header{
   margin: 0;
@@ -122,7 +124,7 @@ sidebar{
   
   >.wrapper{
     margin: @header_height + 2px 0 0 @margin;
-    padding: @margin;
+    padding: @mod*2;//@margin;
     border-right: 1px solid #EADBC4;
     min-height: 400px;
   }

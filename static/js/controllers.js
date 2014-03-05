@@ -1,5 +1,8 @@
 'use strict';
 
+var CONTROLLER_STATUS_AVAILABLE = 'available',
+    CONTROLLER_STATUS_WORKING = 'busy';
+
 /* Controllers */
 
 angular.module('sven.controllers', [])
@@ -33,13 +36,27 @@ angular.module('sven.controllers', [])
   
   */
   .controller('corpusListCtrl', ['$scope', 'CorpusListFactory', function($scope, CorpusListFactory) {
-    $scope.items =[]
+    $scope.items = [];
+    $scope.status = CONTROLLER_STATUS_WORKING;
 
     CorpusListFactory.query(function(data){
       console.log(data)
       $scope.howmany = data.meta.total_count;
       $scope.items = data.objects;
+      $scope.status = CONTROLLER_STATUS_AVAILABLE;
     });
+
+    $scope.addTodo = function(){
+      if($scope.status != CONTROLLER_STATUS_AVAILABLE)
+        return;
+      $scope.status = CONTROLLER_STATUS_WORKING;
+
+      CorpusListFactory.save({}, {
+        name: $scope.name,
+      }, function(data){
+        alert(data);
+      });
+    }
   }])
   .controller('corpusCtrl', ['$scope','$routeParams','CorpusFactory', 'DocumentListFactory', function($scope, $routeParams, CorpusFactory, DocumentListFactory) {
     CorpusFactory.query({id: $routeParams.id}, function(data){

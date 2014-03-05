@@ -54,21 +54,21 @@ def documents(request, corpus_pk):
 
 @login_required
 def corpora(request):
-  result = Epoxy(request)
+  epoxy = Epoxy(request)
 
-  if result.is_POST():
-    form = CorpusForm(request.REQUEST)
+  if epoxy.is_POST():
+    form = CorpusForm(epoxy.data)
     if form.is_valid():
       corpus = form.save(commit=False)
       corpus.save()
       corpus.owners.add(request.user)
       corpus.save()
-      result.item(corpus)
+      epoxy.item(corpus)
     else:
-      return result.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
-  result.queryset(Corpus.objects.filter(owners__in=[request.user]))
-  return result.json()
+  epoxy.queryset(Corpus.objects.filter(owners__in=[request.user]))
+  return epoxy.json()
 
 
 
