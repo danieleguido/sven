@@ -42,8 +42,10 @@
           <li>add project <i class="fa fa-plus"></i></li>
         </ul>
 
-        <div ng-repeat="corpus in items">
-          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}}</a></div>
+        <div class="corpus" ng-repeat="corpus in items">
+          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}}</a>
+            <div class="name">{{corpus.count.documents}} documents, {{corpus.count.owners}} users</div>
+          </div>
         </div>
         {% endverbatim %}
       </div>

@@ -54,7 +54,8 @@ angular.module('sven.controllers', [])
       CorpusListFactory.save({}, {
         name: $scope.name,
       }, function(data){
-        alert(data);
+        $scope.status = CONTROLLER_STATUS_AVAILABLE;
+        $scope.items = data.objects;
       });
     }
   }])

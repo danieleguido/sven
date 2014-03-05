@@ -140,7 +140,11 @@ class Corpus(models.Model):
     d = {
       'id': self.id,
       'name': self.name,
-      'slug': self.slug
+      'slug': self.slug,
+      'count':{
+        'documents': self.documents.count(),
+        'owners': self.owners.count()
+      }
     }
     if deep:
       d.update({

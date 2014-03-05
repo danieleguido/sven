@@ -124,7 +124,7 @@ sidebar{
   
   >.wrapper{
     margin: @header_height + 2px 0 0 @margin;
-    padding: @mod*2;//@margin;
+    padding: 0;//@mod*2;//@margin;
     border-right: 1px solid #EADBC4;
     min-height: 400px;
   }
@@ -152,6 +152,8 @@ sidebar{
   }
 }
 
+
+
 #login{
   margin: 0 auto;
   width: @mod * 40;
@@ -160,6 +162,8 @@ sidebar{
     margin: @mod*4 0;
   }
 }
+
+
 
 #user{
   position: absolute;
@@ -185,5 +189,16 @@ sidebar{
   .username{
     float: left;
     margin-left: @mod*2;
+  }
+}
+
+
+
+.corpus{
+  padding: @mod @mod @mod @mod*2;
+  border-top: 1px solid #EADBC4;
+
+  .name{
+    color: #b7b7b7;
   }
 }
