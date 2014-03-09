@@ -6,7 +6,11 @@ from django.db import models
 from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.utils.timezone import make_aware, utc
 from django.dispatch import receiver
+
+
+
 
 
 
@@ -184,21 +188,11 @@ class Segment( models.Model):
     (NP, u'noun phrase'),
   )
 
-  EN = 'en',
-  FR = 'fr',
-  NL = 'nl'
-
-  LANGUAGE_CHOICES = (
-    (EN, u'english'),
-    (FR, u'french'),
-    (NL, u'dutch'),
-  )
-
   content = models.CharField(max_length=128)
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster
 
-  language  = models.CharField(max_length=2, choices=LANGUAGE_CHOICES)
+  language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
   status    = models.CharField(max_length=3, choices=STATUS_CHOICES, default=IN)
   
   partofspeech = models.CharField(max_length=3, choices=POS_CHOICES)
@@ -225,11 +219,16 @@ class Document(models.Model):
   slug = models.CharField(max_length=128, unique=True)
   corpus = models.ForeignKey(Corpus, related_name='documents')
   
-  raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True)
-  mimetype = models.CharField(max_length = 100)
+  language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
 
+  raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True)
+  mimetype = models.CharField(max_length=100)
+
+  date = models.DateTimeField(blank=True, null=True)
   date_created = models.DateTimeField(auto_now=True)
   date_last_modified = models.DateTimeField(auto_now_add=True)
+
+  url = models.URLField(blank=True, null=True) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
 
@@ -239,6 +238,9 @@ class Document(models.Model):
       'id': self.id,
       'name': self.name,
       'slug': self.slug,
+      'mimetype': self.mimetype,
+      'language': self.language,
+      'date': self.date_created.strftime("%Y-%m-%d"),
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat()
     }
@@ -263,9 +265,15 @@ class Document(models.Model):
 
 
   def save(self, **kwargs):
+    # understanding datetime included in file title... YYYY MM DD
+    date = re.search(r'(?P<year>\d{4})[\-\./]*(?P<month>\d{2})[\-\./]*(?P<day>\d{2})',self.name)
+    if date:
+      self.date = make_aware(datetime.strptime('%s-%s-%s' % (date.group('year'), date.group('month'), date.group('day')), '%Y-%m-%d'), utc)
+
     self.slug = helper_uuslug(model=Document, instance=self, value=self.name)
     if self.raw:
       self.mimetype = mimetypes.guess_type(self.raw.path)[0]
+
     super(Document, self).save()
   
 

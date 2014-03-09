@@ -20,7 +20,7 @@
       <h1>{{ SVEN_NAME }}</h1>
       <div id="user" ng-controller="profileCtrl">
         {% verbatim %}
-        <div class="picture"><img src="{{profile.picture}}"></div>
+        <div class="picture"><img ng-src="{{profile.picture}}"></div>
         {% endverbatim %}
         <div class="username">
           {{user.username}} / 
@@ -63,6 +63,7 @@
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
+  <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script> 
   <script src="{{ STATIC_URL }}/js/app.js"></script>
   <script src="{{ STATIC_URL }}/js/services.js"></script>
   <script src="{{ STATIC_URL }}/js/controllers.js"></script>

@@ -103,4 +103,26 @@ def profile(request, pk=None):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   return epoxy.item(pro, deep=True).json()
-  
+
+
+
+@login_required
+def document_upload(request, corpus_pk):
+  try:
+    corpus = Corpus.objects.get(pk=corpus_pk)
+  except Corpus.DoesNotExist, e:
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  f = request.FILES['file']
+  d = Document(corpus=corpus, raw=f, name=f.name)
+  d.save()
+  print d
+
+  epoxy = Epoxy(request)
+  return epoxy.json()
+
+
+
+@login_required
+def download(request, corpus_pk):
+  pass

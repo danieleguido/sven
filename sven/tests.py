@@ -78,20 +78,26 @@ class CorpusTest(TestCase):
 
 
 class DocumentTest(TestCase):
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    self.corpus.owners.add(self.user)
+
+
+  def test_create_document_having_datetime(self):
+    document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
+    document.save()
+    self.assertEqual(document.date.isoformat(), '2014-03-05T00:00:00+00:00')
+
+
   def test_create_document(self):
-    user = User(username=u'new-user')
-    user.save()
-
-    corpus = Corpus(name=u'----test----')
-    corpus.save()
-    corpus.owners.add(user)
-    corpus.save()
-
     # add a dummy raw document, txt
-    document = Document(corpus=corpus)
+    document = Document(corpus=self.corpus)
     document.raw.save('test.txt', ContentFile(u'Mary had a little lamb.'.encode('UTF-8')), save=False)
     document.save()
-    self.assertEqual(True, True)
+    self.assertEqual(document.text(), u'Mary had a little lamb.'.encode('UTF-8'))
 
 
 

@@ -51,7 +51,7 @@ def login_view(request):
     login_message['invalid_fields'] = form.errors
   
   d = _shared_context( request, tags=[ "login" ], d=login_message )
-  return render_to_response('millibank/login.html', RequestContext(request, d ) )
+  return render_to_response('sven/login.html', RequestContext(request, d ) )
 
 
 

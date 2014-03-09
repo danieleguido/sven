@@ -1,8 +1,25 @@
 <div>
+  <d
   <h2>{{corpus.name}}</h2>
   {{howmany}}
-  <div d3-bars bar-height="20" bar-padding="5"></div>
-  <div ng-repeat="document in documents">
-    <div><a href="#/document/{{document.id}}">{{document.name}} #{{document.id}}</a></div>
-  </div>
+   <input type="text" ng-model="myModelObj">
+  <input type="file" ng-file-select="onFileSelect($files)" >
+  <input type="file" ng-file-select="onFileSelect($files)" multiple>
+  <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
+        ng-show="dropSupported">drop files here</div>
+  <div ng-file-drop-available="dropSupported=true" 
+        ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+  <button ng-click="upload.abort()">Cancel Upload</button>
+  <!-- div d3-bars bar-height="20" bar-padding="5"></div -->
+  
+
+  <ul class="plain-list">
+    <li ng-repeat="document in documents">
+      <div class="g-1">{{document.id}}</div>
+      <div class="g-1">{{document.language}}</div>
+      <div class="g-1">{{document.date}}</div>
+      <div class="g-4"><a href="#/document/{{document.id}}">{{document.name}}</a></div>
+      <div class="g-1">{{document.mimetype}}</div>
+    </li>
+  </ul>
 </div>

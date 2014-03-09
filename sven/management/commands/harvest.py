@@ -45,7 +45,10 @@ class Command(BaseCommand):
       #print doc.name, doc.text()
       content = doc.text()
 
-      language, probability = langid.classify(content[:255])
+      if not doc.language:
+        language, probability = langid.classify(content[:255])
+        doc.language = language
+        doc.save()
 
       segments_en = distill(content, language=language)
 

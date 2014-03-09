@@ -1,5 +1,6 @@
 @import 'base.less';
 
+@black:  #001A25;
 
 html {
   font-size: 62.5%;
@@ -13,7 +14,7 @@ body{
   height:100%;
   padding: 0;
   margin: 0;
-  color: #001A25;
+  color: @black;
 }
 
 
@@ -201,4 +202,36 @@ sidebar{
   .name{
     color: #b7b7b7;
   }
+}
+
+
+ul.plain-list{
+  margin: @margin;
+  
+  li{
+    overflow: auto;
+  width: 100%;
+    clear:both;
+    &:nth-child(odd){
+      background: lighten(#EADBC4, 10%);
+    }
+  }
+}
+
+// # pseudogrid
+.g{
+  float:left;
+}
+
+.g-1{
+  float:left;
+  width:10%;
+}
+.g-4{
+  float:left;
+  width:40%;
+}
+.g-4{
+  float:left;
+  width:40%;
 }
