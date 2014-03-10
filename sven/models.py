@@ -2,7 +2,8 @@ import re, os, signal, mimetypes, shutil, urllib2, json, subprocess
 from datetime import datetime 
 
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
+from django.db.models import Count
 from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -231,6 +232,7 @@ class Document(models.Model):
   url = models.URLField(blank=True, null=True) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
+
 
 
   def json(self, deep=False):

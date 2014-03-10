@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import math
 import pattern.en, pattern.nl, pattern.fr
 from pattern.search import search
+from pattern.vector import LEMMA, Document as PatternDocument
 
 
 NL_STOPWORDS = [u"aan",u"af",u"al",u"alles",u"als",u"altijd",u"andere",u"ben",u"bij",u"daar",u"dan",u"dat",u"de",u"der",u"deze",u"die",u"dit",u"doch",u"doen",u"door",u"dus",u"een",u"eens",u"en",u"er",u"ge",u"geen",u"geweest",u"haar",u"had",u"heb",u"hebben",u"heeft",u"hem",u"het",u"hier",u"hij",u"hij ",u"hoe",u"hun",u"iemand",u"iets",u"ik",u"in",u"is",u"ja",u"je",u"je ",u"kan",u"kon",u"kunnen",u"maar",u"me",u"meer",u"men",u"met",u"mij",u"mijn",u"moet",u"na",u"naar",u"niet",u"niets",u"nog",u"nu",u"of",u"om",u"omdat",u"onder",u"ons",u"ook",u"op",u"over",u"reeds",u"te",u"tegen",u"toch",u"toen",u"tot",u"u",u"uit",u"uw",u"van",u"veel",u"voor",u"want",u"waren",u"was",u"wat",u"we",u"wel",u"werd",u"wezen",u"wie",u"wij",u"wil",u"worden",u"wordt",u"zal",u"ze",u"zei",u"zelf",u"zich",u"zij",u"zijn",u"zo",u"zonder",u"zou"]
@@ -10,11 +12,18 @@ FR_STOPWORDS = [u"alors",u"au",u"aucuns",u"un",u"aussi",u"autre",u"avant",u"avec
 
 
 
+def tf_filter(tf):
+  return float(tf) > 0.0
+
+
+
 def distill(content="",language="en", stopwords=EN_STOPWORDS, query='NP'):
   '''
   Return a list of tuples: [("NP", "NPlemmata"),]
   '''
   language=language.lower()
+
+  pattern_document = PatternDocument(content, language=language, exclude=stopwords, stemmer=LEMMA)
 
   if language == "nl":
     text = pattern.nl.Text( pattern.nl.parse(content, lemmata=True))
@@ -37,7 +46,11 @@ def distill(content="",language="en", stopwords=EN_STOPWORDS, query='NP'):
         words.append(word.lemma)
 
       if len(words):
-        segments.append((match.string, '-'.join(sorted(set(words))),))
+        tfs = filter(tf_filter, [pattern_document.tf(l) for l in words])
+        tf = sum(tfs)/float(len(tfs)) if len(tfs) > 0 else 0.0
+        wf = math.log(tf+1.0, 2) if tf > 0.0 else 0.0
+        segments.append((match.string, '-'.join(sorted(set(words))), tf, wf))
+
   return segments
 
 

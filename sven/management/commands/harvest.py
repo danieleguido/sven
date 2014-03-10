@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
+from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS
 from sven.models import Corpus, Document, Job, Segment, Document_Segment
 
 
@@ -42,6 +42,8 @@ class Command(BaseCommand):
       raise CommandError("\n    ouch. Try again, corpus does not have any job connected....!")
 
     for doc in corpus.documents.all():
+      job.document = doc
+      job.save()
       #print doc.name, doc.text()
       content = doc.text()
 
@@ -50,13 +52,18 @@ class Command(BaseCommand):
         doc.language = language
         doc.save()
 
-      segments_en = distill(content, language=language)
+      if doc.language == settings.FR:
+        stopwords = FR_STOPWORDS
+      elif doc.language == settings.NL:
+        stopwords = NL_STOPWORDS
+      else:
+        stopwords = EN_STOPWORDS
 
-      for i,(match, lemmata) in enumerate(segments_en):
+      segments = distill(content, language=language, stopwords=stopwords)
+      
+      for i,(match, lemmata, tf, wf) in enumerate(segments):
         seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=language)
-        dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
-
-      # lets calculate tf of that segment
+        dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg, tf=tf, wf=wf)
 
     job.completion = .25
     job.save()

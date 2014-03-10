@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
-from sven.models import Segment, Corpus, Document, Job
+from sven.models import Segment, Corpus, Document, Job, Document_Segment
 
 from django.test.client import RequestFactory
 import glue.api
@@ -85,6 +85,9 @@ class DocumentTest(TestCase):
     self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
     self.corpus.owners.add(self.user)
 
+    # adding two documents
+
+
 
   def test_create_document_having_datetime(self):
     document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
@@ -100,12 +103,35 @@ class DocumentTest(TestCase):
     self.assertEqual(document.text(), u'Mary had a little lamb.'.encode('UTF-8'))
 
 
+  def test_computate_tf(self):
+    from pattern.vector import LEMMA, Document as PatternDocument
+
+    doc_a = Document(corpus=self.corpus)
+    doc_a.raw.save('alice_a.txt', ContentFile(u' She follows it down a rabbit hole when suddenly she falls a long way to a curious hall with many locked doors of all sizes. She finds a small key to a door too small for her to fit through, but through it she sees an attractive garden.'.encode('UTF-8')), save=False)
+    doc_a.save()
+
+    doc_b = Document(corpus=self.corpus)
+    doc_b.raw.save('alice_b.txt', ContentFile(u' She then discovers a bottle on a table labelled "DRINK ME," the contents of which cause her to shrink too small to reach the key which she has left on the table. She eats a cake with "EAT ME" written on it in currants as the chapter closes.'.encode('UTF-8')), save=False)
+    doc_b.save()
+
+    content_a = doc_a.text()
+
+    segments_a = distill(content=content_a)
+
+    for i,(match, lemmata, tf, wf) in enumerate(segments_a):
+      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN)
+      dos, created = Document_Segment.objects.get_or_create(document=doc_a, segment=seg, tf=tf, wf=wf)
+
+    pass
+
+
+
 
 class SegmentTests(TestCase):
   def test_save_segments(self):
     segments_en = distill("Mary had a little lamb and it was really gorgeous. None. Mary had a little lamb and it was really gorgeous. None.", language='en', query='NP')
    
-    for i,(match, lemmata) in enumerate(segments_en):
+    for i,(match, lemmata, tf, wf) in enumerate(segments_en):
       s, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language='en')
 
     self.assertEqual(Segment.objects.count(), 3)
@@ -119,14 +145,10 @@ class DistillerTests(TestCase):
     '''
     segments_en = distill("Mary had a little lamb and it was really gorgeous. None.")
     segments_fr = distill("Mary avait un agneau et il etait vraiment sympa. Personne.", language="fr", stopwords=FR_STOPWORDS)
-
+    print segments_en + segments_fr
     self.assertEqual(segments_en + segments_fr, [
-      (u'Mary', u'mary'),
-      (u'a little lamb', u'lamb-little'),
-      (u'None', u'none'),
-      (u'Mary', u'mary'),
-      (u'un agneau et il', u'agneau'),
-      (u'Personne', u'personne')
+      (u'Mary', u'mary', 0.25, 0.32192809488736235), (u'a little lamb', u'lamb-little', 0.25, 0.32192809488736235), (u'None', u'none', 0.0, 0.0), (u'Mary', u'mary', 0.2, 0.2630344058337938), (u'un agneau et il', u'agneau', 0.2, 0.2630344058337938), (u'Personne', u'personne', 0.0, 0.0),
+
     ])
 
 
