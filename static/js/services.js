@@ -6,6 +6,11 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('sven.services', ['ngResource'])
+   .factory('NotificationFactory', function($resource) {
+    return $resource('/api/notification', {}, {
+        query: { method: 'GET' },
+    });
+  })
   .factory('ProfileFactory', function($resource) {
     return $resource('/api/profile', {}, {
         query: { method: 'GET' },

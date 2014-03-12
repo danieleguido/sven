@@ -18,6 +18,7 @@
     <div class="wrapper">
       <div class="bottom-line"></div>
       <h1>{{ SVEN_NAME }}</h1>
+      <div ng-controller="notificationCtrl"></div>
       <div id="user" ng-controller="profileCtrl">
         {% verbatim %}
         <div class="picture"><img ng-src="{{profile.picture}}"></div>
@@ -39,11 +40,12 @@
           <input type="text" ng-model="name" />
         </form>
         <ul class="nav">
-          <li>add project <i class="fa fa-plus"></i></li>
+          <li>add project <i class="fa fa-plus-circle"></i></li>
         </ul>
 
         <div class="corpus" ng-repeat="corpus in items">
-          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}}</a>
+          <div style="float: right; height: 12px; width: 24px; background-color: {{corpus.color}}"></div>
+          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}} {{corpus.color}}</a>
             <div class="name">{{corpus.count.documents}} documents, {{corpus.count.owners}} users</div>
           </div>
         </div>

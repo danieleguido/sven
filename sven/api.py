@@ -19,6 +19,15 @@ def home(request):
 
 
 
+def notification(request):
+  '''
+  Tail
+  '''
+  epoxy = Epoxy(request)
+  return epoxy.json()
+
+
+
 def not_found(request):
   '''
   Help or manual should be placed here

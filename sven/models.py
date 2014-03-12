@@ -146,6 +146,7 @@ class Corpus(models.Model):
       'id': self.id,
       'name': self.name,
       'slug': self.slug,
+      'color': '#%s' % self.color,
       'count':{
         'documents': self.documents.count(),
         'owners': self.owners.count()

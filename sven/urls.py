@@ -18,6 +18,8 @@ apipatterns = patterns('sven.api',
   url(r'^profile$', 'profile', name='sven_api_profile'), # just single profile for security sake!
   url(r'^profile/(?P<pk>\d+)$', 'profile', name='sven_api_staff_profile'), # just single profile for security sake!
   
+  url(r'^notification$', 'notification', name='sven_api_notification'),
+
   url(r'^.*$', 'not_found', name='sven_api_not_found'),
 )
 

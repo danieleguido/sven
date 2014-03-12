@@ -16,6 +16,23 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
   }])
   /*
+    
+    System status controller
+    ====
+
+  */
+  .controller('notificationCtrl', ['$scope', 'NotificationFactory', '$timeout', function($scope, NotificationFactory, $timeout) {
+    $scope.notification = {};
+    // ugly ajax polling...
+    (function tick() {
+        NotificationFactory.query(function(data){
+          //console.log(data);
+          $timeout(tick, 2617);
+        });
+    })();
+
+  }])
+  /*
 
     Handle the profile view.
     ===
