@@ -21,15 +21,27 @@ angular.module('sven.controllers', ['angularFileUpload'])
     ====
 
   */
-  .controller('notificationCtrl', ['$scope', 'NotificationFactory', '$timeout', function($scope, NotificationFactory, $timeout) {
-    $scope.notification = {};
+  .controller('notificationCtrl', ['$rootScope', 'NotificationFactory', '$timeout', function($rootScope, NotificationFactory, $timeout) {
+    $rootScope.notification = {};
+    $rootScope.activity = '.';
     // ugly ajax polling...
     (function tick() {
+        $rootScope.activity = '..';
         NotificationFactory.query(function(data){
-          //console.log(data);
+          $rootScope.activity = '...';
+          $rootScope.notification = data;
           $timeout(tick, 2617);
         });
     })();
+
+  }])
+  /*
+    
+    System log controller (cfr. notificationCtrl)
+    ====
+
+  */
+  .controller('logCtrl', ['$rootScope', '$scope', function($rootScope, $scope){
 
   }])
   /*

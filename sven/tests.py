@@ -5,6 +5,7 @@ import pattern.en, pattern.fr
 
 from pattern.search import search
 
+from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
@@ -114,13 +115,17 @@ class DocumentTest(TestCase):
     doc_b.raw.save('alice_b.txt', ContentFile(u' She then discovers a bottle on a table labelled "DRINK ME," the contents of which cause her to shrink too small to reach the key which she has left on the table. She eats a cake with "EAT ME" written on it in currants as the chapter closes.'.encode('UTF-8')), save=False)
     doc_b.save()
 
-    content_a = doc_a.text()
-
-    segments_a = distill(content=content_a)
-
+    segments_a = distill(content=doc_a.text())
+    print segments_a
     for i,(match, lemmata, tf, wf) in enumerate(segments_a):
       seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN)
       dos, created = Document_Segment.objects.get_or_create(document=doc_a, segment=seg, tf=tf, wf=wf)
+
+    segments_b = distill(content=doc_b.text())
+    print segments_b
+    for i,(match, lemmata, tf, wf) in enumerate(segments_b):
+      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN)
+      dos, created = Document_Segment.objects.get_or_create(document=doc_b, segment=seg, tf=tf, wf=wf)
 
     pass
 

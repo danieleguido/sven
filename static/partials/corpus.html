@@ -1,18 +1,22 @@
-<div>
-  <d
-  <h2>{{corpus.name}}</h2>
-  {{howmany}}
-   <input type="text" ng-model="myModelObj">
-  <input type="file" ng-file-select="onFileSelect($files)" >
+<div class="view-nav">
+  <div class="wrapper">
+
+    <div style="float: left; margin-right: 24px;width: 36px; height: 36px; border-radius: 36px; background-color: {{corpus.color}}">
+    </div>
+  
+    <h2>{{corpus.name}}</h2>
+    <h3>{{howmany}} documents, {{corpus.owners.length}} users</h3>
+  <!-- input type="text" ng-model="myModelObj" -->
   <input type="file" ng-file-select="onFileSelect($files)" multiple>
   <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
         ng-show="dropSupported">drop files here</div>
   <div ng-file-drop-available="dropSupported=true" 
         ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
-  <button ng-click="upload.abort()">Cancel Upload</button>
   <!-- div d3-bars bar-height="20" bar-padding="5"></div -->
-  
-
+  </div>
+</div>
+<div class="view">
+  <div class="wrapper">
   <ul class="plain-list">
     <li ng-repeat="document in documents">
       <div class="g-1">{{document.id}}</div>
@@ -22,4 +26,5 @@
       <div class="g-1">{{document.mimetype}}</div>
     </li>
   </ul>
+  </div>
 </div>

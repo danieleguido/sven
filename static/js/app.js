@@ -45,5 +45,7 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $routeProvider.when('/', {templateUrl: '/static/partials/corpus.list.html', controller: 'indexCtrl'});
   $routeProvider.when('/corpus/:id', {templateUrl: '/static/partials/corpus.html', controller: 'corpusCtrl'});
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});
+  $routeProvider.when('/log', {templateUrl: '/static/partials/log.html', controller: 'logCtrl'});
+  
   $routeProvider.otherwise({redirectTo: '/'});
 }]);

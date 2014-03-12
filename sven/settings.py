@@ -111,3 +111,26 @@ LANGUAGE_CHOICES = (
   (NL, u'dutch'),
   (IT, u'italian'),
 )
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+      'file': {
+          'level': 'DEBUG',
+          'class': 'logging.FileHandler',
+          'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+      },
+    },
+    'loggers': {
+        'sven': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
+LOG_FILE = LOGGING['handlers']['file']['filename']

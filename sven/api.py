@@ -1,3 +1,5 @@
+import subprocess
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -7,7 +9,6 @@ from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm
 from sven.models import Corpus, Document, Profile
-
 
 
 def home(request):
@@ -24,6 +25,8 @@ def notification(request):
   Tail
   '''
   epoxy = Epoxy(request)
+  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE]))
+
   return epoxy.json()
 
 

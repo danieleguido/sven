@@ -130,7 +130,7 @@ sidebar{
     min-height: 400px;
   }
 
-  .input[type=text]{
+  input[type="text"]{
     width: 139px;
     margin: 0;
     padding: 0;
@@ -152,8 +152,20 @@ sidebar{
 
   .view-nav{
     border-bottom: 1px solid #EADBC4;
+    
     >.wrapper{
-      padding: @margin;
+      padding: @margin/2;
+      
+      h2{
+        font-weight: bold;
+        font-size: 1.6rem;
+      }
+
+      h3{
+        color: #b7b7b7;
+        font-size: 1.3rem;
+        line-height: 1rem;
+      }
     }
   }
 
@@ -161,6 +173,14 @@ sidebar{
     >.wrapper{
       padding: @margin;
     }
+  }
+
+  .blackboard{
+    background: #151515;
+    color: white;
+    font: 1.1rem/1.618 'Source Code Pro';
+    padding: 12px 18px;
+    min-height: @mod * @mod * @mod;
   }
 }
 
