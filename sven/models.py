@@ -243,7 +243,7 @@ class Document(models.Model):
       'slug': self.slug,
       'mimetype': self.mimetype,
       'language': self.language,
-      'date': self.date_created.strftime("%Y-%m-%d"),
+      'date': self.date.strftime("%Y-%m-%d"),
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat()
     }
