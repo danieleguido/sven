@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Django settings for ss project.
 
@@ -116,11 +118,20 @@ LANGUAGE_CHOICES = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+      'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d «%(message)s»'
+      },
+      'simple': {
+            'format': '%(asctime)s «%(message)s» %(module)s.%(funcName)s (%(lineno)s)'
+      },
+    },
     'handlers': {
       'file': {
           'level': 'DEBUG',
           'class': 'logging.FileHandler',
           'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+          'formatter': 'simple'
       },
     },
     'loggers': {
