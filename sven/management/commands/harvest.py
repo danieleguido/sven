@@ -1,4 +1,4 @@
-import os, time, langid
+import os, time, langid, logging
 from optparse import make_option
 
 from django.conf import settings
@@ -7,6 +7,10 @@ from django.db import transaction
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS
 from sven.models import Corpus, Document, Job, Segment, Document_Segment
+
+
+
+logger = logging.getLogger("sven")
 
 
 
@@ -27,14 +31,17 @@ class Command(BaseCommand):
 
   @transaction.atomic
   def handle(self, *args, **options):
-    self.stdout.write("\n------------------------------------------\n\n    welcome to sven script\n    ==================================\n\n\n\n")
-    
+    # self.stdout.write("\n------------------------------------------\n\n    welcome to sven script\n    ==================================\n\n\n\n")
+    logger.debug('executing harvest...')
     try:
       corpus = Corpus.objects.get(id=options['corpus'])
     except Corpus.DoesNotExist, e:
+      logger.exception(e)
       raise CommandError("\n    ouch. Try again, corpus %s does not exist!" % options['corpus'])
     
-    self.stdout.write(corpus.name)
+    # self.stdout.write(corpus.name)
+
+    logger.debug('%s' % corpus)
 
     try:
       job = Job.objects.get(corpus=corpus)
@@ -51,6 +58,8 @@ class Command(BaseCommand):
         language, probability = langid.classify(content[:255])
         doc.language = language
         doc.save()
+      else:
+        language = doc.language
 
       if doc.language == settings.FR:
         stopwords = FR_STOPWORDS
@@ -62,13 +71,13 @@ class Command(BaseCommand):
       segments = distill(content, language=language, stopwords=stopwords)
       
       for i,(match, lemmata, tf, wf) in enumerate(segments):
-        seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=language)
+        seg, created = Segment.objects.get_or_create(content=match, language=language, partofspeech=Segment.NP, defaults={'lemmata': lemmata, 'cluster': lemmata})
         dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg, tf=tf, wf=wf)
 
     job.completion = .25
     job.save()
 
-
+    logger.debug('TF completed')
     # let's calculate tfidf
 
 

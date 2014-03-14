@@ -1,4 +1,4 @@
-import re, os, signal, mimetypes, shutil, urllib2, json, subprocess
+import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging
 from datetime import datetime 
 
 from django.conf import settings
@@ -11,6 +11,8 @@ from django.utils.timezone import make_aware, utc
 from django.dispatch import receiver
 
 
+
+logger = logging.getLogger("sven")
 
 
 
@@ -308,18 +310,19 @@ class Job(models.Model):
 
   def is_alive(self):
     s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True).split('\n')
-    print s
+    #print s
     for g in s:
       if re.search(r'\d\s%s' % self.cmd, g) is None:
         return True
+    logger.debug(self.cmd)
     return False
 
 
   @staticmethod
   def is_busy():
-    print 'is busy???'
     running_jobs = Job.objects.filter(status__in=[Job.RUNNING, Job.STARTED])
-    print running_jobs.count()
+    logger.debug('checking already working jobs')
+      
     if running_jobs.count() > 0:
       for r in running_jobs:
         if r.is_alive():
@@ -328,8 +331,10 @@ class Job(models.Model):
           r.status = Job.LOST
           r.save()
       # if reached the end of the loop, all running job found are lost... so Job can do something again!
+      logger.debug('ouch')
       return True
     else:
+      logger.debug('no jobs running...')
       return False
 
 
@@ -344,7 +349,9 @@ class Job(models.Model):
       return None
     popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
     
-    job = Job(corpus=corpus, status=Job.STARTED, cmd=' '.join(popen_args[:-1]))
+    job, created = Job.objects.get_or_create(corpus=corpus)
+    job.status = Job.STARTED
+    job.cmd = ' '.join(popen_args[:-1])
     job.save()
 
     popen_args.append(str(job.id))
