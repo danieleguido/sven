@@ -13,7 +13,7 @@ apipatterns = patterns('sven.api',
   url(r'^corpus/(?P<pk>\d+)$', 'corpus', name='sven_api_corpus'),
   url(r'^corpus/(?P<corpus_pk>\d+)/document$', 'documents', name='sven_api_documents'),
   url(r'^corpus/(?P<corpus_pk>\d+)/upload$', 'document_upload', name='sven_api_document_upload'),
-  
+  url(r'^corpus/(?P<corpus_pk>\d+)/start/(?P<cmd>[a-z\d]+)$', 'start', name='sven_api_start'),  # execute a job like management/start.py
 
   url(r'^profile$', 'profile', name='sven_api_profile'), # just single profile for security sake!
   url(r'^profile/(?P<pk>\d+)$', 'profile', name='sven_api_staff_profile'), # just single profile for security sake!

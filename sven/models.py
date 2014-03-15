@@ -348,15 +348,13 @@ class Job(models.Model):
     if Job.is_busy():
       return None
     popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
-    
+    logger.debug('starting %s' % command)
     job, created = Job.objects.get_or_create(corpus=corpus)
     job.status = Job.STARTED
     job.cmd = ' '.join(popen_args[:-1])
     job.save()
 
-    popen_args.append(str(job.id))
-
-    print job.cmd
+    popen_args.append(str(corpus.id))
 
     s = subprocess.Popen(popen_args, stdout=None, stderr=None)
     job.pid = s.pid
@@ -367,7 +365,9 @@ class Job(models.Model):
 
 
   def stop(self):
+    logger.debug('killing pid %s' % self.pid)
     os.kill(self.pid, signal.SIGKILL)
+    logger.debug('killed.')
     self.status=Job.COMPLETED
     self.save()
 

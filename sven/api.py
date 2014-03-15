@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,8 +8,12 @@ from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPT
 from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm
-from sven.models import Corpus, Document, Profile
+from sven.models import Corpus, Document, Profile, Job
 
+
+logger = logging.getLogger("sven")
+
+   
 
 def home(request):
   '''
@@ -38,6 +42,25 @@ def not_found(request):
   result = Epoxy(request)
   result.throw_error(error='function does not exist')
   return result.json()
+
+
+
+@login_required
+def start(request, corpus_pk, cmd):
+  epoxy = Epoxy(request)
+
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return result.throw_error(error=form.errors, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  logger.debug('starting job on corpus %s' % corpus_pk )
+    
+  job = Job.start(corpus=c, command=cmd)
+  if job is not None:
+    epoxy.item(job)
+  return epoxy.json()
+
 
 
 @login_required

@@ -10,18 +10,22 @@
       <h2>{{corpus.name}}</h2>
       <h3>{{howmany}} documents, {{corpus.owners.length}} users</h3>
     </div>
+    <div style="float:left; margin: 2px 24px">
+      <button ng-click="startHarvest()">start harvesting</button>
+    </div>
     <div style="float: left;">
       <!-- input type="text" ng-model="myModelObj" -->
-  <!-- input type="file" ng-file-select="onFileSelect($files)" multiple -->
-  <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
-        ng-show="dropSupported">drop files here</div>
-  <div ng-file-drop-available="dropSupported=true" 
-        ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
-  <!-- div d3-bars bar-height="20" bar-padding="5"></div -->
-  </div>
+      <!-- input type="file" ng-file-select="onFileSelect($files)" multiple -->
+      <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
+            ng-show="dropSupported">drop files here</div>
+      <div ng-file-drop-available="dropSupported=true" 
+            ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+      <!-- div d3-bars bar-height="20" bar-padding="5"></div -->
     </div>
     
-  <div style='clear: both'></div>
+    <div class="clear"></div>
+    <div class="bottom-line"></div>
+  </div>
 </div>
 <div class="view">
   <div class="wrapper">

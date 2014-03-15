@@ -1,4 +1,5 @@
 @import 'base.less';
+@import 'plugins.less';
 
 @black:  #001A25;
 
@@ -74,6 +75,7 @@ label{
 @margin: @mod * 4;
 @header_height: @mod * 6;
 @sidebar_width: @mod * 36;
+@nav_height:  @mod * 12 + 2;
 
 header{
   margin: 0;
@@ -100,16 +102,6 @@ header{
     text-transform: uppercase;
     margin-left: @margin/2;
     color: #D70206;
-  }
-
-  .bottom-line{
-    position: absolute;
-    bottom: 1px;
-    left: 0;
-    background-color: #181818;
-    height: 1px;
-    width: 100%;
-
   }
 }
 
@@ -143,6 +135,16 @@ sidebar{
 }
 
 
+footer{
+  position: fixed;
+  bottom: -@mod*12 + 24px;
+  left: 0;
+  width: 100%;
+  height: @mod*12;
+  background-color: @black;
+}
+
+
 .main{
   margin: @header_height @margin @header_height @sidebar_width;
  
@@ -151,9 +153,18 @@ sidebar{
   }
 
   .view-nav{
-    border-bottom: 1px solid #EADBC4;
-    
+    position: fixed;
+    width: 100%;
+    left: 0;
+    top: @header_height;
+    background: white;
+    height: @nav_height;
+      
     >.wrapper{
+      position: relative;
+      padding: 12px;
+      margin: 0 @margin 0 @sidebar_width;
+      border-bottom: 1px solid #EADBC4;
       padding: @margin/2;
       
       h2{
@@ -171,6 +182,7 @@ sidebar{
 
   .view{
     >.wrapper{
+      margin-top: @header_height + @nav_height;
       padding:0;
     }
   }
@@ -185,6 +197,19 @@ sidebar{
 }
 
 
+.bottom-line{
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  background-color: #181818;
+  height: 1px;
+  width: 100%;
+}
+
+
+.clear{
+  clear: both;
+}
 
 #login{
   margin: 0 auto;

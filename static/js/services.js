@@ -8,31 +8,36 @@
 angular.module('sven.services', ['ngResource'])
    .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {
-        query: { method: 'GET' },
+        query: {method: 'GET' },
+    });
+  })
+   .factory('CommandFactory', function($resource) {
+    return $resource('/api/corpus/:id/start/:cmd', {}, {
+        launch: {method: 'POST', params: {cmd: '@cmd', id:'@id'}}
     });
   })
   .factory('ProfileFactory', function($resource) {
     return $resource('/api/profile', {}, {
-        query: { method: 'GET' },
-        update: { method: 'POST' }
+        query: {method: 'GET' },
+        update: {method: 'POST' }
     });
   })
   .factory('CorpusListFactory', function($resource) {
     return $resource('/api/corpus', {}, {
-        query: { method: 'GET', isArray: false },
-        create: { method: 'POST' }
+        query: {method: 'GET', isArray: false },
+        create: {method: 'POST' }
     });
   })
   .factory('CorpusFactory', function($resource) {
     return $resource('/api/corpus/:id', {}, {
-        query: { method: 'GET', params: {id: '@id'}},
-        update: { method: 'POST' }
+        query: {method: 'GET', params: {id: '@id'}},
+        update: {method: 'POST' }
     });
   })
   .factory('DocumentListFactory', function($resource) {
     return $resource('/api/corpus/:id/document', {}, {
-        query: { method: 'GET', isArray: false },
-        create: { method: 'POST' }
+        query: {method: 'GET', isArray: false },
+        create: {method: 'POST' }
     });
   })
   .value('version', '0.1');

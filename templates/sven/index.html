@@ -4,22 +4,30 @@
 <html lang="en" ng-app="sven">
 <head>
   <meta charset="utf-8">
+  <link rel="shortcut icon" href="{{ STATIC_URL }}/favicon.ico" type="image/x-icon" />
+    
   <title>sven beta {% block title %}{% endblock %}</title>
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+  
+  {% if ENABLE_CDN_SERVICES %}
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  {% else %}
+  <link href="{{ STATIC_URL }}/css/font-awesome.css" rel="stylesheet">
+  {% endif %}
+
   {% if DEBUG %}
   <link rel="stylesheet/less" type="text/css" href="{{STATIC_URL}}/less/style.less" />
   <script src="{{ STATIC_URL }}/js/libs/less-1.7.0.min.js" type="text/javascript"></script>
   <script src="{{ STATIC_URL }}/js/libs/offline.min.js" type="text/javascript"></script>
-  
   {% else %}
+
   {% endif %}
 </head>
 <body>
   <header scroll-shadow>
     <div class="wrapper">
       <div class="bottom-line"></div>
-      <h1>{{ SVEN_NAME }}</h1>
+      <h1 ng-controller="initCtrl">{{ SVEN_NAME }}</h1>
       <div ng-controller="notificationCtrl"></div>
       <div id="user" ng-controller="profileCtrl">
         {% verbatim %}
@@ -56,28 +64,41 @@
         {% endverbatim %}
       </div>
     </sidebar>
-  {% endblock %}
-  {% block page %}
-  
-  
+    {% endblock %}
 
-  <div ng-view></div>
+    {% block page %}
+    <div ng-view></div>
+    {% endblock %}
 
-  <!-- In production use: -->
-  {% if DEBUG %}
+    {% block footer %}
+    <footer></div>
+    {% endblock %}
+
+    <script src="{{ STATIC_URL }}/js/libs/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}/js/libs/plugins/jquery.toastmessage.js"></script>
+    
+    <!-- In production use: -->
+    {% if DEBUG %}
+      {% if ENABLE_CDN_SERVICES %}
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
+      {% else %}
+      <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-route.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-resource.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script> 
+      {% endif %}
+    <script src="{{ STATIC_URL }}/js/app.js"></script>
+    <script src="{{ STATIC_URL }}/js/services.js"></script>
+    <script src="{{ STATIC_URL }}/js/controllers.js"></script>
+    <script src="{{ STATIC_URL }}/js/filters.js"></script>
+    <script src="{{ STATIC_URL }}/js/directives.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}/js/sven.min.js"></script>
+    {% endif %}
+    
   
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
-  <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script> 
-  <script src="{{ STATIC_URL }}/js/app.js"></script>
-  <script src="{{ STATIC_URL }}/js/services.js"></script>
-  <script src="{{ STATIC_URL }}/js/controllers.js"></script>
-  <script src="{{ STATIC_URL }}/js/filters.js"></script>
-  <script src="{{ STATIC_URL }}/js/directives.js"></script>
-  {% else %}
-  {% endif %}
-  {% endblock %}
   </div>
 </body>
 </html>

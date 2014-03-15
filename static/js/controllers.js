@@ -8,6 +8,34 @@ var CONTROLLER_STATUS_AVAILABLE = 'available',
 angular.module('sven.controllers', ['angularFileUpload'])
   /*
 
+    Contains shared jquery plugin, like window-related plugin (toastmessage)
+    ===
+    
+    Handle with care, and try not to override them locally.
+  */
+  .controller('initCtrl', ['$rootScope', function($rootScope) {
+    $rootScope.toast = function(options){
+      var options = options || {},
+          settings = $.extend({
+            text: "<div>"+(!options.title?"<h1>"+options.message+"</h1>":"<h1>"+options.title+"</h1><p>"+options.message+"</p>")+"</div>",
+            type: "notice",
+            position: "bottom-right",
+            inEffectDuration: 200,
+            outEffectDuration: 200,
+            stayTime: 1900
+          }, options);
+      
+      if(settings.cleanup != undefined)
+        $().toastmessage("cleanToast");
+      
+      $().toastmessage("showToast", settings);
+    };
+
+    $rootScope.toast({message:"welcome to sven", stayTime: 3000000});
+  }])
+
+  /*
+
     Handle the main view. Unused
     ===
   
@@ -22,11 +50,13 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
   */
   .controller('notificationCtrl', ['$rootScope', 'NotificationFactory', '$timeout', function($rootScope, NotificationFactory, $timeout) {
+    console.log('load notificationCtrl')
     $rootScope.notification = {};
     $rootScope.activity = '.';
     // ugly ajax polling...
     (function tick() {
         $rootScope.activity = '..';
+
         NotificationFactory.query(function(data){
           $rootScope.activity = '...';
           $rootScope.notification = data;
@@ -88,7 +118,15 @@ angular.module('sven.controllers', ['angularFileUpload'])
       });
     }
   }])
-  .controller('corpusCtrl', ['$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', function($scope, $upload, $routeParams, CorpusFactory, DocumentListFactory) {
+  /*
+    
+    Single corpus controller.
+    ===
+
+    COntrol the JOB flow: status, start stop for the current corpus, if any.
+
+  */
+  .controller('corpusCtrl', ['$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', 'CommandFactory', function($scope, $upload, $routeParams, CorpusFactory, DocumentListFactory, CommandFactory) {
     CorpusFactory.query({id: $routeParams.id}, function(data){
       $scope.corpus = data.object;
       
@@ -98,6 +136,16 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.documents = data.objects;
     });
 
+    // start command if the corpus is job free and if the global scope is free of actions
+    $scope.startHarvest = function(){
+      $scope.toast({message:"launching harvesting!"});
+      CommandFactory.launch({cmd:'harvest', id:$scope.corpus.id}, function(data){
+        console.log(data);
+        $scope.toast({message:"harvesting launghed"});
+      
+      });
+    };
+    
     $scope.onFileSelect = function($files) {
       //$files: an array of files selected, each file has name, size, and type.
       for (var i = 0; i < $files.length; i++) {
