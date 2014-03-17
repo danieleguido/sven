@@ -30,6 +30,9 @@ def notification(request):
   '''
   epoxy = Epoxy(request)
   epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE]))
+  epoxy.queryset(Job.objects.filter(corpus__in=request.user.corpora.all()))
+
+
 
   return epoxy.json()
 

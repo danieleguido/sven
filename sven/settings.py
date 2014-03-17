@@ -121,10 +121,10 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
       'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d «%(message)s»'
+            'format': u'%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d «%(message)s»'
       },
       'simple': {
-            'format': '%(asctime)s «%(message)s» %(module)s.%(funcName)s (%(lineno)s)'
+            'format': u'%(asctime)s «%(message)s» %(module)s.%(funcName)s (%(lineno)s)'
       },
     },
     'handlers': {

@@ -31,7 +31,7 @@ class Command(BaseCommand):
           help='corpus id'),
   )
 
-  @transaction.atomic
+
   def handle(self, *args, **options):
     # self.stdout.write("\n------------------------------------------\n\n    welcome to sven script\n    ==================================\n\n\n\n")
     logger.debug('executing harvest on corpus %s' % options['corpus'] )
@@ -50,9 +50,13 @@ class Command(BaseCommand):
     except Job.DoesNotExist, e:
       raise CommandError("\n    JOB having this corpus does not exist. IS THAT POSSIBLE? does not have any job connected....!")
 
-    for doc in corpus.documents.all():
-      job.document = doc
-      job.save()
+    docs = corpus.documents.all()
+    total = docs.count()
+
+    # ratio of this specific for loop in completion
+    score = .5
+
+    for i, doc in enumerate(docs):
       #print doc.name, doc.text()
       content = doc.text()
       print doc.language
@@ -64,6 +68,7 @@ class Command(BaseCommand):
       else:
         language = doc.language
 
+
       if doc.language == settings.FR:
         stopwords = FR_STOPWORDS
       elif doc.language == settings.NL:
@@ -72,15 +77,19 @@ class Command(BaseCommand):
         stopwords = EN_STOPWORDS
 
       segments = distill(content, language=language, stopwords=stopwords)
-      
-      for i,(match, lemmata, tf, wf) in enumerate(segments):
-        seg, created = Segment.objects.get_or_create(content=match, language=language, partofspeech=Segment.NP, defaults={'lemmata': lemmata, 'cluster': lemmata})
-        dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
-        dos.tf=tf
-        dos.wf=wf
-        dos.save()
-    
-    logger.debug('TF completed')
+      with transaction.atomic():
+        for i,(match, lemmata, tf, wf) in enumerate(segments):
+          seg, created = Segment.objects.get_or_create(content=match, language=language, partofspeech=Segment.NP, defaults={'lemmata': lemmata, 'cluster': lemmata})
+          dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
+          dos.tf=tf
+          dos.wf=wf
+          dos.save()
+      job.document = doc
+      job.completion = score*float(i)/total
+      job.save()
+      logger.debug('tf executed language "%s" %s%%' % (language, int(job.completion*10000)/float(100)))
+
+    logger.debug('tf completed')
 
     job.completion = .25
     job.stop()

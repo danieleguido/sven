@@ -122,7 +122,7 @@ class Corpus(models.Model):
   date_created = models.DateTimeField(auto_now=True)
   date_last_modified = models.DateTimeField(auto_now_add=True)
 
-  owners = models.ManyToManyField(User)
+  owners = models.ManyToManyField(User, related_name="corpora")
 
 
   def get_path(self):
@@ -317,37 +317,40 @@ class Job(models.Model):
 
 
   def is_alive(self):
+    logger.debug('Checking if a job is already running... ')
     s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True).split('\n')
     #print s
     for g in s:
       if re.search(r'\d\s%s' % self.cmd, g) is None:
-        return True
-    logger.debug(self.cmd)
-    return False
+        logger.debug('no job running with pid=%s' % self.pid)
+        return False
+    logger.debug('job running... take it easy')
+    return True
 
 
   @staticmethod
   def is_busy():
     running_jobs = Job.objects.filter(status__in=[Job.RUNNING, Job.STARTED])
-    logger.debug('checking already working jobs')
+    logger.debug('Job.is_busy() : checking already working jobs')
       
     if running_jobs.count() > 0:
       for r in running_jobs:
         if r.is_alive():
-          return False
+          logger.debug('A job is currently running!')
+          return True
         else:
           r.status = Job.LOST
           r.save()
       # if reached the end of the loop, all running job found are lost... so Job can do something again!
-      logger.debug('ouch')
-      return True
+      logger.debug('closing all previous job, since no one is alive.')
+      return False
     else:
       logger.debug('no jobs running...')
       return False
 
 
   @staticmethod
-  def start(corpus, command='harvest'):
+  def start(corpus, command='harvest', popen=True):
     '''
     Check if there are jobs running, otherwise
     Ouptut None or the created job
@@ -356,16 +359,18 @@ class Job(models.Model):
     if Job.is_busy():
       return None
     popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
-    logger.debug('starting %s' % command)
+    logger.debug('starting cmd "%s"%s' % (command, ' as subprocess' if popen else '' ))
     job, created = Job.objects.get_or_create(corpus=corpus)
     job.status = Job.STARTED
     job.cmd = ' '.join(popen_args[:-1])
     job.save()
 
     popen_args.append(str(corpus.id))
-
-    s = subprocess.Popen(popen_args, stdout=None, stderr=None)
-    job.pid = s.pid
+    if popen:
+      s = subprocess.Popen(popen_args, stdout=None, stderr=None)
+      job.pid = s.pid
+    else:
+      job.pid = 0
     job.status=Job.RUNNING
     job.save()
 
@@ -373,12 +378,13 @@ class Job(models.Model):
 
 
   def stop(self):
-    logger.debug('killing pid %s' % int(self.pid))
-    try:
-      os.kill(int(self.pid), signal.SIGKILL)
-    except OSError, e:
-      logger.exception(e)
-    logger.debug('killed.')
+    if self.pid != 0:
+      logger.debug('killing pid %s' % int(self.pid))
+      try:
+        os.kill(int(self.pid), signal.SIGKILL)
+      except OSError, e:
+        logger.exception(e)
+      logger.debug('killed.')
     self.status=Job.COMPLETED
     self.save()
 
