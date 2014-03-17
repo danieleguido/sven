@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging
 from datetime import datetime 
 
@@ -194,7 +196,7 @@ class Segment( models.Model):
 
   content = models.CharField(max_length=128)
   lemmata = models.CharField(max_length=128)
-  cluster = models.CharField(max_length=128) # index by cluster
+  cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
 
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
   status    = models.CharField(max_length=3, choices=STATUS_CHOICES, default=IN)
@@ -208,7 +210,9 @@ class Segment( models.Model):
 
   def json(self, deep=False):
     d = {
-      'content': self.content
+      'content': self.content,
+      'cluster': self.cluster,
+      'max_tf': self.max_tf if 'max_tf' in self else 0.0
     }
     return d
 
@@ -237,7 +241,6 @@ class Document(models.Model):
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
 
 
-
   def json(self, deep=False):
     d = {
       'id': self.id,
@@ -249,7 +252,11 @@ class Document(models.Model):
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat()
     }
-    
+    if deep:
+      d.update({
+        'text': self.text(),
+        'corpus': self.corpus.json()
+      })
     return d
 
 
@@ -266,6 +273,7 @@ class Document(models.Model):
         content = f.read()
     else:
       content = 'ciao'
+  
     return content
 
 
@@ -365,8 +373,11 @@ class Job(models.Model):
 
 
   def stop(self):
-    logger.debug('killing pid %s' % self.pid)
-    os.kill(self.pid, signal.SIGKILL)
+    logger.debug('killing pid %s' % int(self.pid))
+    try:
+      os.kill(int(self.pid), signal.SIGKILL)
+    except OSError, e:
+      logger.exception(e)
     logger.debug('killed.')
     self.status=Job.COMPLETED
     self.save()
@@ -374,14 +385,24 @@ class Job(models.Model):
 
 
 class Document_Segment( models.Model ):
-  document = models.ForeignKey(Document)
-  segment = models.ForeignKey(Segment)
+  document = models.ForeignKey(Document, related_name="document_segments")
+  segment = models.ForeignKey(Segment, related_name="document_segments")
 
   tf = models.FloatField(default=0) # term normalized frequency of the stemmed version of the segment
   tfidf = models.FloatField( default=0) # inversed term calculated according to the document via the stemmed version
   wf = models.FloatField(default=0) # sublinear tf scaling (normalized on logarithm) = log(tf) if tf > 0
   tfidf = models.FloatField( default=0) # inversed term calculated according to the document via the stemmed version
-  
+
+
+  def json(self, deep=False):
+    d = self.segment.json()
+    d.update({
+      'tf': self.tf,
+      'wf': self.wf,
+      'num_clusters': self.num_clusters
+    })
+    return d
+
 
   class Meta:
     unique_together = ("segment", "document")

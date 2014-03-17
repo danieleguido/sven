@@ -1,0 +1,43 @@
+<div class="view-nav">
+  <div class="wrapper">
+    <div class="floating circle" style="background-color: {{corpus.color}}"></div>
+    <div class="floating">
+      <h2>{{document.corpus.name}}</h2>
+      <h3>{{howmany}} documents, {{corpus.owners.length}} users</h3>
+    </div>
+    <div class="clear"></div>
+    <div class="bottom-line"></div>
+  </div>
+</div>
+
+<div class="view">
+  <div class="wrapper">
+
+    <div class="single document">
+      <div class="datetime">
+        {{document.date}}
+      </div>
+      <h2>
+        #{{document.id}} {{document.name}}
+      </h2>
+      <div class="language">
+        {{document.language}}
+      </div>
+      <div class="tags"></div>
+
+      <div class="content">
+        <div class="text">
+        {{document.text}}
+        </div>
+        <div class="segments">
+          {{ segments.length}}
+          <div ng-repeat="segment in segments">
+
+            {{segment.content}}, {{segment.cluster}}, {{segment.max_tf}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

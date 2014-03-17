@@ -178,6 +178,24 @@ angular.module('sven.controllers', ['angularFileUpload'])
     // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
   };
   }])
-  .controller('MyCtrl2', [function() {
+  /* 
+    
+    Document Controller (show)
+    ===
 
+  */
+  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
+    $scope.corpus = {};
+    $scope.document = {};
+    $scope.segments = [];
+
+    DocumentFactory.query({id: $routeParams.id}, function(data){
+      $scope.document = data.object;
+      $scope.corpus = data.object.corpus;
+
+      DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
+        console.log(data);
+        $scope.segments = data.objects
+      })
+    })
   }]);

@@ -40,4 +40,14 @@ angular.module('sven.services', ['ngResource'])
         create: {method: 'POST' }
     });
   })
+  .factory('DocumentFactory', function($resource) {
+    return $resource('/api/document/:id', {}, {
+        query: {method: 'GET', isArray: false, params: {id: '@id'} }
+    });
+  })
+  .factory('DocumentSegmentsFactory', function($resource) {
+    return $resource('/api/document/:id/segments', {}, {
+        query: {method: 'GET', isArray: false, params: {id: '@id'} }
+    });
+  })
   .value('version', '0.1');

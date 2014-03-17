@@ -55,7 +55,8 @@ class Command(BaseCommand):
       job.save()
       #print doc.name, doc.text()
       content = doc.text()
-      logger.debug('langauge %s %s' % (doc.id, doc.language))
+      print doc.language
+      #logger.debug('langauge %s %s' % (int(doc.id), doc.language.decode('utf-8')))
       if not doc.language or len(doc.language) == 0:
         language, probability = langid.classify(content[:255])
         doc.language = language
@@ -74,7 +75,10 @@ class Command(BaseCommand):
       
       for i,(match, lemmata, tf, wf) in enumerate(segments):
         seg, created = Segment.objects.get_or_create(content=match, language=language, partofspeech=Segment.NP, defaults={'lemmata': lemmata, 'cluster': lemmata})
-        dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg, tf=tf, wf=wf)
+        dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
+        dos.tf=tf
+        dos.wf=wf
+        dos.save()
     
     logger.debug('TF completed')
 
