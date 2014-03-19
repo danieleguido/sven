@@ -1,14 +1,20 @@
 <div class="view-nav">
   <div class="wrapper">
+    <div ng-show="corpus.job.status=='RUN'" class="bar-wrapper ng-hide">
+      <div class="bar" style="width:{{corpus.job.completion}}%">
+        <div class="bar-label">{{corpus.job.completion}}%</div>
+      </div>
+    </div>
     <div class="floating circle" style="background-color: {{corpus.color}}"></div>
     <div class="floating">
       <h2>{{corpus.name}}</h2>
       <h3>{{howmany}} documents, {{corpus.owners.length}} users</h3>
     </div>
-    <div style="float:left; margin: 2px 24px">
-      <button ng-click="startHarvest()">start harvesting {{corpus.job.status}}</button>
+    <div ng-if="corpus.job.status!='RUN'" style="float:left; margin: 2px 24px">
+      <button ng-click="start('harvest')">extract</button>
+      <button ng-click="start('reset')">clean</button>
     </div>
-    <div style="float: left;">
+    <div style="float: left;" ng-if="corpus.job.status!='RUN'">
       <!-- input type="text" ng-model="myModelObj" -->
       <!-- input type="file" ng-file-select="onFileSelect($files)" multiple -->
       <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"

@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     # self.stdout.write("\n------------------------------------------\n\n    welcome to sven script\n    ==================================\n\n\n\n")
-    logger.debug('executing harvest on corpus %s' % options['corpus'] )
+    logger.debug('executing "harvest"...')
     try:
       corpus = Corpus.objects.get(id=options['corpus'])
     except Corpus.DoesNotExist, e:
@@ -43,20 +43,23 @@ class Command(BaseCommand):
     
     # self.stdout.write(corpus.name)
 
-    logger.debug('%s' % corpus)
-
+    
     try:
       job = Job.objects.get(corpus=corpus)
     except Job.DoesNotExist, e:
+      logger.exception(e)
       raise CommandError("\n    JOB having this corpus does not exist. IS THAT POSSIBLE? does not have any job connected....!")
 
     docs = corpus.documents.all()
     total = docs.count()
 
-    # ratio of this specific for loop in completion
-    score = .5
+    logger.debug('corpus %s contains %s documents' % (corpus, total))
 
-    for i, doc in enumerate(docs):
+    logger.debug('corpus%s' % options['corpus'] )
+    # ratio of this specific for loop in completion
+    score = 1.0
+
+    for step, doc in enumerate(docs):
       #print doc.name, doc.text()
       content = doc.text()
       # print doc.language
@@ -85,9 +88,9 @@ class Command(BaseCommand):
           dos.wf=wf
           dos.save()
       job.document = doc
-      job.completion = score*float(i)/total
+      job.completion = int(score*10000*step/total)/100.0
       job.save()
-      logger.debug('tf executed language "%s" %s%%' % (language, int(job.completion*10000)/float(100)))
+      logger.debug('tf executed language "%s" %s%%' % (language, job.completion))
 
     logger.debug('tf completed')
 

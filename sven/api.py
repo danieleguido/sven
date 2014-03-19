@@ -60,7 +60,7 @@ def start(request, corpus_pk, cmd):
   except Corpus.DoesNotExist, e:
     return result.throw_error(error=form.errors, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  logger.debug('starting job on corpus %s' % corpus_pk )
+  logger.debug('starting "%s" on corpus %s' % (cmd, corpus_pk))
     
   job = Job.start(corpus=c, command=cmd)
   if job is not None:

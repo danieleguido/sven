@@ -50,7 +50,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
   */
   .controller('notificationCtrl', ['$rootScope', 'NotificationFactory', '$timeout', function($rootScope, NotificationFactory, $timeout) {
-    console.log('load notificationCtrl')
+    //console.log('load notificationCtrl')
     $rootScope.notification = {};
     $rootScope.activity = '.';
     // ugly ajax polling...
@@ -60,7 +60,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
         NotificationFactory.query(function(data){
           $rootScope.activity = '...';
           $rootScope.notification = data;
-          $timeout(tick, 2617);
+          $timeout(tick, 617);
         });
     })();
 
@@ -130,7 +130,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     // search for corpus job status among running jobs
     $scope.attachJob = function(){
-      $scope.toast({message: 'updating...'});
+      //$scope.toast({message: 'updating...'});
       if($scope.corpus){
         console.log('yyyyyyy', $scope.notification.objects);
         $scope.corpus.job = $scope.notification.objects.filter(function(d){return d.corpus==$scope.corpus.id}).pop();
@@ -150,11 +150,11 @@ angular.module('sven.controllers', ['angularFileUpload'])
     });
 
     // start command if the corpus is job free and if the global scope is free of actions
-    $scope.startHarvest = function(){
-      $scope.toast({message:"launching harvesting!"});
-      CommandFactory.launch({cmd:'harvest', id:$scope.corpus.id}, function(data){
+    $scope.start = function(cmd){
+      $scope.toast({message:"starting " + cmd});
+      CommandFactory.launch({cmd:cmd, id:$scope.corpus.id}, function(data){
         console.log(data);
-        $scope.toast({message:"harvesting launghed"});
+        $scope.toast({message: cmd + "started"});
       
       });
     };

@@ -316,6 +316,10 @@ class Job(models.Model):
   date_last_modified = models.DateTimeField(auto_now_add=True)
 
 
+  def __unicode__(self):
+    return '%s [pid=%s]' % (self.corpus.name, self.pid)
+
+
   def is_alive(self):
     logger.debug('Checking if a job is already running... ')
     s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True).split('\n')
@@ -358,7 +362,11 @@ class Job(models.Model):
     # check if there are job running...
     if Job.is_busy():
       return None
-    popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
+    if command not in ['harvest', 'whoosh']:
+      # cpmmand stored into start
+      popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), 'start', '--cmd', command, '--corpus']
+    else:
+      popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
     logger.debug('starting cmd "%s"%s' % (command, ' as subprocess' if popen else '' ))
     job, created = Job.objects.get_or_create(corpus=corpus)
     job.status = Job.STARTED
@@ -385,12 +393,9 @@ class Job(models.Model):
       try:
         os.kill(int(self.pid), signal.SIGKILL)
       except OSError, e:
-        pass #logger.exception(e)
-      except:
-        raise
-      logger.debug('killed.')
+        logger.exception(e)
+    # everything below will not be executed, since the process id has benn killed.
     
-    logger.debug('stopped.')
 
 
 
