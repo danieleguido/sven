@@ -378,15 +378,19 @@ class Job(models.Model):
 
 
   def stop(self):
+    self.status=Job.COMPLETED
+    self.save()
     if self.pid != 0:
       logger.debug('killing pid %s' % int(self.pid))
       try:
         os.kill(int(self.pid), signal.SIGKILL)
       except OSError, e:
-        logger.exception(e)
+        pass #logger.exception(e)
+      except:
+        raise
       logger.debug('killed.')
-    self.status=Job.COMPLETED
-    self.save()
+    
+    logger.debug('stopped.')
 
 
 

@@ -5,7 +5,7 @@ import pattern.en, pattern.nl, pattern.fr
 from pattern.search import search
 from pattern.vector import LEMMA, Document as PatternDocument
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("sven")
 
 NL_STOPWORDS = [u"aan",u"af",u"al",u"alles",u"als",u"altijd",u"andere",u"ben",u"bij",u"daar",u"dan",u"dat",u"de",u"der",u"deze",u"die",u"dit",u"doch",u"doen",u"door",u"dus",u"een",u"eens",u"en",u"er",u"ge",u"geen",u"geweest",u"haar",u"had",u"heb",u"hebben",u"heeft",u"hem",u"het",u"hier",u"hij",u"hij ",u"hoe",u"hun",u"iemand",u"iets",u"ik",u"in",u"is",u"ja",u"je",u"je ",u"kan",u"kon",u"kunnen",u"maar",u"me",u"meer",u"men",u"met",u"mij",u"mijn",u"moet",u"na",u"naar",u"niet",u"niets",u"nog",u"nu",u"of",u"om",u"omdat",u"onder",u"ons",u"ook",u"op",u"over",u"reeds",u"te",u"tegen",u"toch",u"toen",u"tot",u"u",u"uit",u"uw",u"van",u"veel",u"voor",u"want",u"waren",u"was",u"wat",u"we",u"wel",u"werd",u"wezen",u"wie",u"wij",u"wil",u"worden",u"wordt",u"zal",u"ze",u"zei",u"zelf",u"zich",u"zij",u"zijn",u"zo",u"zonder",u"zou"]
 EN_STOPWORDS = [u"i",u"me",u"my",u"myself",u"we",u"us",u"our",u"ours",u"ourselves",u"you",u"your",u"yours",u"yourself",u"yourselves",u"he",u"him",u"his",u"himself",u"she",u"her",u"hers",u"herself",u"it",u"its",u"itself",u"they",u"them",u"their",u"theirs",u"themselves",u"what",u"which",u"who",u"whom",u"this",u"that",u"these",u"those",u"am",u"is",u"are",u"was",u"were",u"be",u"been",u"being",u"have",u"has",u"had",u"having",u"do",u"does",u"did",u"doing",u"will",u"would",u"shall",u"should",u"can",u"could",u"may",u"might",u"must",u"ought",u"i'm",u"you're",u"he's",u"she's",u"it's",u"we're",u"they're",u"i've",u"you've",u"we've",u"they've",u"i'd",u"you'd",u"he'd",u"she'd",u"we'd",u"they'd",u"i'll",u"you'll",u"he'll",u"she'll",u"we'll",u"they'll",u"isn't",u"aren't",u"wasn't",u"weren't",u"hasn't",u"haven't",u"hadn't",u"doesn't",u"don't",u"didn't",u"won't",u"wouldn't",u"shan't",u"shouldn't",u"can't",u"cannot",u"couldn't",u"mustn't",u"let's",u"that's",u"who's",u"what's",u"here's",u"there's",u"when's",u"where's",u"why's",u"how's",u"daren't",u"needn't",u"oughtn't",u"mightn't",u"a",u"an",u"the",u"and",u"but",u"if",u"or",u"because",u"as",u"until",u"while",u"of",u"at",u"by",u"for",u"with",u"about",u"against",u"between",u"into",u"through",u"during",u"before",u"after",u"above",u"below",u"to",u"from",u"up",u"down",u"in",u"out",u"on",u"off",u"over",u"under",u"again",u"further",u"then",u"once",u"here",u"there",u"when",u"where",u"why",u"how",u"all",u"any",u"both",u"each",u"few",u"more",u"most",u"other",u"some",u"such",u"no",u"nor",u"not",u"only",u"own",u"same",u"so",u"than",u"too",u"very"]
@@ -24,15 +24,18 @@ def distill(content="",language="en", stopwords=EN_STOPWORDS, query='NP'):
   '''
   language=language.lower()
 
-  pattern_document = PatternDocument(content, language=language, exclude=stopwords, stemmer=LEMMA)
+  try:
+    pattern_document = PatternDocument(content, language=language, exclude=stopwords, stemmer=LEMMA)
+  
+    if language == "nl":
+      text = pattern.nl.Text( pattern.nl.parse(content, lemmata=True))
+    elif language == "fr":
+      text = pattern.fr.Text( pattern.fr.parse(content, lemmata=True))
+    else:
+      text = pattern.en.Text( pattern.en.parse(content, lemmata=True))
+  except UnicodeWarning, e:
+    logger.exception(e)
 
-  if language == "nl":
-    text = pattern.nl.Text( pattern.nl.parse(content, lemmata=True))
-  elif language == "fr":
-    text = pattern.fr.Text( pattern.fr.parse(content, lemmata=True))
-  else:
-    text = pattern.en.Text( pattern.en.parse(content, lemmata=True))
-    
   sentences = [search(query, s) for s in text]
   segments = []
 

@@ -59,7 +59,7 @@ class Command(BaseCommand):
     for i, doc in enumerate(docs):
       #print doc.name, doc.text()
       content = doc.text()
-      print doc.language
+      # print doc.language
       #logger.debug('langauge %s %s' % (int(doc.id), doc.language.decode('utf-8')))
       if not doc.language or len(doc.language) == 0:
         language, probability = langid.classify(content[:255])
@@ -91,12 +91,8 @@ class Command(BaseCommand):
 
     logger.debug('tf completed')
 
-    job.completion = .25
+    job.completion = 1.0
     job.stop()
     logger.debug('job completed')
     # let's calculate tfidf
-
-
-    
-
-
+    exit()

@@ -6,7 +6,7 @@
       <h3>{{howmany}} documents, {{corpus.owners.length}} users</h3>
     </div>
     <div style="float:left; margin: 2px 24px">
-      <button ng-click="startHarvest()">start harvesting</button>
+      <button ng-click="startHarvest()">start harvesting {{corpus.job.status}}</button>
     </div>
     <div style="float: left;">
       <!-- input type="text" ng-model="myModelObj" -->

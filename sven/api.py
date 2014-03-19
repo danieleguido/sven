@@ -1,4 +1,5 @@
 import subprocess, logging
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -29,10 +30,12 @@ def notification(request):
   Tail
   '''
   epoxy = Epoxy(request)
+
   epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE]))
-  epoxy.queryset(Job.objects.filter(corpus__in=request.user.corpora.all()))
 
-
+  jobs = Job.objects.filter(corpus__in=request.user.corpora.all())
+  epoxy.queryset(jobs)
+  epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()
 

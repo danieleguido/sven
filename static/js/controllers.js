@@ -126,10 +126,23 @@ angular.module('sven.controllers', ['angularFileUpload'])
     COntrol the JOB flow: status, start stop for the current corpus, if any.
 
   */
-  .controller('corpusCtrl', ['$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', 'CommandFactory', function($scope, $upload, $routeParams, CorpusFactory, DocumentListFactory, CommandFactory) {
+  .controller('corpusCtrl', ['$rootScope', '$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', 'CommandFactory', function($rootScope, $scope, $upload, $routeParams, CorpusFactory, DocumentListFactory, CommandFactory) {
+    
+    // search for corpus job status among running jobs
+    $scope.attachJob = function(){
+      $scope.toast({message: 'updating...'});
+      if($scope.corpus){
+        console.log('yyyyyyy', $scope.notification.objects);
+        $scope.corpus.job = $scope.notification.objects.filter(function(d){return d.corpus==$scope.corpus.id}).pop();
+        console.log('yyyyyyy', $scope.notification, $scope.corpus.job);
+        
+      }
+    };
+
     CorpusFactory.query({id: $routeParams.id}, function(data){
       $scope.corpus = data.object;
-      
+      $scope.notification && $scope.attachJob()
+
     });
     DocumentListFactory.query({id: $routeParams.id}, function(data){
       $scope.howmany = data.meta.total_count;
@@ -176,7 +189,10 @@ angular.module('sven.controllers', ['angularFileUpload'])
         //.then(success, error, progress); 
       }
     // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
-  };
+    };
+
+    $rootScope.$watch('notification', $scope.attachJob, true);
+
   }])
   /* 
     
