@@ -180,6 +180,12 @@ def delete_corpus(sender, instance, **kwargs):
 
 
 
+class Concept(models.Model):
+  uid = models.CharField(max_length=64, unique=True)
+  category = models.CharField(max_length=64)
+
+
+
 class Segment( models.Model): 
   OUT = 'OUT'
   IN = 'IN'
@@ -202,7 +208,8 @@ class Segment( models.Model):
   status    = models.CharField(max_length=3, choices=STATUS_CHOICES, default=IN)
   
   partofspeech = models.CharField(max_length=3, choices=POS_CHOICES)
-  
+
+  concepts = models.ManyToManyField(Concept, null=True, blank=True)
 
   def __unicode__(self):
     return '%s [%s]' % (self.content, self.lemmata)
