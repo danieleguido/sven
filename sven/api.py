@@ -96,10 +96,11 @@ def documents(request, corpus_pk):
 @login_required
 def document(request, pk):
   epoxy = Epoxy(request)
+  
   try:
-    d = Document.objects.get(pk=pk, corpus__owners=request.user)
+    d = Document.objects.get(pk=pk, corpus=request.user.corpora.all())
   except Document.DoesNotExist, e:
-    return result.throw_error(error=e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error=e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
   epoxy.item(d, deep=True)
 

@@ -1,6 +1,9 @@
 @import 'base.less';
 @import 'plugins.less';
 
+@import '../css/ui.css';
+@import '../css/animate.css';
+
 @black:  #001A25;
 
 html {
@@ -283,9 +286,40 @@ footer{
 .corpus{
   padding: @mod @mod @mod @mod*2;
   border-top: 1px solid #EADBC4;
-
+    
   .name{
     color: #b7b7b7;
+  }
+
+  &.ng-enter,
+  &.ng-move {
+    display:none;
+    
+  
+    -webkit-animation: fadeInLeft .6s;
+    -moz-animation: fadeInLeft .6s;
+    -ms-animation: fadeInLeft .6s;
+    animation: fadeInLeft .6s;
+
+    &.ng-enter-active{
+      display:block
+    }
+  }
+  
+  &.ng-leave {
+    -webkit-animation: bounceOut 1s;
+    -moz-animation: bounceOut 1s;
+    -ms-animation: bounceOut 1s;
+    animation: bounceOut 1s;
+  }
+
+  &.ng-enter-stagger {
+   -webkit-animation-delay:0.2s;
+  animation-delay:0.2s;
+
+  /* yes we still need to do this too */
+  -webkit-animation-duration:0;
+  animation-duration:0;
   }
 }
 

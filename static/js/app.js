@@ -32,10 +32,13 @@ angular.module('d3', [])
 // Declare app level module which depends on filters, and services
 angular.module('sven', [
   'ngRoute',
+
   'sven.filters',
   'sven.services',
   'sven.directives',
   'sven.controllers',
+  'ngAnimate',
+  
   'd3'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider, $cookies) {

@@ -5,7 +5,7 @@
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
-angular.module('sven.services', ['ngResource'])
+angular.module('sven.services', ['ngResource', 'ngAnimate'])
    .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {
         query: {method: 'GET' },
