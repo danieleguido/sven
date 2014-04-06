@@ -176,6 +176,6 @@ class DistillerTests(TestCase):
 
   def test_freebase(self):
     from distiller import freebase
-    concepts = freebase(query='Londres', lang='fr', api_key=settings.FREEBASE_KEY)
+    concepts = freebase(query='Bohain-en-Vermandois', lang='fr', api_key=settings.FREEBASE_KEY)
     for c in concepts:
       print c

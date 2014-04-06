@@ -108,7 +108,7 @@ freebase(query="Londres", api_key=settings.FREEBASE_KEY, lang='fr')
     results = []
     # print j
     if j['result']:
-      results = ((res['notable']['id'], res['id']) for res in j['result'] if 'notable' in res)
+      results = ((res['notable']['id'], res['id']) for res in j['result'] if 'notable' in res and 'id' in res)
     else:
       logger.error(j['status'], contents)
     return results
