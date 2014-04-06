@@ -34,8 +34,11 @@
         <div class="picture"><img ng-src="{{profile.picture}}"></div>
         {% endverbatim %}
         <div class="username">
-          {{user.username}} / 
+          {{user.username}} | 
           <a href="{% url 'sven_logout'%}">{% trans "logout"%}</a>
+          {% if user.is_staff %}|
+          <a href="{% url 'admin:index' %}">{% trans "admin"%}</a>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -46,19 +49,19 @@
     <sidebar >
       <div class="wrapper" ng-controller="corpusListCtrl">
         {% verbatim %}
-        <div>
-        <form name="createCorpusForm" ng-submit="addTodo()">
-          <input type="text" ng-model="name" />
-        </form>
+        <div id="create-corpus-form">
+          <form name="createCorpusForm" ng-submit="addTodo()">
+            <input type="text" ng-model="name" />
+          </form>
         </div>
         <ul class="nav">
-          <li>add project <i class="fa fa-plus-circle"></i></li>
+          <li ng-click="showCreate()">add project <i class="fa fa-plus-circle"></i></li>
         </ul>
 
         <div class="corpus" ng-repeat="corpus in items">
           <div style="float: right; height: 12px; width: 24px; background-color: {{corpus.color}}"></div>
-          <div><a href="#/corpus/{{corpus.id}}">{{corpus.name}} #{{corpus.id}} {{corpus.color}}</a>
-            <div class="name">{{corpus.count.documents}} documents, {{corpus.count.owners}} users</div>
+          <div><a href="#/corpus/{{corpus.id}}/documents">{{corpus.name}} #{{corpus.id}} {{corpus.color}}</a>
+            <div class="name"><a href="#/corpus/{{corpus.id}}/documents">{{corpus.count.documents}} documents</a>, {{corpus.count.owners}} users</div>
           </div>
         </div>
         {% endverbatim %}
@@ -67,6 +70,39 @@
     {% endblock %}
 
     {% block page %}
+    <div class="view-nav" ng-controller="corpusCtrl">
+      {% verbatim %}
+      <div class="wrapper">
+        <div ng-show="corpus.job.status=='RUN'" class="bar-wrapper ng-hide">
+          <div class="bar" style="width:{{corpus.job.completion}}%">
+            <div class="bar-label">{{corpus.job.completion}}%</div>
+          </div>
+        </div>
+        <div class="floating circle" style="background-color: {{corpus.color}}"></div>
+        <div class="floating">
+          <h2>{{ccorpus.id}}{{ccorpus.name}}{{corpus.name}}</h2>
+          <h3>{{corpus.count.documents}} documents, {{corpus.count.owners}} users, <a href="#/corpus/{{corpus.id}}/segments">segments</a></h3>
+        </div>
+          
+        <div ng-if="corpus.job.status!='RUN'" style="float:left; margin: 2px 24px">
+          <button ng-click="start('harvest')">extract</button>
+          <button ng-click="start('reset')">clean</button>
+        </div>
+        <div style="float: left;" ng-if="corpus.job.status!='RUN'">
+          <!-- input type="text" ng-model="myModelObj" -->
+          <!-- input type="file" ng-file-select="onFileSelect($files)" multiple -->
+          <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
+                ng-show="dropSupported">drop files here</div>
+          <div ng-file-drop-available="dropSupported=true" 
+                ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+          <!-- div d3-bars bar-height="20" bar-padding="5"></div -->
+        </div>
+
+        <div class="clear"></div>
+        <div class="bottom-line"></div>
+      </div>
+      {% endverbatim %}
+    </div>
     <div ng-view></div>
     {% endblock %}
 
@@ -89,7 +125,7 @@
       <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-route.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-resource.min.js"></script>
-      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-animate.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script> 
       {% endif %}
     <script src="{{ STATIC_URL }}/js/app.js"></script>

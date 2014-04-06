@@ -80,9 +80,17 @@ class Command(BaseCommand):
         stopwords = EN_STOPWORDS
 
       segments = distill(content, language=language, stopwords=stopwords)
+      print segments
+
       with transaction.atomic():
         for i,(match, lemmata, tf, wf) in enumerate(segments):
-          seg, created = Segment.objects.get_or_create(content=match, language=language, partofspeech=Segment.NP, defaults={'lemmata': lemmata, 'cluster': lemmata})
+          seg, created = Segment.objects.get_or_create(corpus=corpus, partofspeech=Segment.NP, content=match, defaults={
+            'lemmata':  lemmata,
+            'cluster':  lemmata,
+            'language': language,
+            'corpus' :  corpus
+          })
+
           dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
           dos.tf=tf
           dos.wf=wf

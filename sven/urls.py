@@ -14,6 +14,9 @@ apipatterns = patterns('sven.api',
   url(r'^corpus/(?P<corpus_pk>\d+)/document$', 'documents', name='sven_api_documents'),
   url(r'^corpus/(?P<corpus_pk>\d+)/upload$', 'document_upload', name='sven_api_document_upload'),
   url(r'^corpus/(?P<corpus_pk>\d+)/start/(?P<cmd>[a-z\d]+)$', 'start', name='sven_api_start'),  # execute a job like management/start.py
+  url(r'^corpus/(?P<corpus_pk>\d+)/segment$', 'corpus_segments', name='sven_api_corpus_segments'),
+  url(r'^corpus/(?P<corpus_pk>\d+)/segment/(?P<segment_pk>\d+)$', 'corpus_segment', name='sven_api_corpus_segment'), #view modify segment cluster according to the current corpus
+    
 
   url(r'^document/(?P<pk>\d+)$', 'document', name='sven_api_document'), # user document (user must have access, or a nOT found error is thrown)
   url(r'^document/(?P<pk>\d+)/segments$', 'document_segments', name='sven_api_document_segments'), # get requet.user's document segments list (with simple tf idf)

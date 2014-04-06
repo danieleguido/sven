@@ -8,7 +8,7 @@ from django.db.models import Q, Count
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
-from sven.forms import CorpusForm, DocumentForm
+from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm
 from sven.models import Corpus, Document, Profile, Job, Segment
 
 
@@ -58,7 +58,7 @@ def start(request, corpus_pk, cmd):
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
-    return result.throw_error(error=form.errors, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   logger.debug('starting "%s" on corpus %s' % (cmd, corpus_pk))
     
@@ -76,7 +76,7 @@ def documents(request, corpus_pk):
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
-    return epoxy.throw_error(error=e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
     form = DocumentForm(request.REQUEST)
@@ -100,7 +100,7 @@ def document(request, pk):
   try:
     d = Document.objects.get(pk=pk, corpus=request.user.corpora.all())
   except Document.DoesNotExist, e:
-    return epoxy.throw_error(error=e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
   epoxy.item(d, deep=True)
 
@@ -114,7 +114,7 @@ def document_segments(request, pk):
   try:
     d = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
-    return result.throw_error(error=e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
   segments = Segment.objects.raw("""
     SELECT 
@@ -195,6 +195,116 @@ def corpus(request, pk):
     result.item(corpus, deep=True)
 
   return result.json()
+
+
+
+@login_required
+def corpus_segments(request, corpus_pk):
+  '''
+  Return the list of segments in a specific corpus (given by pk)
+  '''
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+  
+  if not epoxy.order_by:
+    epoxy.order_by = ['max_tf DESC']
+
+  segments = Segment.objects.raw("""
+    SELECT 
+      s.`id`, s.`content`,s.`language`, 
+      s.`cluster`, s.`status`, 
+      MAX( ds.`tfidf`) AS `max_tfidf`,
+      MAX( ds.`tf`) AS `max_tf`,
+      COUNT(DISTINCT ds.document_id) AS `distribution` 
+    FROM sven_segment s
+      JOIN sven_document_segment ds ON s.id = ds.segment_id 
+      JOIN sven_document d ON ds.document_id = d.id
+      JOIN sven_corpus c ON d.corpus_id = c.id
+    WHERE c.id = %s
+    GROUP BY s.cluster
+    ORDER BY distribution DESC, max_tf DESC
+    LIMIT %s, %s
+    """,[c.id,  epoxy.offset, epoxy.limit]
+  )
+
+  epoxy.add('objects', [{
+    'id': s.id,
+    'tf': s.max_tf,
+    'status': s.status,
+    'cluster': s.cluster,
+    'distribution': s.distribution,
+    'content': s.content
+  } for s in segments])
+
+  return epoxy.json()
+
+
+
+@login_required
+def corpus_segment(request, corpus_pk, segment_pk):
+  '''
+  Edit/view a segment in a specific corpus (given by pk)
+  '''
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  try:
+    s = Segment.objects.get(pk=segment_pk)
+  except Segment.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  if epoxy.is_POST():
+    form = CorpusSegmentForm(epoxy.data)
+    if form.is_valid():
+      #Segment.objects.filter(cluster=, documents)
+      #form.cleaned_data['status'],form.cleaned_data['cluster']
+
+      pass
+    else:
+      return epoxy.throw_error(error=form.errors,code=API_EXCEPTION_FORMERRORS).json()
+
+  if not epoxy.order_by:
+    epoxy.order_by = ['ds.`tf` DESC', 'ds.document_id DESC']
+
+  segments = Segment.objects.raw("""
+    SELECT 
+      s.`id`, s.`content`,s.`language`, 
+      s.`cluster`, ds.`status`, 
+      ds.`tfidf`,
+      ds.`tf`,
+      ds.document_id
+    FROM sven_segment s
+      JOIN sven_document_segment ds ON s.id = ds.segment_id 
+      JOIN sven_document d ON ds.document_id = d.id
+      JOIN sven_corpus c ON d.corpus_id = c.id
+    WHERE c.id = %s
+      AND s.cluster = %s
+      ORDER BY %s
+      LIMIT %s, %s
+    """,[c.id, s.cluster, ','.join(epoxy.order_by), epoxy.offset, epoxy.limit]
+  )
+
+  s = s.json()
+  s.update({
+    'aliases': [{
+    'id': alias.id,
+    'tf': alias.tf,
+    'tfidf': alias.tfidf,
+    'status': alias.status,
+    'cluster': alias.cluster,
+    'content': alias.content
+    } for alias in segments]
+  })
+
+  epoxy.add('object', s)
+
+  return epoxy.json()
 
 
 

@@ -1,5 +1,5 @@
 from django import forms
-from sven.models import Corpus, Document
+from sven.models import Corpus, Document, Segment
 
 
 
@@ -20,3 +20,9 @@ class DocumentForm(forms.ModelForm):
   class Meta:
     model = Document
     exclude = ['corpus', 'mimetype', 'slug']
+
+
+
+class CorpusSegmentForm(forms.Form):
+  cluster = forms.CharField(max_length=128)
+  status = forms.ChoiceField(choices=Segment.STATUS_CHOICES)

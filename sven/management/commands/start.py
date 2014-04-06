@@ -3,8 +3,9 @@ from optparse import make_option
 
 from django.conf import settings
 from django.db import transaction
+from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand, CommandError
-from sven.models import Corpus, Document, Job, Document_Segment
+from sven.models import Corpus, Document, Job, Document_Segment, Segment
 
 logger = logging.getLogger("sven")
 
@@ -64,7 +65,20 @@ class Command(BaseCommand):
       raise CommandError("\n    Try again later, server is busy and some process is yet running...")
     
     Document_Segment.objects.filter(document__corpus=corpus).delete()
-    job.stop()
     logger.debug('completed "%s" on corpus %s' % (options['cmd'], corpus))
+    job.stop()
     
-    pass
+
+  @transaction.atomic
+  def misc_segmentreset(self, corpus, options):
+    logger.debug('executing "%s"...' % options['cmd'])
+    job = Job.start(corpus=corpus, command=options['cmd'], popen=False)
+    if job is None:
+      raise CommandError("\n    Try again later, server is busy and some process is yet running...")
+    
+    segments = Segment.objects.all()
+    for s in segments:
+      s.delete()
+
+    logger.debug('completed "%s" on corpus %s' % (options['cmd'], corpus))
+    job.stop()

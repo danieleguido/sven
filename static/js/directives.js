@@ -22,8 +22,18 @@ angular.module('sven.directives', [])
             scope.$apply();
         });
     };
-  }).
-  directive('d3Bars', ['d3Service',  function(d3Service) {
+  })
+  .directive("editInPlace", function () {
+    return function(scope, elm, attrs) {
+      elm.bind('click', function() {
+        if(elm.hasClass('editing')){
+          
+        } else
+          elm.addClass('editing').html('<form><input type="text" class="flatten" focus="true" value="'+ elm.text()+'"/></form>');
+      });
+    };
+  })
+  .directive('d3Bars', ['d3Service',  function(d3Service) {
     return  {
       restrict: 'EA',
       scope: {},

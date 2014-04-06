@@ -37,7 +37,7 @@ angular.module('sven', [
   'sven.services',
   'sven.directives',
   'sven.controllers',
-  'ngAnimate',
+  //'ngAnimate',
   
   'd3'
 ]).
@@ -46,7 +46,10 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 
   $routeProvider.when('/', {templateUrl: '/static/partials/corpus.list.html', controller: 'indexCtrl'});
-  $routeProvider.when('/corpus/:id', {templateUrl: '/static/partials/corpus.html', controller: 'corpusCtrl'});
+  
+  $routeProvider.when('/corpus/:id/documents', {templateUrl: '/static/partials/document.list.html', controller: 'documentListCtrl'});
+  $routeProvider.when('/corpus/:id/segments', {templateUrl: '/static/partials/segment.list.html', controller: 'segmentListCtrl'});
+  
   $routeProvider.when('/document/:id', {templateUrl: '/static/partials/document.html', controller: 'documentCtrl'});
   
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});

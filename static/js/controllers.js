@@ -14,6 +14,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     Handle with care, and try not to override them locally.
   */
   .controller('initCtrl', ['$rootScope', function($rootScope) {
+
     $rootScope.toast = function(options){
       var options = options || {},
           settings = $.extend({
@@ -32,6 +33,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     };
 
     $rootScope.toast({message:"welcome to sven", stayTime: 3000000});
+    console.log('> initCtrl ready');
   }])
 
   /*
@@ -41,7 +43,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
   
   */
   .controller('indexCtrl', ['$scope', function($scope) {
-    
+    console.log('> indexCtrl ready');
   }])
   /*
     
@@ -60,10 +62,10 @@ angular.module('sven.controllers', ['angularFileUpload'])
         NotificationFactory.query(function(data){
           $rootScope.activity = '...';
           $rootScope.notification = data;
-          $timeout(tick, 617);
+          $timeout(tick, 4617);
         });
     })();
-
+    console.log('> notificationCtrl ready');
   }])
   /*
     
@@ -72,7 +74,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
   */
   .controller('logCtrl', ['$rootScope', '$scope', function($rootScope, $scope){
-
+    console.log('> logCtrl ready');
   }])
   /*
 
@@ -87,6 +89,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
       console.log(data)
       $scope.profile = data.object;
     });
+    console.log('> profileCtrl ready');
   }])
   /*
 
@@ -98,6 +101,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.items = [];
     $scope.status = CONTROLLER_STATUS_WORKING;
 
+
     CorpusListFactory.query(function(data){
       console.log(data)
       $scope.howmany = data.meta.total_count;
@@ -105,18 +109,23 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.status = CONTROLLER_STATUS_AVAILABLE;
     });
 
+    $scope.showCreate = function(){
+      $('#create-corpus-form').addClass("opened")
+    };
+
     $scope.addTodo = function(){
       if($scope.status != CONTROLLER_STATUS_AVAILABLE)
         return;
       $scope.status = CONTROLLER_STATUS_WORKING;
-
+      $('#create-corpus-form').removeClass("opened")
       CorpusListFactory.save({}, {
         name: $scope.name,
       }, function(data){
         $scope.status = CONTROLLER_STATUS_AVAILABLE;
         $scope.items = data.objects;
       });
-    }
+    };
+    console.log('> corpusListCtrl ready');
   }])
   /*
     
@@ -127,10 +136,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
   */
   .controller('corpusCtrl', ['$rootScope', '$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', 'CommandFactory', function($rootScope, $scope, $upload, $routeParams, CorpusFactory, DocumentListFactory, CommandFactory) {
-    
     // search for corpus job status among running jobs
     $scope.attachJob = function(){
-      //$scope.toast({message: 'updating...'});
       if($scope.corpus){
         console.log('yyyyyyy', $scope.notification.objects);
         $scope.corpus.job = $scope.notification.objects.filter(function(d){return d.corpus==$scope.corpus.id}).pop();
@@ -139,15 +146,14 @@ angular.module('sven.controllers', ['angularFileUpload'])
       }
     };
 
-    CorpusFactory.query({id: $routeParams.id}, function(data){
-      $scope.corpus = data.object;
-      $scope.notification && $scope.attachJob()
-
-    });
-    DocumentListFactory.query({id: $routeParams.id}, function(data){
-      $scope.howmany = data.meta.total_count;
-      $scope.documents = data.objects;
-    });
+    $rootScope.setCorpus = function(id){
+      console.log('$rootScope.setCorpus', id);
+      CorpusFactory.query({id: id}, function(data){
+        $rootScope.corpus = data.object;
+        console.log('$rootScope.setCorpus',  data.object);
+        $scope.notification && $scope.attachJob()
+      });
+    };
 
     // start command if the corpus is job free and if the global scope is free of actions
     $scope.start = function(cmd){
@@ -192,7 +198,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
     };
 
     $rootScope.$watch('notification', $scope.attachJob, true);
-
+    
+    console.log('> corpusCtrl ready');
   }])
   /* 
     
@@ -201,17 +208,44 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
   */
   .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
-    $scope.corpus = {};
     $scope.document = {};
     $scope.segments = [];
 
+
     DocumentFactory.query({id: $routeParams.id}, function(data){
       $scope.document = data.object;
-      $scope.corpus = data.object.corpus;
+      $scope.setCorpus(data.object.corpus.id);
 
       DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
         console.log(data);
         $scope.segments = data.objects
       })
-    })
+    });
+    console.log('> documentCtrl ready');
+  }])
+  .controller('documentListCtrl', ['$scope', '$rootScope', '$routeParams', 'DocumentListFactory',  function($scope, $rootScope, $routeParams, DocumentListFactory) {
+    
+    $rootScope.setCorpus($routeParams.id);
+
+    DocumentListFactory.query({id: $routeParams.id}, function(data){
+      $scope.howmany = data.meta.total_count;
+      $scope.documents = data.objects;
+    });
+    console.log('> documentListCtrl ready');
+  }])
+  /* 
+    
+    Segment Controller (list)
+    ===
+
+  */
+  .controller('segmentListCtrl', ['$scope', '$routeParams', 'SegmentListFactory', function($scope, $routeParams, SegmentListFactory) {
+    $scope.segments = [];
+    
+    $scope.setCorpus($routeParams.id);
+
+    SegmentListFactory.query({id: $routeParams.id}, function(data){
+      $scope.segments = data.objects;
+    });
+    console.log('> segmentListCtrl ready');
   }]);

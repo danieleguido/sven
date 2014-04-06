@@ -5,7 +5,7 @@
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
-angular.module('sven.services', ['ngResource', 'ngAnimate'])
+angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
    .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {
         query: {method: 'GET' },
@@ -48,6 +48,11 @@ angular.module('sven.services', ['ngResource', 'ngAnimate'])
   .factory('DocumentSegmentsFactory', function($resource) {
     return $resource('/api/document/:id/segments', {}, {
         query: {method: 'GET', isArray: false, params: {id: '@id'} }
+    });
+  })
+  .factory('SegmentListFactory', function($resource) { // that is the segments service for a GIVEN corpus!
+    return $resource('/api/corpus/:id/segment', {}, {
+      query: {method: 'GET', isArray: false, params: {id: '@id'} }
     });
   })
   .value('version', '0.1');

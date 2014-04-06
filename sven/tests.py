@@ -116,15 +116,15 @@ class DocumentTest(TestCase):
     doc_b.save()
 
     segments_a = distill(content=doc_a.text())
-    print segments_a
+    #print segments_a
     for i,(match, lemmata, tf, wf) in enumerate(segments_a):
-      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN)
+      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN, corpus=self.corpus)
       dos, created = Document_Segment.objects.get_or_create(document=doc_a, segment=seg, tf=tf, wf=wf)
 
     segments_b = distill(content=doc_b.text())
-    print segments_b
+    #print segments_b
     for i,(match, lemmata, tf, wf) in enumerate(segments_b):
-      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN)
+      seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN, corpus=self.corpus)
       dos, created = Document_Segment.objects.get_or_create(document=doc_b, segment=seg, tf=tf, wf=wf)
 
     pass
@@ -133,11 +133,19 @@ class DocumentTest(TestCase):
 
 
 class SegmentTests(TestCase):
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    self.corpus.owners.add(self.user)
+
+
   def test_save_segments(self):
     segments_en = distill("Mary had a little lamb and it was really gorgeous. None. Mary had a little lamb and it was really gorgeous. None.", language='en', query='NP')
    
     for i,(match, lemmata, tf, wf) in enumerate(segments_en):
-      s, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language='en')
+      s, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language='en', corpus=self.corpus)
 
     self.assertEqual(Segment.objects.count(), 3)
 
@@ -150,10 +158,9 @@ class DistillerTests(TestCase):
     '''
     segments_en = distill("Mary had a little lamb and it was really gorgeous. None.")
     segments_fr = distill("Mary avait un agneau et il etait vraiment sympa. Personne.", language="fr", stopwords=FR_STOPWORDS)
-    print segments_en + segments_fr
+    # print segments_en + segments_fr
     self.assertEqual(segments_en + segments_fr, [
-      (u'Mary', u'mary', 0.25, 0.32192809488736235), (u'a little lamb', u'lamb-little', 0.25, 0.32192809488736235), (u'None', u'none', 0.0, 0.0), (u'Mary', u'mary', 0.2, 0.2630344058337938), (u'un agneau et il', u'agneau', 0.2, 0.2630344058337938), (u'Personne', u'personne', 0.0, 0.0),
-
+      (u'Mary', u'mary', 0.25, 0.32192809488736235), (u'a little lamb', u'lamb little', 0.25, 0.32192809488736235), (u'None', u'none', 0.0, 0.0), (u'Mary', u'mary', 0.2, 0.2630344058337938), (u'un agneau et il', u'agneau', 0.2, 0.2630344058337938), (u'Personne', u'personne', 0.0, 0.0),
     ])
 
 

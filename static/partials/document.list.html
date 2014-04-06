@@ -1,5 +1,16 @@
-<p>This is the partial for view 2.</p>
-<p>
-  Showing of 'interpolate' filter:
-  {{ 'Current version is v%VERSION%.' | interpolate }}
-</p>
+
+<div class="view">
+  <div class="wrapper">
+  <ul class="plain-list">
+    <li ng-repeat="document in documents">
+      <div class="plain-list-item">
+        <div class="g-1">{{document.id}}</div>
+        <div class="g-1">{{document.language}}</div>
+        <div class="g-1">{{document.date}}</div>
+        <div class="g-4"><a href="#/document/{{document.id}}">{{document.name}}</a></div>
+        <div class="g-1">{{document.mimetype}}</div>
+      </div>
+    </li>
+  </ul>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="view">
+  <div class="wrapper">
+  <ul class="plain-list">
+    <li ng-repeat="segment in segments">
+      <div class="plain-list-item">
+        <div class="g-1">{{segment.id}}</div>
+        <div class="g-3" edit-in-place><b>{{segment.cluster}}</b></div>
+        <div class="g-2">{{segment.content}}</div>
+        <div class="g-2">{{segment.tf}}</div>
+        <div class="g-1">{{segment.distribution}}</div>
+        <div class="g-1">{{segment.status}}</div>
+      </div>
+    </li>
+  </ul>
+  </div>
+</div>

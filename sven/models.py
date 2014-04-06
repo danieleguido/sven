@@ -4,7 +4,7 @@ import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging
 from datetime import datetime 
 
 from django.conf import settings
-from django.db import models, transaction
+from django.db import models, transaction, connection
 from django.db.models import Count
 from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
@@ -12,7 +12,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware, utc
 from django.dispatch import receiver
 
-
+from sven.distiller import dry
 
 logger = logging.getLogger("sven")
 
@@ -100,8 +100,10 @@ class Profile(models.Model):
 
   def save(self, **kwargs):
     if self.pk is None or len(self.picture) == 0:
-      self.picture = helper_palette()[0]['imageUrl']
-    
+      try:
+        self.picture = helper_palette()[0]['imageUrl']
+      except urllib2.URLError, e:
+        logger.error(e)
     super(Profile, self).save()
 
 
@@ -117,7 +119,7 @@ def create_profile(sender, instance, created, **kwargs):
 class Corpus(models.Model):
   name = models.CharField(max_length=32)
   slug = models.CharField(max_length=32, unique=True)
-  color = models.CharField(max_length=6, blank=True, null=True)
+  color = models.CharField(max_length=6, blank=True)
 
   date_created = models.DateTimeField(auto_now=True)
   date_last_modified = models.DateTimeField(auto_now_add=True)
@@ -136,8 +138,10 @@ class Corpus(models.Model):
       os.makedirs(path)
 
     if self.pk is None or len(self.color) == 0:
-      self.color = helper_colour()[0]['hex']
-    
+      try:
+        self.color = helper_colour()[0]['hex']
+      except urllib2.URLError, e:
+        logger.error(e)
     super(Corpus, self).save()
 
 
@@ -156,6 +160,16 @@ class Corpus(models.Model):
         'owners': self.owners.count()
       }
     }
+
+    # raw query to ge count. Probably there should be a better place :D
+    cursor = connection.cursor()
+    cursor.execute('''
+      SELECT COUNT(s.`cluster`)
+      FROM sven_segment s
+      WHERE corpus_id=%s
+    ''', [self.id])
+    d['count']['clusters'] = cursor.fetchone()[0]
+
     if deep:
       d.update({
         'owners': [helper_user_to_dict(u) for u in self.owners.all()]
@@ -198,6 +212,7 @@ class Segment( models.Model):
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
 
+  corpus    = models.ForeignKey(Corpus) # corpus specific [sic]
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
   status    = models.CharField(max_length=3, choices=STATUS_CHOICES, default=IN)
   
@@ -210,15 +225,15 @@ class Segment( models.Model):
 
   def json(self, deep=False):
     d = {
+      'id': self.id,
       'content': self.content,
-      'cluster': self.cluster,
-      'max_tf': self.max_tf if 'max_tf' in self else 0.0
+      'cluster': self.cluster 
     }
     return d
 
 
   class Meta:
-    unique_together = ('content', 'language', 'partofspeech')
+    unique_together = ('content', 'corpus', 'partofspeech')
 
 
 
@@ -248,7 +263,7 @@ class Document(models.Model):
       'slug': self.slug,
       'mimetype': self.mimetype,
       'language': self.language,
-      'date': self.date.strftime("%Y-%m-%d"),
+      'date': self.date.strftime("%Y-%m-%d") if self.date else None,
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat()
     }
@@ -273,7 +288,10 @@ class Document(models.Model):
         content = f.read()
     else:
       content = 'ciao'
-  
+    
+    # clean content
+    content = dry(content)
+
     return content
 
 
@@ -395,7 +413,6 @@ class Job(models.Model):
       except OSError, e:
         logger.exception(e)
     # everything below will not be executed, since the process id has benn killed.
-    
 
 
 
