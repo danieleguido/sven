@@ -10,6 +10,11 @@ from sven.models import Corpus, Document, Job, Document_Segment, Segment
 logger = logging.getLogger("sven")
 
 class Command(BaseCommand):
+  '''
+  This is the basic commands for sven management.
+  usage sample
+
+  '''
   args = ''
   help = 'execute a pos text extraction on a corpus'
   option_list = BaseCommand.option_list + (
@@ -38,7 +43,7 @@ class Command(BaseCommand):
       raise CommandError("\n    ouch. Try again, corpus %s does not exist!" % options['corpus'])
     
     popen = True
-    if options['cmd'] in ['whoosh', 'harvest']:
+    if options['cmd'] in ['whoosh', 'harvest', 'freebase']:
       job = Job.start(corpus=corpus, command=options['cmd'], popen=popen)
     else:
       try:

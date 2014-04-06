@@ -17,3 +17,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 PYTHON_INTERPRETER = '/home/daniele/.virtualenvs/sven/bin/python' # mine, given as exemple. Cfr virtualenv doc.
 
 ENABLE_CDN_SERVICES = False # set to true if you want to use CDN. This const will be used in templates
+
+FREEBASE_KEY = None #' set to your own server to server api key. Cfr GoogleDevelopers Console. Set to None if you're not interested in freebase search

@@ -81,7 +81,7 @@
         <div class="floating circle" style="background-color: {{corpus.color}}"></div>
         <div class="floating">
           <h2>{{ccorpus.id}}{{ccorpus.name}}{{corpus.name}}</h2>
-          <h3>{{corpus.count.documents}} documents, {{corpus.count.owners}} users, <a href="#/corpus/{{corpus.id}}/segments">segments</a></h3>
+          <h3><a href="#/corpus/{{corpus.id}}/documents">{{corpus.count.documents}} documents</a>, {{corpus.count.owners}} users, <a href="#/corpus/{{corpus.id}}/segments">{{corpus.count.clusters}} clusters</a></h3>
         </div>
           
         <div ng-if="corpus.job.status!='RUN'" style="float:left; margin: 2px 24px">

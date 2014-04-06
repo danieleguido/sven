@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import math, logging
+import math, logging, urllib2, json
 import pattern.en, pattern.nl, pattern.fr
 from pattern.search import search
 from pattern.vector import LEMMA, Document as PatternDocument
@@ -83,3 +83,43 @@ def evaporate(segments):
 
   return uniques
   pass
+
+
+
+def freebase(api_key, query, lang):
+  '''
+  return some dummy tuple of "notable" id and result id in the freebase format.
+  Because we do not have a context, we will provide filtering mechanism somehow later.
+  Try Londres in FR. THe second notable is "Olympic Games" :D
+  we do not store anything else..!
+
+  Test from shell:
+from sven.distiller import freebase
+from django.conf import settings
+  
+freebase(query="Londres", api_key=settings.FREEBASE_KEY, lang='fr')
+  '''
+  if api_key is None:
+    return None
+
+  request = urllib2.Request(
+    'https://www.googleapis.com/freebase/v1/search?query=%s&key=%s&lang=%s&stemmed=true' % (
+      query,
+      api_key,
+      lang
+    ), headers={'User-Agent': "Freebase for Sven"}
+  )
+  try:
+    contents = urllib2.urlopen(request).read()
+    j  = json.loads(contents)
+  except Exception, e:
+    logger.exception(e)
+    return None
+  else:
+    results = []
+    # print j
+    if j['result']:
+      results = ((res['notable']['id'], res['id']) for res in j['result'] if 'notable' in res and 'id' in res)
+    else:
+      logger.error(j['status'], contents)
+    return results

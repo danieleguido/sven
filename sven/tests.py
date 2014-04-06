@@ -116,13 +116,13 @@ class DocumentTest(TestCase):
     doc_b.save()
 
     segments_a = distill(content=doc_a.text())
-    #print segments_a
+    
     for i,(match, lemmata, tf, wf) in enumerate(segments_a):
       seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN, corpus=self.corpus)
       dos, created = Document_Segment.objects.get_or_create(document=doc_a, segment=seg, tf=tf, wf=wf)
 
     segments_b = distill(content=doc_b.text())
-    #print segments_b
+
     for i,(match, lemmata, tf, wf) in enumerate(segments_b):
       seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN, corpus=self.corpus)
       dos, created = Document_Segment.objects.get_or_create(document=doc_b, segment=seg, tf=tf, wf=wf)
@@ -179,3 +179,10 @@ class DistillerTests(TestCase):
             nps.append(word.lemma)
 
     self.assertEqual(nps, [u'mary', u'a', u'little', u'lamb', u'it', u'none', u'mary', u'un', u'agneau', u'et', u'il', u'personne'])
+
+
+  def test_freebase(self):
+    from distiller import freebase
+    concepts = freebase(query='Bohain-en-Vermandois', lang='fr', api_key=settings.FREEBASE_KEY)
+    for c in concepts:
+      print c

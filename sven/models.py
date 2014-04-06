@@ -212,12 +212,12 @@ class Segment( models.Model):
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
 
-  corpus    = models.ForeignKey(Corpus) # corpus specific [sic]
+  corpus    = models.ForeignKey(Corpus, related_name="segments") # corpus specific [sic]
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
   status    = models.CharField(max_length=3, choices=STATUS_CHOICES, default=IN)
   
   partofspeech = models.CharField(max_length=3, choices=POS_CHOICES)
-  
+
 
   def __unicode__(self):
     return '%s [%s]' % (self.content, self.lemmata)
@@ -234,6 +234,22 @@ class Segment( models.Model):
 
   class Meta:
     unique_together = ('content', 'corpus', 'partofspeech')
+
+
+
+class Freebase(models.Model):
+  uid = models.CharField(max_length=64, unique=True)
+  category = models.CharField(max_length=64)
+
+  segments = models.ManyToManyField(Segment, null=True, blank=True)
+
+
+  def json(self, deep=False):
+    d = {
+      'uid': self.uid, # uniqueid
+      'category': self.category
+    }
+    return d
 
 
 

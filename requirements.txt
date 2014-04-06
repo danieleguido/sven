@@ -1,3 +1,7 @@
 Django==1.6.2
 Pattern==2.6
+Whoosh==2.6.0
+argparse==1.2.1
+langid==1.1.4dev
+numpy==1.8.0
 wsgiref==0.1.2
