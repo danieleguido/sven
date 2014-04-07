@@ -1,7 +1,8 @@
 'use strict';
 
 var CONTROLLER_STATUS_AVAILABLE = 'available',
-    CONTROLLER_STATUS_WORKING = 'busy';
+    CONTROLLER_STATUS_WORKING = 'busy',
+    CONTROLLER_PARAMS_UPDATED = "CONTROLLER_PARAMS_UPDATED";
 
 /* Controllers */
 
@@ -13,7 +14,36 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     Handle with care, and try not to override them locally.
   */
-  .controller('initCtrl', ['$rootScope', function($rootScope) {
+  .controller('initCtrl', ['$scope', '$rootScope', '$location', '$route', function($scope, $rootScope, $location, $route) {
+    /*
+      filters application varies according to the controller!!!!!!! beware.
+      @todo ctrlspecific limit, offsets and filters?
+    */
+    $rootScope.filters = {};
+    $rootScope.limit = 25;
+    $rootScope.offset = 0;
+
+    $rootScope.loadFilters = function(options) {
+      var candidates = $location.search().filters,
+          limit = +$location.search().limit,
+          offset = +$location.search().offset;
+
+      if(candidates) {
+        try{
+          var filters = JSON.parse(candidates);
+          $rootScope.filters = filters;
+        } catch(e){
+          console.log("%c! filters failed ", 'color:white; background-color:crimson', e.message);
+          
+        }
+      } else
+        $rootScope.filters = {};
+
+      $rootScope.limit = isNaN(limit)? $rootScope.limit: limit;
+      $rootScope.offset = isNaN(offset)? $rootScope.offset: offset;
+      // limit and offset here
+      $rootScope.$broadcast(CONTROLLER_PARAMS_UPDATED, options);
+    };
 
     $rootScope.toast = function(options){
       var options = options || {},
@@ -32,7 +62,13 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $().toastmessage("showToast", settings);
     };
 
-    $rootScope.toast({message:"welcome to sven", stayTime: 3000000});
+    $rootScope.toast({message:"welcome to sven", stayTime: 3000});
+
+    $scope.$on('$routeUpdate', function(e, r){
+      $scope.loadFilters({controller: r.$$route.controller}); // push current controllername
+    });
+
+    $rootScope.loadFilters();
     console.log('> initCtrl ready');
   }])
 
@@ -138,10 +174,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
   .controller('corpusCtrl', ['$rootScope', '$scope','$upload','$routeParams','CorpusFactory', 'DocumentListFactory', 'CommandFactory', function($rootScope, $scope, $upload, $routeParams, CorpusFactory, DocumentListFactory, CommandFactory) {
     // search for corpus job status among running jobs
     $scope.attachJob = function(){
-      if($scope.corpus){
-        console.log('yyyyyyy', $scope.notification.objects);
+      if($scope.corpus && $scope.notification.objects){
         $scope.corpus.job = $scope.notification.objects.filter(function(d){return d.corpus==$scope.corpus.id}).pop();
-        console.log('yyyyyyy', $scope.notification, $scope.corpus.job);
         
       }
     };
@@ -221,16 +255,29 @@ angular.module('sven.controllers', ['angularFileUpload'])
         $scope.segments = data.objects
       })
     });
+
+
+
     console.log('> documentCtrl ready');
   }])
   .controller('documentListCtrl', ['$scope', '$rootScope', '$routeParams', 'DocumentListFactory',  function($scope, $rootScope, $routeParams, DocumentListFactory) {
     
     $rootScope.setCorpus($routeParams.id);
 
-    DocumentListFactory.query({id: $routeParams.id}, function(data){
-      $scope.howmany = data.meta.total_count;
-      $scope.documents = data.objects;
+    $scope.sync = function() {
+      DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
+          $scope.howmany = data.meta.total_count;
+          $scope.documents = data.objects;
+      });
+    };
+
+    $scope.$on(CONTROLLER_PARAMS_UPDATED, function(e, options) {
+
+      console.log('received...');
+      $scope.sync();
     });
+
+    $scope.sync();
     console.log('> documentListCtrl ready');
   }])
   /* 
@@ -248,4 +295,16 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.segments = data.objects;
     });
     console.log('> segmentListCtrl ready');
-  }]);
+  }])
+  /* 
+    
+    Filter Controller (list)
+    ===
+
+  */
+
+  .controller('filtersCtrl', ['$scope', function($scope) {
+    console.log('> filterstCtrl ready');
+  }])
+
+
