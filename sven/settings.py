@@ -148,3 +148,5 @@ LOGGING = {
 LOG_FILE = LOGGING['handlers']['file']['filename']
 
 FREEBASE_KEY = local_settings.FREEBASE_KEY
+
+STANDALONE_COMMANDS = ['harvest', 'whoosh', 'freebase'] # standalone management commands.

@@ -43,7 +43,7 @@ class Command(BaseCommand):
       raise CommandError("\n    ouch. Try again, corpus %s does not exist!" % options['corpus'])
     
     popen = True
-    if options['cmd'] in ['whoosh', 'harvest', 'freebase']:
+    if options['cmd'] in settings.STANDALONE_COMMANDS:
       job = Job.start(corpus=corpus, command=options['cmd'], popen=popen)
     else:
       try:

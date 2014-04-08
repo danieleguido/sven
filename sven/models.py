@@ -357,6 +357,8 @@ class Job(models.Model):
   def is_alive(self):
     logger.debug('Checking if a job is already running... ')
     s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True).split('\n')
+    logger.debug(s)
+
     #print s
     for g in s:
       if re.search(r'\d\s%s' % self.cmd, g) is None:
@@ -396,7 +398,8 @@ class Job(models.Model):
     # check if there are job running...
     if Job.is_busy():
       return None
-    if command not in ['harvest', 'whoosh']:
+    if command not in settings.STANDALONE_COMMANDS:
+      logger.debug('command "%s" stored into management command' % command) 
       # cpmmand stored into start
       popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), 'start', '--cmd', command, '--corpus']
     else:
