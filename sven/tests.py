@@ -183,6 +183,7 @@ class DistillerTests(TestCase):
 
   def test_freebase(self):
     from distiller import freebase
-    concepts = freebase(query='Bohain-en-Vermandois', lang='fr', api_key=settings.FREEBASE_KEY)
-    for c in concepts:
-      print c
+    if settings.FREEBASE_KEY is not None:
+      concepts = freebase(query='Bohain-en-Vermandois', lang='fr', api_key=settings.FREEBASE_KEY)
+      for c in concepts:
+        print c
