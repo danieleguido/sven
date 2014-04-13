@@ -31,8 +31,11 @@ def notification(request):
   '''
   epoxy = Epoxy(request)
 
-  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE]))
-
+  try:
+    epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
+  except OSError, e:
+    logger.exception(e)
+    
   jobs = Job.objects.filter(corpus__in=request.user.corpora.all())
   epoxy.queryset(jobs)
   epoxy.add('datetime', datetime.now().isoformat())

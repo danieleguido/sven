@@ -1,7 +1,7 @@
 import os
 import sys
 
-path = '/path/to/sven'
+path = ‘/home/lime/public/sven'
 if path not in sys.path:
     sys.path.append(path)
 

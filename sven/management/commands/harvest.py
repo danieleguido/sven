@@ -103,7 +103,8 @@ class Command(BaseCommand):
     logger.debug('tf completed')
 
     job.completion = 1.0
-    job.stop()
     logger.debug('job completed')
+    
+    job.stop()
     # let's calculate tfidf
     exit()

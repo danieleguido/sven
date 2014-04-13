@@ -356,9 +356,13 @@ class Job(models.Model):
 
   def is_alive(self):
     logger.debug('Checking if a job is already running... ')
-    s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True).split('\n')
-    logger.debug(s)
-
+    
+    try:
+      s = subprocess.check_output('ps aux | grep "%s"' % self.cmd, shell=True, close_fds=True).split('\n')
+      logger.debug(s)
+    except OSError, e:
+      logger.exception(e)
+      return True
     #print s
     for g in s:
       if re.search(r'\d\s%s' % self.cmd, g) is None:
@@ -412,7 +416,7 @@ class Job(models.Model):
 
     popen_args.append(str(corpus.id))
     if popen:
-      s = subprocess.Popen(popen_args, stdout=None, stderr=None)
+      s = subprocess.Popen(popen_args, stdout=None, stderr=None, close_fds=True)
       job.pid = s.pid
     else:
       job.pid = 0
