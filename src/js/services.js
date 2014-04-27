@@ -1,13 +1,17 @@
 'use strict';
 
 /* Services */
+
+
+// Demonstrate how to register services
+// In this case it is a simple value service.
 angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
-  .factory('NotificationFactory', function($resource) {
+   .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {
         query: {method: 'GET' },
     });
   })
-  .factory('CommandFactory', function($resource) {
+   .factory('CommandFactory', function($resource) {
     return $resource('/api/corpus/:id/start/:cmd', {}, {
         launch: {method: 'POST', params: {cmd: '@cmd', id:'@id'}}
     });

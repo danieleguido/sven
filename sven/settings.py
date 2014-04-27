@@ -92,7 +92,7 @@ MEDIA_ROOT = local_settings.MEDIA_ROOT
 LOGIN_URL = '/login/'
 
 STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'static'),
+  os.path.join(BASE_DIR, 'src'),
 )
 
 TEMPLATE_DIRS = (

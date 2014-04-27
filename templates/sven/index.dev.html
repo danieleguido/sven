@@ -1,0 +1,110 @@
+{% load i18n %}
+<!doctype html>
+<html lang="en" ng-app="sven">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ SVEN_NAME }}</title>
+
+
+    
+    
+    <!-- purecss grid + fontawesome icons -->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
+
+    {% if DEBUG %}
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}/less/style.less" />
+    <script src="{{ STATIC_URL }}/js/libs/less-1.7.0.min.js" type="text/javascript"></script>
+  {% else %}
+
+  {% endif %}
+  </head>
+  <body>
+    <!-- fastest inline stylesheet as stated by gool -->
+    <style>
+    html {
+      font-size: 62.5%;
+      height: 100%;
+    }
+    body{
+      font: 1.5em/1.618em 'Source Sans Pro', sans-serif;
+    }
+    #layout {
+      position: relative;
+    }
+    #layout.active {
+      position: relative;
+      left: 180px;
+    }
+    
+    #layout.active #menu {
+      left: 180px;
+      width: 180px;
+    }
+
+    #layout.active .menu-link {
+      left: 180px;
+    }
+    </style>
+
+    <div id="layout" ng-controller="layoutCtrl">
+    <!-- Menu toggle -->
+      <a href="#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+      </a>
+
+      <div id="menu">
+        <div class="pure-menu pure-menu-open">
+            <a class="pure-menu-heading" href="#">{{SVEN_NAME}}</a>
+        </div>
+        <ul ng-controller="corpusListCtrl">
+          {% verbatim %}
+          <li ng-repeat="corpus in items">
+            <a href="#/corpus/{{corpus.id}}/documents">{{corpus.name}}</a>
+            {{count.clusters}} segments
+            {{count.clusters}} documents
+            {{count.clusters}} owners
+            
+          </li>
+          {% endverbatim %}
+        </ul>
+      </div>
+
+      <div id="main">
+        <div class="header" ng-controller="contextCtrl">
+            <h1></h1>
+            <h2></h2>
+        </div>
+
+        <div class="content">
+          <div ng-view></div>
+        </div>
+      </div>
+    </div>
+
+    {% if DEBUG %}
+      {% if ENABLE_CDN_SERVICES %}
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
+      <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
+      {% else %}
+      <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-route.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-resource.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-animate.min.js"></script>
+      {% endif %}
+      <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script>
+    <script src="{{ STATIC_URL }}/js/app.js"></script>
+    <script src="{{ STATIC_URL }}/js/services.js"></script>
+    <script src="{{ STATIC_URL }}/js/controllers.js"></script>
+    <script src="{{ STATIC_URL }}/js/filters.js"></script>
+    <script src="{{ STATIC_URL }}/js/directives.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}/js/sven.min.js"></script>
+    {% endif %}
+
+  </body>
+</html>
