@@ -37,7 +37,10 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'sven.views.logout_view', name='sven_logout'),
     
     url(r'^api/', include(apipatterns)),
-
+    
+    # admin only
+    url(r'^dev/$', 'sven.views.home_dev', name='sven_home_dev'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^glue/', include(glue.urls)),
+
 )

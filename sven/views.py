@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.template import RequestContext
@@ -15,6 +16,17 @@ from sven.forms import LoginForm
 def home(request):
   d = _shared_context(request)
   return render_to_response("sven/index.html", RequestContext(request, d))
+
+
+
+@staff_member_required
+def home_dev(request):
+  '''
+  this is the current dev angular ome pèage.
+  Visible only by admins
+  '''
+  d = _shared_context(request)
+  return render_to_response("sven/index.dev.html", RequestContext(request, d))
 
 
 
