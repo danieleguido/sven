@@ -91,6 +91,17 @@ angular.module('sven.controllers', [])
     $scope.sync();
     console.log('%c documentListCtrl ', CTRL_LOADED);
   }])
+  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
+    DocumentFactory.query({id: $routeParams.id}, function(data){
+      $scope.item = data.object;
+      
+      DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
+        console.log(data);
+        $scope.segments = data.objects
+      })
+    });
+
+  }])
   .controller('contextCtrl', ['$scope', function($scope) {
 
 

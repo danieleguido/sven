@@ -1,32 +1,41 @@
-/*
-
-                                                                    |`-._
-                                                                  .-'    `-.-;"\.
-    .------------------------------------------------..-.. _ .-'\ |      /o\ | \\\
-   |\ ________________________________________________\\ \\\/    \\      | |   ///\
-   | |   ______     __   __   ______     __   __       ||-|||     '.      \/ //////|
-   | |  /\  ___\   /\ \ / /  /\  ___\   /\ "-.\ \      || |||               ///////|
-   | |  \ \___  \  \ \ \'/   \ \  __\   \ \ \-.  \     ||_|||         .    ////////|
-   | |   \/\_____\  \ \__|    \ \_____\  \ \_\\"\_\    | . ||         \'..'/////////
-   | |    \/_____/   \/_/      \/_____/   \/_/ \/_/    |( )||          `--`///////;
-    \|                                                 | ' ||---.  ,,,////////////
-  jgs'-------------------------------------------------'---'     `.//////////////'
-  +dg                                               ```=///////='
-                                         _
-                                     _( `--.
-                                  .-'       )--,
-                                 (__, (_      ) )
-                                   `-.__.\ _,--'
-*/
+//
+//
+//                                                                    |`-._
+//                                                                  .-'    `-.-;"\.
+//    .------------------------------------------------..-.. _ .-'\ |      /o\ | \\\
+//   |\ ________________________________________________\\ \\\/    \\      | |   ///\
+//   | |   ______     __   __   ______     __   __       ||-|||     '.      \/ //////|
+//   | |  /\  ___\   /\ \ / /  /\  ___\   /\ "-.\ \      || |||               ///////|
+//   | |  \ \___  \  \ \ \'/   \ \  __\   \ \ \-.  \     ||_|||         .    ////////|
+//   | |   \/\_____\  \ \__|    \ \_____\  \ \_\\"\_\    | . ||         \'..'/////////
+//   | |    \/_____/   \/_/      \/_____/   \/_/ \/_/    |( )||          `--`///////;
+//    \|                                                 | ' ||---.  ,,,////////////
+//  jgs'-------------------------------------------------'---'     `.//////////////'
+//  +dg                                               ```=///////='
+//                                         _
+//                                     _( `--.
+//                                  .-'       )--,
+//                                 (__, (_      ) )
+//                                   `-.__.\ _,--'
+//
 @white: #ffffff;
 @blue: #33cccc;
 @black: #181818;
 @grey: #777777;
+@red: #cc1600;
+@sand: #DBC6A9;
+@darkgrey: #4F514E;
+@lightgrey: lighten(@darkgrey, 65%);
+@celeste: #85D9F1;
+@oil: #347385;
+@brown: #AB4A37;
+
 
 @ease-in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060);
 @ease-in-out-quint: cubic-bezier(0.860, 0.000, 0.070, 1.000);
 
 @module: 6px;
+@margin: @module*2;
 
 @sidebar-width: 180px;
 
@@ -47,6 +56,74 @@ mixins
 
 body {
   color: @black;
+  background: #fff;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+// reset
+.inner{
+  position: relative;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6{
+  font-size: 13px;
+  margin: 0;
+  font-weight: normal;
+}
+
+a{
+  color: @black;
+  text-decoration: none;
+
+  &:hover{
+    background-color: @celeste;
+  }
+}
+
+header{
+  position: fixed;
+  left: 0;
+  top:0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  z-index: 1001;
+  background: white;
+  border-bottom: 1px solid @red;
+  height: @module*@module;
+
+  h1{
+    font: 13px/36px 'Source Code Pro';
+    text-transform: uppercase;
+    
+  }
+
+  >.inner{
+    padding: 0 @margin;
+    height: 100%;
+  }
+}
+
+
+
+.line{
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  bottom: 2px;
+  height: 1px;
+ 
+  >.inner{
+    margin: 0 @margin;
+    background: @darkgrey;
+    height: 1px;
+  }
+}
+
+#main{
+  margin-top: @module*8;
 }
 
 .pure-img-responsive {
@@ -72,22 +149,47 @@ body {
   margin-left: -@sidebar-width; /* "#menu" width */
   width: @sidebar-width;
   position: fixed;
-  top: 0;
+  top: @module*@module;
   left: 0;
   bottom: 0;
   z-index: 1000; /* so the menu or its navicon stays above all content */
-  background: @black;
+  background: @white;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-}
-    /*
-    All anchors inside the menu should be styled like this.
-    */
-    #menu a {
-        color: #999;
-        border: none;
-        padding: 0.6em 0 0.6em 0.6em;
+  border-right: 1px solid @lightgrey;
+  
+  h2{
+
+  }
+
+  ul{
+
+  }
+  li{
+    padding: @margin;
+    border-bottom: 1px solid @lightgrey;
+    position: relative;
+
+    &:hover{
+      background: @celeste;
     }
+  }
+
+}
+
+
+.item{
+  border-bottom: 1px solid @lightgrey;
+  padding: @margin;
+
+  &:hover{
+    background-color: @celeste;
+  }
+}
+
+.thumb{
+  position: relative;
+}
 
     /*
     Remove all background/borders, since we are applying them to #menu.
@@ -198,11 +300,7 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 */
 @media (min-width: 48em) {
 
-    .header,
-    .content {
-        padding-left: 2em;
-        padding-right: 2em;
-    }
+    
 
     #layout {
         padding-left: @sidebar-width; /* left col width "#menu" */

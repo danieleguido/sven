@@ -1,0 +1,32 @@
+
+<div class="view">
+  <div class="wrapper">
+
+    <div class="single document">
+      <div class="datetime">
+        {{document.date}}
+      </div>
+      <h2>
+        #{{document.id}} {{document.name}}
+      </h2>
+      <div class="language">
+        {{document.language}}
+      </div>
+      <div class="tags"></div>
+
+      <div class="content">
+        <div class="text">
+        {{document.text}}
+        </div>
+        <div class="segments">
+          {{ segments.length}}
+          <div ng-repeat="segment in segments">
+
+            {{segment.content}}, {{segment.cluster}}, {{segment.max_tf}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

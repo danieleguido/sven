@@ -28,8 +28,15 @@
       height: 100%;
     }
     body{
-      font: 1.5em/1.618em 'Source Sans Pro', sans-serif;
+      font-family: 'Source Sans Pro', sans-serif;
     }
+    
+    ul, li{
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
     #layout {
       position: relative;
     }
@@ -48,6 +55,12 @@
     }
     </style>
 
+    <header>
+      <div class="inner">
+        <h1>{{SVEN_NAME}}</h1>
+        <div class="line"><div class="inner"></div></div>
+      </div>
+    </header>
     <div id="layout" ng-controller="layoutCtrl">
     <!-- Menu toggle -->
       <a href="#menu" id="menuLink" class="menu-link">
@@ -56,19 +69,16 @@
       </a>
 
       <div id="menu">
-        <div class="pure-menu pure-menu-open">
-            <a class="pure-menu-heading" href="#">{{SVEN_NAME}}</a>
-        </div>
+        
         <ul ng-controller="corpusListCtrl">
-          {% verbatim %}
+          
           <li ng-repeat="corpus in items">
-            <a href="#/corpus/{{corpus.id}}/documents">{{corpus.name}}</a>
-            {{count.clusters}} segments
-            {{count.clusters}} documents
-            {{count.clusters}} owners
+            <div ng-include="'{{ STATIC_URL }}/partials/corpus.thumb.html'">
+
+            </div>
             
           </li>
-          {% endverbatim %}
+          
         </ul>
       </div>
 
