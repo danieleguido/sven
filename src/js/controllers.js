@@ -33,7 +33,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.total_count = options.total_count;
       
       
-      $scope.numofpages = Math.floor($scope.total_count / $scope.limit );
+      $scope.numofpages = Math.floor(($scope.total_count-1) / $scope.limit );
       $scope.page = Math.floor($scope.offset / $scope.limit);
 
       if($scope.numofpages < 10) {

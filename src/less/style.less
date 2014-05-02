@@ -157,7 +157,7 @@ header{
 .content {
   margin: 0 auto;
   padding: 0;
-  max-width: 800px;
+  //max-width: 800px;
   margin-bottom: 50px;
 }
 
@@ -463,4 +463,98 @@ Hides the menu at `48em`, but modify this based on your app's needs.
     position:absolute;
     width:0;
     height:0
+}
+
+
+
+/*
+
+  paginator
+  =========
+
+*/
+.paginator{
+  display: inline;
+  position: relative;
+
+  .inner{
+    border: 1px solid @lightgrey;
+    border-radius: @module*3;
+    padding: @module 0;
+    display: inline-block;
+    margin: 0;
+  }
+  
+  .circle{
+    position: absolute;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 24px;
+    z-index: 0;
+  }
+
+  .number{
+    position: relative;
+    z-index: 1;
+  }
+
+  .prev, .next, .page{
+    font: 12px/24px 'Source Code Pro';
+    color: @black;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    margin: 0 @module/2;
+    width: 24px;
+    height: 24px;
+  }
+
+  .prev:hover, .next:hover{
+    color: @red;
+  }
+
+  .prev{
+    border-right: 1px solid @lightgrey;
+  }
+
+  .next{
+    border-left: 1px solid @lightgrey;
+  }
+
+  .page{
+    &:hover, &.selected{
+      //color: @white;
+    }
+
+    &:not(.selected):hover .circle{
+       border: 1px solid @red;
+    }
+
+    &.selected .circle{
+      border: 1px solid @darkgrey;
+    }
+  }
+} // endof paginator
+
+
+/*
+
+  Counter
+  =======
+
+*/
+.counter{
+  position: relative;
+  display: inline;
+  line-height: 36px;
+  margin-top: @module;
+  margin-right: @module*3;
+  font: 1.4rem/36px 'Source Sans Pro';
+  padding: 0 @margin;
+  .number{
+    font: 1.8rem/36px 'Source Code Pro';
+    color: @black;
+  }
 }
