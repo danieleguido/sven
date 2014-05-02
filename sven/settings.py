@@ -11,11 +11,16 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, sys
 import local_settings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SVEN_NAME = local_settings.SVEN_NAME
+
+
+MODULE = os.path.join(BASE_DIR, 'pattern')
+if MODULE not in sys.path:
+  sys.path.append(MODULE)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
