@@ -1,6 +1,21 @@
 'use strict';
 
-var CTRL_LOADED = 'background: lime; color: #181818';
+var CTRL_LOADED = 'background: lime; color: #181818',
+    STYLE_INFO = 'color: #b8b8b8',
+    CONTROLLER_PARAMS_UPDATED = "CONTROLLER_PARAMS_UPDATED",
+
+    gimmesize = function(obj) {
+      var obj = angular.copy(obj),
+          size = 0,
+          key;
+
+      for (key in obj) {
+        if (obj.hasOwnProperty(key))
+          size++;
+      };
+      return size;
+    };
+
 
 
 angular.module('sven.controllers', ['angularFileUpload'])
@@ -15,14 +30,50 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
     $scope.limit = 25;
     $scope.offset= 0;
+    $scope.default_limit = 25;
+    $scope.default_offset = 0;
+    
     $scope.filters = {};
     $scope.query = {};
     
+    $scope.numofpages = 0;
+    $scope.page = 0;
     console.log('%c layoutCtrl ', CTRL_LOADED);
     
     // look after the current corpus, babe.
     $rootScope.corpus = {};
-  
+    $scope.follow = function(link) {
+      //alert(link)
+      var path = Array.prototype.slice.call(arguments).join('/').replace(/\/+/g,'/');
+      $location.path(path);
+    }
+    
+    $scope.search = function() {
+      console.log("%c search ", 'color:white; background-color:#383838', $scope.query);
+      $scope.limit = $scope.default_limit;
+      $scope.offset = $scope.default_offset;
+      $location.search({
+        'search': $scope.query
+      });
+    }
+
+    $scope.pageto = function(page) {
+      var page = Math.max(0, Math.min(page, $scope.numofpages));
+      console.log('page to', page);
+      $scope.offset = page * $scope.limit;
+      $scope.distill();
+    };
+
+
+    $scope.nextPage = function() {
+      $scope.pageto(+$scope.page + 1);
+    };
+            
+
+    $scope.prevPage = function() {
+      $scope.pageto(+$scope.page - 1);
+    };
+
 
     $scope.paginate = function(options) {
       var options = options || {},
@@ -31,7 +82,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
           right = 0;
 
       $scope.total_count = options.total_count;
-      
+      console.log('$scope.paginate', $scope.limit, $scope.offset);
       
       $scope.numofpages = Math.floor(($scope.total_count-1) / $scope.limit );
       $scope.page = Math.floor($scope.offset / $scope.limit);
@@ -49,7 +100,83 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
       $scope.pages = pages;
       console.log('$scope.paginate', pages);
+    };
+
+
+    $scope.distill = function(options) {
+      var candidates = $location.search().filters,
+          query = $location.search().search;
+
+      if(query) {
+        $scope.query = query;
+      };
+
+      if(candidates) {
+        try{
+          var filters = JSON.parse(candidates);
+          $scope.filters = filters;
+        } catch(e){
+          console.log("%c! distill: filters failed ", 'color:white; background-color:crimson', e.message);
+          
+        }
+      } else {
+        $scope.filters = {};
+      }
+
+      $scope.howmanyfilters = gimmesize($scope.filters);
+
+      console.log("%c distill: loading filters ", 'color:white; background-color:green', 'query:',$scope.query, $scope.offset, $scope.limit);   
+      $scope.$broadcast(CONTROLLER_PARAMS_UPDATED, options);
+    };
+
+
+    $scope.setProperties = function(property, value) {
+      $scope.filters[property] = [value];
+      console.log('%c filters setProperties', STYLE_INFO, property, value, $scope.filters);
+      $scope.limit = $scope.default_limit;
+      $scope.offset = $scope.default_offset,
+        
+      $location.search({
+        'filters': JSON.stringify($scope.filters)
+      });
+    };
+
+
+    $scope.setProperty = function(property, value) {
+      $scope.filters[property] = value;
+      console.log('%c filters setProperty', 'background: crimson; color: white',property, value, $scope.filters);
+      $location.search('filters', JSON.stringify($scope.filters))
+    };
+
+
+    $scope.removeProperty = function(property, value) {
+      console.log('removing', property, value, 'from filters');
+      delete $scope.filters[property];
+      $location.search({
+        'filters': JSON.stringify($scope.filters)
+      });
     }
+
+
+    $scope.extendFilters = function(filter) {
+      var filters = angular.extend({}, $scope.filters, filter);
+      return JSON.stringify(filters)
+    };
+
+    // LISTENERS
+    $rootScope.$on('$routeChangeSuccess', function(e, r){
+      console.log("%c    route change success", STYLE_INFO);
+      $scope.filters = {};
+      $scope.limit = $scope.default_limit;
+      $scope.offset = $scope.default_offset;
+      $scope.distill(); // reload filters directly form the params
+    });
+
+
+    $rootScope.$on('$routeUpdate', function(e, r){
+      console.log("%c route updated", STYLE_INFO);
+      $scope.distill({controller: r.$$route.controller}); // push current controllername
+    });
   }])
   .controller('indexCtrl', ['$scope', function() {
 
@@ -119,6 +246,10 @@ angular.module('sven.controllers', ['angularFileUpload'])
       }
     // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
     };
+
+    $scope.$on(CONTROLLER_PARAMS_UPDATED, function(e, options) {
+      $scope.sync();
+    });
 
     $scope.sync();
     console.log('%c documentListCtrl ', CTRL_LOADED);

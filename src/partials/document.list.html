@@ -9,7 +9,7 @@
 <div ng-repeat="doc in items">
   <div class="item">
     <div class="pure-g">
-      <div class="pure-u-1-8">{{doc.language}}</div>
+      <div class="pure-u-1-8"><span class="tag" ng-click="setProperty('language', doc.language)">{{doc.language}}</span></div>
       <div class="pure-u-3-8">
         <a ng-href="#/document/{{doc.id}}">{{doc.name}}</a>
 
