@@ -5,6 +5,7 @@ angular.module('sven', [
   'sven.services',
   'sven.directives',
   'sven.controllers',
+  'ui.bootstrap',
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider, $cookies) {
   $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';

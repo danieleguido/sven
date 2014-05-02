@@ -1,4 +1,4 @@
-import subprocess, logging
+import subprocess, logging, math
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -9,7 +9,7 @@ from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPT
 from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm
-from sven.models import Corpus, Document, Profile, Job, Segment
+from sven.models import Corpus, Document, Profile, Job, Segment, Tag
 
 
 logger = logging.getLogger("sven")
@@ -335,6 +335,64 @@ def corpus_filters(request, corpus_pk):
   If user is staff he can see everything
   '''
   epoxy = Epoxy(request)
+  filters = {'timeline': {}, 'tags':{}}
+
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  ids = []
+  docs = helper_get_available_documents(request=request, corpus=c).filter(**epoxy.filters)
+  
+  for t in docs.order_by().values('date'):
+    print t
+    if t['date']:
+      _date = t['date'].strftime('%Y-%m-%d')
+    else:
+      _date = datetime.today().strftime('%Y-%m-%d')
+
+    if _date not in filters['timeline']:
+      filters['timeline'][_date] = {
+        'count' : 0,
+        'value' : _date
+      }
+
+    filters['timeline'][_date]['count'] = filters['timeline'][_date]['count'] + 1
+    
+
+  # deal with reduce and search field
+  if epoxy.reduce:
+    for r in epoxy.reduce:
+      docs = queryset.filter(r)
+
+  if epoxy.search:
+    docs = queryset.filter( Document.search(epoxy.search)).distinct()
+
+  for d in docs:
+    ids.append(d.id)
+
+  epoxy.meta('filtered_count', len(ids))
+  
+  for chunk_ids in helper_chunk_list(ids, 50):
+    
+    for t in Tag.objects.filter(document__id__in=chunk_ids):
+      _type = '%s' % t.type
+      _slug = '%s' % t.slug
+
+      if _type not in filters['tags']:
+        filters['tags'][_type] = {}
+
+      if _slug not in filters['tags'][_type]:
+        filters['tags'][_type][_slug] = {
+          'name': t.name,
+          'slug': t.slug,
+          'count': 0
+        }
+
+      filters['tags'][_type][_slug]['count'] += 1
+
+  epoxy.add('objects', filters)
   return epoxy.json()
 
 
@@ -342,3 +400,27 @@ def corpus_filters(request, corpus_pk):
 @login_required
 def download(request, corpus_pk):
   pass
+
+
+
+def helper_get_available_documents(request, corpus):
+  '''
+  Return a queryset according to user auth level and document status
+  @param request
+  @return <django.model.Queryset>
+  '''
+  if request.user.is_staff:
+    queryset = Document.objects.filter(corpus=corpus).distinct()
+  elif request.user.is_authenticated():
+    queryset = Document.objects.filter(corpus=corpus)
+  else:
+    queryset = Document.objects.filter().distinct()
+  return queryset
+
+
+def helper_chunk_list(l, n):
+    """
+    Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+      yield l[i:i+n]

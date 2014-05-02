@@ -3,7 +3,7 @@
 var CTRL_LOADED = 'background: lime; color: #181818';
 
 
-angular.module('sven.controllers', [])
+angular.module('sven.controllers', ['angularFileUpload'])
   /*
     
     The very main controller. Handle django orm filters in ng-view .
@@ -76,7 +76,7 @@ angular.module('sven.controllers', [])
     Sidebar user corpora ctrl.
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$routeParams', 'DocumentListFactory', function($scope, $routeParams, DocumentListFactory) {
+  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', function($scope, $upload, $routeParams, DocumentListFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -86,6 +86,38 @@ angular.module('sven.controllers', [])
             total_count: data.meta.total_count
           });
       });
+    };
+
+    $scope.uploadprogress = 100;
+
+    $scope.onFileSelect = function($files) {
+      for (var i = 0; i < $files.length; i++) {
+        var file = $files[i];
+        $scope.upload = $upload.upload({
+          url: '/api/corpus/' + $routeParams.id + '/upload', //upload.php script, node.js route, or servlet url
+          // method: POST or PUT,
+          // headers: {'headerKey': 'headerValue'},
+          // withCredentials: true,
+          data: {myObj: $scope.myModelObj},
+          file: file,
+          // file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
+          /* set file formData name for 'Content-Desposition' header. Default: 'file' */
+          //fileFormDataName: myFile, //OR for HTML5 multiple upload only a list: ['name1', 'name2', ...]
+          /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
+          //formDataAppender: function(formData, key, val){} //#40#issuecomment-28612000
+        }).progress(function(evt) {
+          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total)
+          console.log('percent: ' + $scope.uploadprogress);
+        }).success(function(data, status, headers, config) {
+          // file is uploaded successfully
+          console.log(data);
+          $scope.uploadprogress = 100;
+          $scope.sync();
+        });
+        //.error(...)
+        //.then(success, error, progress); 
+      }
+    // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
     };
 
     $scope.sync();

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from sven.models import Corpus, Document, Job, Segment, Document_Segment, Profile
+from sven.models import Corpus, Document, Tag, Job, Segment, Document_Segment, Profile
 
 
 
@@ -19,6 +19,11 @@ class CorpusAdmin(admin.ModelAdmin):
 class JobAdmin(admin.ModelAdmin):
   search_fields = ['corpus']
 
+
+
+class TagAdmin(admin.ModelAdmin):
+  search_fields = ['name']
+  
 
 
 class SegmentAdmin(admin.ModelAdmin):
@@ -41,6 +46,7 @@ class UserAdmin(UserAdmin):
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(Corpus, CorpusAdmin)
 admin.site.register(Job, JobAdmin)
+admin.site.register(Tag, TagAdmin)
 admin.site.register(Segment, SegmentAdmin)
 admin.site.register(Document_Segment)
 admin.site.unregister(User)

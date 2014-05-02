@@ -269,8 +269,8 @@ class Tag(models.Model):
   feel free to add tag type to this model ... :D
   '''
   FREE = '' # i.e, no special category at all
-  ACTOR = 'actor'
-  INSTITUTION = 'institution'
+  ACTOR = 'ac'
+  INSTITUTION = 'in'
 
   TYPE_CHOICES = (
     (FREE, 'no category'),
@@ -279,7 +279,7 @@ class Tag(models.Model):
   )
 
   name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
-  slug = models.SlugField(max_length=128) # e.g. 'mr-e-smith'
+  slug = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
   type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
 
 
@@ -292,6 +292,15 @@ class Tag(models.Model):
   def __unicode__(self):
     return "%s : %s"% (self.get_type_display(), self.name)
 
+
+  def json(self, deep=False):
+    d = {
+      'id': self.id, # uniqueid
+      'name': self.name,
+      'slug': self.slug,
+      'type': self.type
+    }
+    return d
 
 
 
@@ -324,7 +333,8 @@ class Document(models.Model):
       'language': self.language,
       'date': self.date.strftime("%Y-%m-%d") if self.date else None,
       'date_created': self.date_created.isoformat(),
-      'date_last_modified': self.date_last_modified.isoformat()
+      'date_last_modified': self.date_last_modified.isoformat(),
+      'tags': [t.json() for t in self.tags.all()]
     }
     if deep:
       d.update({
