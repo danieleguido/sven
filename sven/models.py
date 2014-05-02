@@ -182,6 +182,16 @@ class Corpus(models.Model):
 
 
 
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+  if created:
+    cor = Corpus(name=u'%s-box' % instance.username)
+    cor.save()
+    cor.owners.add(instance)
+    cor.save()
+
+
+
 @receiver(pre_delete, sender=Corpus)
 def delete_corpus(sender, instance, **kwargs):
   '''
@@ -253,6 +263,38 @@ class Freebase(models.Model):
 
 
 
+class Tag(models.Model):
+  '''
+  Clustering documents according to tag. A special tag category is actor.
+  feel free to add tag type to this model ... :D
+  '''
+  FREE = '' # i.e, no special category at all
+  ACTOR = 'actor'
+  INSTITUTION = 'institution'
+
+  TYPE_CHOICES = (
+    (FREE, 'no category'),
+    (ACTOR, 'actor'),
+    (INSTITUTION, 'Institution'),
+  )
+
+  name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
+  slug = models.SlugField(max_length=128) # e.g. 'mr-e-smith'
+  type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
+
+
+  def save(self, **kwargs):
+    if self.pk is None:
+      self.slug = helper_uuslug(model=Tag, instance=self, value=self.name)
+    super(Tag, self).save()
+
+
+  def __unicode__(self):
+    return "%s : %s"% (self.get_type_display(), self.name)
+
+
+
+
 class Document(models.Model):
   name = models.CharField(max_length=128)
   slug = models.CharField(max_length=128, unique=True)
@@ -270,6 +312,7 @@ class Document(models.Model):
   url = models.URLField(blank=True, null=True) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
+  tags = models.ManyToManyField(Tag, blank=True, null=True)
 
 
   def json(self, deep=False):

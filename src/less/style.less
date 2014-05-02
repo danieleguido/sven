@@ -25,9 +25,9 @@
 @red: #cc1600;
 @sand: #DBC6A9;
 @darkgrey: #4F514E;
-@lightgrey: lighten(@darkgrey, 65%);
+@lightgrey: lighten(@darkgrey, 55%);
 @celeste: #85D9F1;
-@oil: #347385;
+@oil: lighten(#347385, 10%);
 @brown: #AB4A37;
 
 
@@ -53,6 +53,10 @@ mixins
   transition: @arguments;
 }
 
+.clear{
+  clear: both;
+}
+
 
 body {
   color: @black;
@@ -73,14 +77,16 @@ h1, h2, h3, h4, h5, h6{
   font-weight: normal;
 }
 
+
 a{
-  color: @black;
+  color: @oil;
   text-decoration: none;
 
   &:hover{
     background-color: @celeste;
   }
 }
+
 
 header{
   position: fixed;
@@ -97,11 +103,22 @@ header{
   h1{
     font: 13px/36px 'Source Code Pro';
     text-transform: uppercase;
-    
   }
 
+  .menu{
+    position: absolute;
+    right: 0;
+    top: 0;
+    line-height: @module*@module;
+  }
+
+  .username{
+    font-weight: bold;
+  }
+  
+
   >.inner{
-    padding: 0 @margin;
+    margin: 0 @margin;
     height: 100%;
   }
 }
@@ -116,7 +133,7 @@ header{
   height: 1px;
  
   >.inner{
-    margin: 0 @margin;
+    //margin: 0 @margin;
     background: @darkgrey;
     height: 1px;
   }
@@ -170,9 +187,7 @@ header{
     border-bottom: 1px solid @lightgrey;
     position: relative;
 
-    &:hover{
-      background: @celeste;
-    }
+    
   }
 
 }

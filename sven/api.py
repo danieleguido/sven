@@ -329,5 +329,16 @@ def profile(request, pk=None):
 
 
 @login_required
+def corpus_filters(request, corpus_pk):
+  '''
+  return corpus documents timeline, tags distribution etc...
+  If user is staff he can see everything
+  '''
+  epoxy = Epoxy(request)
+  return epoxy.json()
+
+
+
+@login_required
 def download(request, corpus_pk):
   pass

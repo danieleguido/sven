@@ -80,6 +80,7 @@ def _shared_context(request, tags=[], d={}):
   d.update({
     'SVEN_NAME': settings.SVEN_NAME,
     'DEBUG': settings.DEBUG,
-    'ENABLE_CDN_SERVICES': settings.ENABLE_CDN_SERVICES
+    'ENABLE_CDN_SERVICES': settings.ENABLE_CDN_SERVICES,
+    'LANGUAGE': request.LANGUAGE_CODE
   })
   return d

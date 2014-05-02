@@ -1,7 +1,8 @@
 <div class="thumb">
-  <h2><a href="#/corpus/{{corpus.id}}/documents">{{corpus.name}}</a></h2>
+  <div style="float: left; width: 32px; height: 32px; background-color:{{corpus.color}}; margin-right: 12px;border-radius: 32px;"></div><h2><a href="#/corpus/{{corpus.id}}/documents">{{corpus.name}}</a></h2>
+  {{corpus.count.documents}} documents
+  <div class="clear"></div>
             {{corpus.count.clusters}} segments
-            {{corpus.count.documents}} documents
             {{corpus.count.owners}} owners
 
 </div>

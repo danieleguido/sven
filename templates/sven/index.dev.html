@@ -58,6 +58,9 @@
     <header>
       <div class="inner">
         <h1>{{SVEN_NAME}}</h1>
+        <div class="menu">
+          {% trans 'hi'%} <span class="username">{{user.username}}</span> / <a href="{% url 'sven_logout' %}">your profile</a> {{LANGUAGE}}/ <a href="{% url 'sven_logout' %}">logout</a>
+        </div>
         <div class="line"><div class="inner"></div></div>
       </div>
     </header>
