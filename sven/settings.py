@@ -153,6 +153,7 @@ LOGGING = {
 
 LOG_FILE = LOGGING['handlers']['file']['filename']
 
+# sven management stuffs
 FREEBASE_KEY = local_settings.FREEBASE_KEY
-
-STANDALONE_COMMANDS = ['harvest', 'whoosh', 'freebase'] # standalone management commands.
+WHOOSH_PATH  = os.path.join(BASE_DIR, 'contents/whoosh')
+STANDALONE_COMMANDS = ['harvest', 'whoosher', 'freebase'] # standalone management commands.

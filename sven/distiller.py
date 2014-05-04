@@ -22,8 +22,8 @@ def dry(content):
   '''
   Return a purged, celaned text. Try into test.
   '''
-  content = content.replace("’", "'")
-  content = content.replace(r' ', r' ')# strange space char
+  #content = content.replace("’", "'")
+  #content = content.replace(u' ', u' ')# strange space char
   return content
 
 

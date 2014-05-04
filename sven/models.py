@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging
+import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging, codecs
 from datetime import datetime 
 
 from django.conf import settings
@@ -348,12 +348,70 @@ class Document(models.Model):
     return '%s [%s]' % (self.name, self.slug)
 
 
+  @staticmethod
+  def get_whoosh():
+    '''
+    return inbdex instance currently installed or (tyies) to install it.
+    todo check posssible errors!!!!!!!
+    And what about declaring import here ?
+    '''
+    from whoosh.index import create_in, exists_in, open_dir
+    from whoosh.fields import Schema, TEXT, KEYWORD, ID, STORED
+    
+    schema = Schema(title=TEXT(stored=True), path=ID(unique=True, stored=True), content=TEXT(stored=True), tags=KEYWORD)
+    
+    if not os.path.exists(settings.WHOOSH_PATH):
+      os.mkdir(settings.WHOOSH_PATH)
+    
+    if not exists_in(settings.WHOOSH_PATH):
+      index = create_in(settings.WHOOSH_PATH, schema)
+    else:
+      index = open_dir(settings.WHOOSH_PATH)
+    return index
+
+
+  @staticmethod
+  def indexed_search(query, epoxy):
+    '''
+    test: http://localhost:8000/api/corpus/1/document?search=king&indent
+    '''
+    from whoosh.qparser import QueryParser
+
+    ix = Document.get_whoosh()
+    parser = QueryParser("content", ix.schema)
+    q = parser.parse(query)
+
+    with ix.searcher() as searcher:
+    #results = s.search(q)
+      results = searcher.search(q, limit=200)
+      epoxy.meta('total_count',  len(results))
+      epoxy.meta('query', query)
+      objs = []
+      ids = []
+      items=[]
+      for hit in results[epoxy.offset: epoxy.offset+epoxy.limit]:
+        ids.append(hit['path'])
+        items.append(hit)
+
+      qs = Document.objects.filter(id__in=ids)
+      for d in qs:
+        doc = d.json()
+        doc['match'] = items[ids.index(u"%s"%d.id)].highlights("content")
+        objs.append(doc)
+
+      epoxy.add('objects',objs)
+      #print len(results), results[0], results[0].highlights("content")
+
+    #epoxy.meta("ciao",'ciao')
+
+
+
   def text(self):
     '''
     Get utf8 text content of the file
     '''
     if self.mimetype == 'text/plain':
-      with open(self.raw.path, 'r') as f:
+      with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
         content = f.read()
     else:
       content = 'ciao'
