@@ -56,12 +56,15 @@ def not_found(request):
 
 @login_required
 def start(request, corpus_pk, cmd):
+  '''
+  Usage url: 
+  '''
   epoxy = Epoxy(request)
 
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
-    return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   logger.debug('starting "%s" on corpus %s' % (cmd, corpus_pk))
     
@@ -400,6 +403,21 @@ def corpus_filters(request, corpus_pk):
 @login_required
 def download(request, corpus_pk):
   pass
+
+
+
+@login_required
+def jobs(request):
+  epoxy = Epoxy(request)
+  epoxy.queryset(Job.objects.filter(corpus__owners=request.user))
+  return epoxy.json()
+
+
+@login_required
+def job(request, corpus_pk, cmd):
+  epoxy = Epoxy(request)
+  epoxy.queryset(Job.objects.filter(corpus__owners=request.user))
+  return epoxy.json()
 
 
 

@@ -508,20 +508,26 @@ class Job(models.Model):
   def start(corpus, command='harvest', popen=True):
     '''
     Check if there are jobs running, otherwise
-    Ouptut None or the created job
+    Ouptut None or the created job.
+    Test with:
+    http://localhost:8000/api/corpus/1/start/harvest
+    http://localhost:8000/api/corpus/1/start/whoosher
     '''
     # check if there are job running...
     if Job.is_busy():
+      logger.debug('job is busy %s' % command) 
+      
       return None
     if command not in settings.STANDALONE_COMMANDS:
-      logger.debug('command "%s" stored into management command' % command) 
+      logger.debug('command "%s" not stored as management command, running start command instead' % command) 
       # cpmmand stored into start
       popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), 'start', '--cmd', command, '--corpus']
     else:
+      logger.debug('command "%s" popopened' % command) 
       popen_args = [settings.PYTHON_INTERPRETER, os.path.join(settings.BASE_DIR,'manage.py'), command, '--corpus']
     logger.debug('starting cmd "%s"%s' % (command, ' as subprocess' if popen else '' ))
     job, created = Job.objects.get_or_create(corpus=corpus)
-    job.status = Job.STARTED
+    job.status = Job.RUNNING
     job.cmd = ' '.join(popen_args[:-1])
     job.save()
 
@@ -531,8 +537,6 @@ class Job(models.Model):
       job.pid = s.pid
     else:
       job.pid = 0
-    job.status=Job.RUNNING
-    job.save()
 
     return job
 

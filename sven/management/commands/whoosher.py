@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
     # staring index if needed    
     ix = Document.get_whoosh()
-    
+    logger.debug('index started')
     # creating writer
     writer = ix.writer() # multi thread cfr. from whoosh.writing import AsyncWriter
 
@@ -56,21 +56,22 @@ class Command(BaseCommand):
         path = u"%s"%doc.id,
         content=doc.text())
     
-    from whoosh.qparser import QueryParser
-    parser = QueryParser("content", ix.schema)
-    q = parser.parse("summer")
-
     writer.commit()
     
+    logger.debug('index compiled successfully')
+
+    #from whoosh.qparser import QueryParser
+    #parser = QueryParser("content", ix.schema)
+    #q = parser.parse("summer")
+
+    
     #qp = qparser.QueryParser("path", schema=ix.schema) q = qp.parse(u"test_id:alfa")
-    with ix.searcher() as searcher:
-    #results = s.search(q)
-      results = searcher.search(q)
-      print len(results), results[0], results[0].highlights("content")
+    #with ix.searcher() as searcher:
+      #results = s.search(q)
+    #  results = searcher.search(q)
+    #  print len(results), results[0], results[0].highlights("content")
 
 
     logger.debug('job completed')
     
     job.stop()
-
-    exit()

@@ -18,7 +18,10 @@ apipatterns = patterns('sven.api',
   url(r'^corpus/(?P<corpus_pk>\d+)/segment/(?P<segment_pk>\d+)$', 'corpus_segment', name='sven_api_corpus_segment'), #view modify segment cluster according to the current corpus
   
   url(r'^corpus/(?P<corpus_pk>\d+)/filters$', 'corpus_filters', name='sven_api_corpus_filters'), #view modify segment cluster according to the current corpus
-      
+  
+  url(r'^job$', 'jobs', name='sven_api_jobs'), #view modify segment cluster according to the current corpus
+  url(r'^job/(?P<pk>\d+)$', 'job', name='sven_api_job'), #view modify segment cluster according to the current corpus
+       
 
   url(r'^document/(?P<pk>\d+)$', 'document', name='sven_api_document'), # user document (user must have access, or a nOT found error is thrown)
   url(r'^document/(?P<pk>\d+)/segments$', 'document_segments', name='sven_api_document_segments'), # get requet.user's document segments list (with simple tf idf)

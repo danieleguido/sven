@@ -256,7 +256,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
     DocumentFactory.query({id: $routeParams.id}, function(data){
-      $scope.item = data.object;
+      $scope.document = data.object;
       
       DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
         console.log(data);
