@@ -8,7 +8,7 @@ from django.db.models import Q, Count
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
-from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm
+from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm
 from sven.models import Corpus, Document, Profile, Job, Segment, Tag
 
 
@@ -323,9 +323,24 @@ def profile(request, pk=None):
   epoxy = Epoxy(request)
 
   try:
-    pro = User.objects.get(pk=pk).profile if pk is not None and request.user.is_staff else request.user.profile
+    pro = Profile.objects.get(user__pk=pk) if pk is not None and request.user.is_staff else request.user.profile
   except Profile.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  if epoxy.is_POST:
+    form = edit_object(instance=pro, Form=ProfileForm, epoxy=epoxy)
+    if not form.is_valid():
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+    
+    if form.cleaned_data['firstname']:
+      pro.user.first_name = form.cleaned_data['firstname']
+    
+    if form.cleaned_data['lastname']:
+      pro.user.last_name = form.cleaned_data['lastname']
+    
+    pro.user.save()
+    form.instance.save()
+
 
   return epoxy.item(pro, deep=True).json()
 

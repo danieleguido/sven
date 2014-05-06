@@ -21,6 +21,8 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});
   $routeProvider.when('/log', {templateUrl: '/static/partials/log.html', controller: 'logCtrl'});
   
+  $routeProvider.when('/profile', {templateUrl: '/static/partials/profile.html', controller: 'profileCtrl'});
+
   $routeProvider.otherwise({redirectTo: '/'});
 
   // warning/ error code given by my glue api

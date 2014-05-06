@@ -269,6 +269,26 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
 
   }])
+  /*
+    Profile controller
+  */
+  .controller('profileCtrl', ['$scope', 'ProfileFactory', function($scope, ProfileFactory) {
+    $scope.sync = function(){
+      ProfileFactory.query({}, function(data) {
+        console.log(data);
+        $scope.profile = data.object;
+      });
+    };
+
+    $scope.save = function() {
+      ProfileFactory.save(angular.copy($scope.profile), function(data) {
+        console.log('back to me',data);
+        $scope.profile = data.object;
+      });
+    }
+    $scope.sync();
+    console.log('%c profileCtrl ', CTRL_LOADED);
+  }])
   .controller('blankCtrl', ['$scope', function($scope) {
 
 

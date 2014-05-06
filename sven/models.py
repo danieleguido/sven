@@ -93,8 +93,11 @@ class Profile(models.Model):
     d = {
       'id': self.id,
       'bio_raw': self.bio,
+      'bio': self.bio,
       'picture': self.picture,
-      'username': self.user.username
+      'username': self.user.username,
+      'firstname': self.user.first_name,
+      'lastname': self.user.last_name
     }
     return d
 
@@ -183,7 +186,7 @@ class Corpus(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_corpus(sender, instance, created, **kwargs):
   if created:
     cor = Corpus(name=u'%s-box' % instance.username)
     cor.save()

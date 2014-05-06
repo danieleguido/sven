@@ -1,5 +1,5 @@
 from django import forms
-from sven.models import Corpus, Document, Segment
+from sven.models import Corpus, Document, Segment, Profile
 
 
 
@@ -20,6 +20,15 @@ class DocumentForm(forms.ModelForm):
   class Meta:
     model = Document
     exclude = ['corpus', 'mimetype', 'slug']
+
+
+
+class ProfileForm(forms.ModelForm):
+  firstname = forms.CharField(max_length=32, widget=forms.TextInput, required=False)
+  lastname = forms.CharField(max_length=32, widget=forms.TextInput, required=False)
+  
+  class Meta:
+    model = Profile
 
 
 
