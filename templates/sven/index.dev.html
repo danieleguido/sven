@@ -7,7 +7,6 @@
 
 
     
-    
     <!-- purecss grid + fontawesome icons -->
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -74,8 +73,10 @@
       <div id="menu">
         
         <ul ng-controller="corpusListCtrl">
-          
-          <li ng-repeat="corpus in items">
+          <li>
+            {%verbatim%}{{ctrl}}{%endverbatim%}
+          </li>
+          <li ng-repeat="corpus in items" ng-class="selected_corpus_id == corpus.id? 'selected': ''">
             <div ng-include="'{{ STATIC_URL }}/partials/corpus.thumb.html'">
 
             </div>

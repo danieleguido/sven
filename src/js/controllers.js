@@ -40,13 +40,19 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.page = 0;
     console.log('%c layoutCtrl ', CTRL_LOADED);
     
+    
+    $scope.ctrl = ''; // current view controller
     // look after the current corpus, babe.
-    $rootScope.corpus = {};
+    
+    $scope.setCorpus = function(id) {
+      $rootScope.selected_corpus_id = id;
+    };
+
     $scope.follow = function(link) {
       //alert(link)
       var path = Array.prototype.slice.call(arguments).join('/').replace(/\/+/g,'/');
       $location.path(path);
-    }
+    };
     
     $scope.search = function() {
       console.log("%c search ", 'color:white; background-color:#383838', $scope.query);
@@ -55,13 +61,13 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $location.search({
         'search': $scope.query
       });
-    }
+    };
 
     $scope.pageto = function(page) {
       var page = Math.max(0, Math.min(page, $scope.numofpages));
       console.log('page to', page);
       $scope.offset = page * $scope.limit;
-      $scope.distill();
+      $scope.distill(); // normally the ctrl is the current ctrl...
     };
 
 
@@ -105,11 +111,12 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
     $scope.distill = function(options) {
       var candidates = $location.search().filters,
-          query = $location.search().search;
+          query = $location.search().search,
+          orderby = $location.search().orderby;
 
-      if(query) {
+      if(query)
         $scope.query = query;
-      };
+      
 
       if(candidates) {
         try{
@@ -169,13 +176,14 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.filters = {};
       $scope.limit = $scope.default_limit;
       $scope.offset = $scope.default_offset;
+      $scope.ctrl = String(r.$$route.controller);
       $scope.distill(); // reload filters directly form the params
     });
 
 
     $rootScope.$on('$routeUpdate', function(e, r){
       console.log("%c route updated", STYLE_INFO);
-      $scope.distill({controller: r.$$route.controller}); // push current controllername
+      $scope.distill(); // push current controllername
     });
   }])
   .controller('indexCtrl', ['$scope', function() {
@@ -213,6 +221,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
             total_count: data.meta.total_count
           });
       });
+      $scope.setCorpus($routeParams.id); // explicit corpus id assignment
     };
 
     $scope.uploadprogress = 100;
@@ -248,7 +257,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
     };
 
     $scope.$on(CONTROLLER_PARAMS_UPDATED, function(e, options) {
-      $scope.sync();
+      $scope.ctrl == 'documentListCtrl'
+        && $scope.sync();
     });
 
     $scope.sync();
