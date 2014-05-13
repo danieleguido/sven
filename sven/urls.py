@@ -26,6 +26,10 @@ apipatterns = patterns('sven.api',
 
   url(r'^document/(?P<pk>\d+)$', 'document', name='sven_api_document'), # user document (user must have access, or a nOT found error is thrown)
   url(r'^document/(?P<pk>\d+)/segments$', 'document_segments', name='sven_api_document_segments'), # get requet.user's document segments list (with simple tf idf)
+  url(r'^document/(?P<pk>\d+)/tag$', 'document_tags', name='sven_api_document_tags'), # get requet.user's document segments list (with simple tf idf). Return Document as data object
+  # url(r'^document/(?P<pk>\d+)/tag/(?P<tag_pk>\d+)$', 'document_tag', name='sven_api_document_tag'), # delete document tag relationship. Return Document
+  
+  url(r'^tag$', 'tags', name='sven_api_tags'), # user document (user must have access, or a nOT found error is thrown)
     
 
   url(r'^profile$', 'profile', name='sven_api_profile'), # just single profile for security sake!

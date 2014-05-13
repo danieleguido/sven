@@ -45,6 +45,12 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
         query: {method: 'GET', isArray: false, params: {id: '@id'} }
     });
   })
+  .factory('DocumentTagsFactory', function($resource) {
+    return $resource('/api/document/:id/tag', {}, {
+        query: {method: 'GET', isArray: false, params: {id: '@id'} }
+    });
+  })
+  
   .factory('DocumentSegmentsFactory', function($resource) {
     return $resource('/api/document/:id/segments', {}, {
         query: {method: 'GET', isArray: false, params: {id: '@id'} }
@@ -60,4 +66,9 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
       query: {method: 'GET', isArray: false, params: {corpus_id: '@corpus_id', segment_id: '@segment_id', } }
     });
   })
-  .value('version', '0.1');
+  .factory('TagListFactory', function($resource) { // that is the segments service for a GIVEN corpus!
+    return $resource('/api/tag', {}, {
+      query: {method: 'GET', isArray: false}
+    });
+  })
+  .value('version', '0.2');

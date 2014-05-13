@@ -27,6 +27,7 @@
 @darkgrey: #4F514E;
 @lightgrey: lighten(@darkgrey, 55%);
 @almond: lighten(@lightgrey, 11%);
+@smoke: lighten(@lightgrey, 6%);
 @celeste: #85D9F1;
 @oil: lighten(#347385, 10%);
 @brown: #AB4A37;
@@ -644,3 +645,159 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 }
 
 
+
+
+/*
+  
+  Dropdowns
+  ---------
+*/
+.dropdown{
+  position: relative;
+  margin: 0 @module*2;
+
+  .dropdown-toggle{
+    display: inline-block;
+    background: @smoke;
+    position: relative;
+    z-index: 1001;
+    line-height: 36px;
+    -webkit-border-radius: 36px;
+    -moz-border-radius: 36px;
+    border-radius: 36px;
+    padding: 0 @module*2;
+    margin: 0;
+    font: 13px/36px 'Source Code pro';
+    color: @grey;
+    .transition(background-color, .2s, linear);
+
+    .fa{ // icon
+      margin-left: 12px;
+    }
+
+    &:hover{
+      //background-color: @sand;
+    }
+  }
+
+  &.open .dropdown-menu{
+    display:block;
+  }
+
+  .orderby{
+
+    color: @black;
+  }
+}
+
+ul.dropdown-menu{
+  position: absolute;
+  background-color: lighten(@smoke, 10%);
+  z-index:1000;
+  padding:0;
+  margin:0;
+  color: @white;
+  display: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.37);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.37);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.37);
+
+  li{
+    padding: 0 @module*2;
+    line-height: 36px;
+    display: block;
+    color: @black;
+    font: 13px/36px 'Source Code pro';
+    &:hover{
+      //background-color: @blue;
+      //color: @white;
+    }
+  }
+}
+
+
+
+
+.typeahead-multi-input{
+  //display:none;
+}
+
+
+
+.tooltip{
+    position:absolute;
+    z-index:1020;
+    display:block;
+    visibility:visible;
+    padding:5px;
+    font-size:11px;
+    opacity:0;
+    filter:alpha(opacity=0)
+}
+.tooltip.in{
+    opacity:.8;
+    filter:alpha(opacity=80)
+}
+.tooltip.top{
+    margin-top:-2px
+}
+.tooltip.right{
+    margin-left:2px
+}
+.tooltip.bottom{
+    margin-top:2px
+}
+.tooltip.left{
+    margin-left:-2px
+}
+.tooltip.top .tooltip-arrow{
+    bottom:0;
+    left:50%;
+    margin-left:-5px;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-top:5px solid #000
+}
+.tooltip.left .tooltip-arrow{
+    top:50%;
+    right:0;
+    margin-top:-5px;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-left:5px solid #000
+}
+.tooltip.bottom .tooltip-arrow{
+    top:0;
+    left:50%;
+    margin-left:-5px;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-bottom:5px solid #000
+}
+.tooltip.right .tooltip-arrow{
+    top:50%;
+    left:0;
+    margin-top:-5px;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-right:5px solid #000
+}
+.tooltip-inner{
+    max-width:200px;
+    padding:3px 8px;
+    color:#fff;
+    text-align:center;
+    text-decoration:none;
+    background-color:#000;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px
+}
+.tooltip-arrow{
+    position:absolute;
+    width:0;
+    height:0
+}
