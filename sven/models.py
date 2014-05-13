@@ -339,6 +339,10 @@ class Document(models.Model):
       'date_last_modified': self.date_last_modified.isoformat(),
       'tags': [t.json() for t in self.tags.all()]
     }
+
+    if self.mimetype != "text/plain":
+      d['media'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))
+      
     if deep:
       d.update({
         'text': self.text(),
@@ -403,10 +407,6 @@ class Document(models.Model):
         objs.append(doc)
 
       epoxy.add('objects',objs)
-      #print len(results), results[0], results[0].highlights("content")
-
-    #epoxy.meta("ciao",'ciao')
-
 
 
   def text(self):
@@ -417,7 +417,15 @@ class Document(models.Model):
       with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
         content = f.read()
     else:
-      content = 'ciao'
+      textified = '%s.txt' % self.raw.path
+      if os.path.exists(textified):
+        with codecs.open(textified, encoding='utf-8', mode='r') as f:
+          content = f.read()
+        
+      else:
+        content = '%s does not have a text associed. %s' % (self.mimetype, textified)
+      # exitsts text translations?
+      
     
     # clean content
     content = dry(content)

@@ -1,161 +1,22 @@
+{% extends 'sven/index.html'%}
 {% load i18n %}
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="The ultimate app in rapid text extracting! With the awesome Pattern lib and freebase, you can set up your own literary lab in minutes">
-<title>{{ SVEN_NAME }}</title>
 
+{% block page%}
 
-  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure.css">
-
-  <!--[if lte IE 8]>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/pure/main-grid-old-ie.css">
-  <![endif]-->
-  <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/pure/main-grid.css">
-  <!--<![endif]-->
-
-  <!--[if lte IE 8]>
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/pure/layouts/marketing-old-ie.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/pure/layouts/marketing.css">
-    <!--<![endif]-->
-  
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-</head>
-<body>
-<style>
-  /*
-    Colors:
-    #181818  dark dark grey;
-    #ec5148  probably forccast red on screen
-    #ff5450  lighter forccast red
-    #d84744  light forccast red;
-    #7c2927  dark dark forccast red;
-    #33cccc  probably forccast blue
-  */
-  html {
-    font-size: 62.5%;
-    height: 100%;
-  }
-  body{
-    font: 1.5em/1.618em 'Source Sans Pro', sans-serif;
-    margin: 0;
-    padding:0;
-  }
-  input[type="text"], input[type="password"], textarea, select { 
-    outline: none;
-
-}
-  #login{
-    width: 280px;
-    margin: 0 auto;
-  }
-
-  #id_login_username, #id_login_password{
-    background-color: transparent;
-  }
-  #login h1{
-
-  }
-  .splash-container{
+<div id="login-form">
+  <h1>{{ SVEN_NAME}}</h1>
+  <form class="pure-form" method="POST" action="{% url 'sven_login' %}">
+    <fieldset class="pure-group">
+      <input id="id_login_username" type="text" autofocus="autofocus" name="username" class="pure-input-1" maxlength="64" placeholder="{% trans "username" %}" />
+      <input id="id_login_password" type="password" placeholder="{% trans "password" %}" name="password" class="pure-input-1"  maxlength="64" />
+      <button class="boo pure-button pure-input-1 pure-button-primary">{% trans "login" %} <i class="fa fa-unlock"></i></button>
+    </fieldset>
+    <input type="hidden" value="{{ next }}" name="next" />
+    {% csrf_token %}
+              
+                
     
-    background: url('http://postconflictyouth.net/images/bkg2.png') no-repeat center center fixed; 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  }
-
-  .boo{
-    background-color: transparent;
-  }
-
-  .pure-menu.pure-menu-open.pure-menu-fixed{
-    border-bottom: none;
-    background-color: #181818;
-    color: white;
-  }
-
-  .pure-menu.pure-menu-horizontal, .pure-menu.pure-menu-horizontal .pure-menu-heading{
-    font: 1.2rem/1em 'Source Code Pro', sans-serif;
-    text-transform: uppercase;
-    color: #D70206;
-  }
-
-
-</style>
-
-
-<div class="header">
-    <div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
-        <a class="pure-menu-heading" href="">{{ SVEN_NAME }}</a>
-
-        
-    </div>
-</div>
-
-
-
-<div class="splash-container">
-    <div class="splash">
-         
-          
-
-          <h1 class="splash-head">Youth Activism & Memory</h1>
-        <p class="splash-subhead">
-            in Post-Conflict Justice
-        </p>
-    </div>
-</div>
-
-<div class="content-wrapper">
-    <div class="content">
-         <div id="login">
-            <h1>{% trans "login" %}</h1>
-              
-              {% if error %}
-              <p class="red">
-                {{ error }}
-              </p>
-              {% endif %}
-
-              {% if debug %}
-              <p>next: {{ next }}</p>
-              {% endif %}
-
-              <form class="pure-form" method="POST" action="{% url 'sven_login' %}">
-                <fieldset class="pure-group">
                 
-                  <input id="id_login_username" type="text" autofocus="autofocus" name="username" class="pure-input-1" maxlength="64" placehoder="{% trans "username" %}" />
-                  <input id="id_login_password" type="password" name="password" class="pure-input-1"  maxlength="64" />
-                </fieldset>
-                <input type="hidden" value="{{ next }}" name="next" />
-                {% csrf_token %}
-              
-                
-                <button class="boo pure-button pure-input-1 pure-button-primary">{% trans "login" %} <i class="fa fa-unlock"></i></button>
-                
-              </form>
-          </div>
-    </div>
+  </form>
 </div>
-
-
-<script type="text/javascript">
-  window.onscroll = scroll;
-
-function scroll () {
- console.log("scroll event detected! " + window.pageXOffset + " " + window.pageYOffset);
- // note: you can use window.innerWidth and window.innerHeight to access the width and height of the viewing area
-}
-</script>
-
-
-
-</body>
-</html>
+{%endblock%}

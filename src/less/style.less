@@ -158,8 +158,19 @@ header{
 .content {
   margin: 0 auto;
   padding: 0;
-  //max-width: 800px;
   margin-bottom: 50px;
+
+  .menu{
+    background: @white;
+    padding-top: @module;
+    padding-bottom: @module;
+    margin-bottom: @module;
+    border-left: 1px solid transparent;
+    &.scroll-to-fixed-fixed{
+      border-bottom: 1px solid @darkgrey;
+      border-left: 1px solid @lightgrey;
+    }
+  }
 }
 
 
@@ -202,6 +213,7 @@ header{
   border-bottom: 1px solid @lightgrey;
   padding: @margin;
 
+  
   &:hover{
     background-color: lighten(@lightgrey, 10%);
   }
@@ -625,8 +637,10 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 .pure-form input[type=text], .pure-form input[type=password], .pure-form input[type=email], .pure-form input[type=url], .pure-form input[type=date], .pure-form input[type=month], .pure-form input[type=time], .pure-form input[type=datetime], .pure-form input[type=datetime-local], .pure-form input[type=week], .pure-form input[type=number], .pure-form input[type=search], .pure-form input[type=tel], .pure-form input[type=color], .pure-form select, .pure-form textarea{
   border: 0px solid transparent;
   box-shadow: none;
-  border-bottom: 1px solid @darkgrey;
+  border: 1px solid @lightgrey;
   border-radius: 0;
   background: @almond;
   
 }
+
+

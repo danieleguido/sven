@@ -1,16 +1,38 @@
-<div class="view">
-  <div class="wrapper">
-  <ul class="plain-list">
-    <li ng-repeat="segment in segments">
-      <div class="plain-list-item">
-        <div class="g-1">{{segment.id}}</div>
-        <div class="g-3" edit-in-place><b>{{segment.cluster}}</b></div>
-        <div class="g-2">{{segment.content}}</div>
-        <div class="g-2">{{segment.tf}}</div>
-        <div class="g-1">{{segment.distribution}}</div>
-        <div class="g-1">{{segment.status}}</div>
+<div class="menu" scroll-to-fixed margin-top="36">
+<div ng-include src="'/static/partials/helpers.menu.html'"></div>
+  <div class="pure-g">
+      <div class="pure-u-1-8" ng-click="toggleStatus(segment)">
+        visible or not
       </div>
-    </li>
-  </ul>
-  </div>
+      <div class="pure-u-3-8">
+        concept
+      </div>
+      <div class="pure-u-3-8">
+       sample
+      </div>
+      <div class="pure-u-1-8">
+        distribution
+      </div>
+      
+    </div>
+
 </div>
+
+  <div class="item" ng-class="{{segment.status}}" ng-repeat="segment in items">
+    <div class="pure-g">
+      <div class="pure-u-1-8" ng-click="toggleStatus(segment)">
+        <span class="tag">{{segment.status}}</span>
+      </div>
+      <div class="pure-u-3-8">
+        <a ng-href="#/cluster/{{segment.id}}">{{segment.cluster}}</a>
+
+      </div>
+      <div class="pure-u-3-8">
+          {{segment.content}}
+      </div>
+      <div class="pure-u-1-8">
+        {{segment.distribution}}
+      </div>
+      
+    </div>
+  </div>

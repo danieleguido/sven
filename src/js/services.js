@@ -55,4 +55,9 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
       query: {method: 'GET', isArray: false, params: {id: '@id'} }
     });
   })
+  .factory('SegmentFactory', function($resource) { // that is the segments service for a GIVEN corpus!
+    return $resource('/api/corpus/:corpus_id/segment/:segment_id', {}, {
+      query: {method: 'GET', isArray: false, params: {corpus_id: '@corpus_id', segment_id: '@segment_id', } }
+    });
+  })
   .value('version', '0.1');

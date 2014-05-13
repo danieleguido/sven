@@ -299,6 +299,50 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.sync();
     console.log('%c profileCtrl ', CTRL_LOADED);
   }])
+  /*
+    Segmentlist controller, with attach tag.
+  */
+  .controller('segmentListCtrl', ['$scope','$routeParams', 'SegmentListFactory', 'SegmentFactory', function($scope, $routeParams, SegmentListFactory, SegmentFactory) {
+    $scope.sync = function() {
+      SegmentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data) {
+          console.log(data);
+          $scope.items = data.objects;
+          $scope.paginate({
+            total_count: data.meta.total_count
+          });
+      });
+      $scope.setCorpus($routeParams.id); // explicit corpus id assignment
+    };
+
+    $scope.save = function(item) {
+      SegmentFactory.save({
+        corpus_id: $routeParams.id,
+        segment_id: item.id
+      }, {
+        status: item.status,
+        cluster: item.cluster
+      }, function(data) {
+        console.log(data);
+
+      })
+    }
+    $scope.toggleStatus = function(item) {
+      
+      if(item.status == 'IN')
+        item.status = 'OUT';
+      else
+        item.status = 'IN';
+      $scope.save(item);
+    }
+
+    $scope.$on(CONTROLLER_PARAMS_UPDATED, function(e, options) {
+      $scope.ctrl == 'segmentListCtrl'
+        && $scope.sync();
+    });
+
+    $scope.sync();
+    console.log('%c segmentListCtrl ', CTRL_LOADED);
+  }])
   .controller('blankCtrl', ['$scope', function($scope) {
 
 

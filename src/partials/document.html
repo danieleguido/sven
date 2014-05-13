@@ -18,7 +18,13 @@
       
         <div class="pure-g">
           <div class="pure-u-1-2">
-        
+            <div ng-switch="document.mimetype">
+              <div ng-when="image/jpeg">
+                <!-- -->
+                <img src="{{document.media}}">
+              </div>
+            </div>
+          
             <div class="text">
               {{document.text}}
             </div>

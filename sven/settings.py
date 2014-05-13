@@ -94,6 +94,7 @@ USE_TZ = True
 STATIC_URL = local_settings.STATIC_URL
 
 MEDIA_ROOT = local_settings.MEDIA_ROOT
+MEDIA_URL = local_settings.MEDIA_URL
 
 LOGIN_URL = '/login/'
 

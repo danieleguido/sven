@@ -28,6 +28,7 @@
     }
     body{
       font-family: 'Source Sans Pro', sans-serif;
+
     }
     
     ul, li{
@@ -52,8 +53,19 @@
     #layout.active .menu-link {
       left: 180px;
     }
-    </style>
 
+    #login-form{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 297px;
+      width: 210px;
+      margin-top: -150px;
+      margin-left: -110px;
+    }
+    </style>
+    {% block page %}
+    
     <header>
       <div class="inner">
         <h1>{{SVEN_NAME}}</h1>
@@ -97,6 +109,7 @@
         </div>
       </div>
     </div>
+    {% endblock %}
 
     {% if DEBUG %}
       {% if ENABLE_CDN_SERVICES %}
@@ -105,19 +118,25 @@
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
       {% else %}
+      <script src="{{ STATIC_URL }}/js/libs/jquery.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-route.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-resource.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-animate.min.js"></script>
 
       {% endif %}
+
+      <script src="{{ STATIC_URL }}/js/libs/jquery.scrolltofixed.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-ui-bootstrap-tpls.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script>
-    <script src="{{ STATIC_URL }}/js/app.js"></script>
-    <script src="{{ STATIC_URL }}/js/services.js"></script>
-    <script src="{{ STATIC_URL }}/js/controllers.js"></script>
-    <script src="{{ STATIC_URL }}/js/filters.js"></script>
-    <script src="{{ STATIC_URL }}/js/directives.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-ui-bootstrap-tpls.min.js"></script>
+      <script src="{{ STATIC_URL }}/js/libs/angular-elastic.js"></script>
+
+      <script src="{{ STATIC_URL }}/js/app.js"></script>
+      <script src="{{ STATIC_URL }}/js/services.js"></script>
+      <script src="{{ STATIC_URL }}/js/controllers.js"></script>
+      <script src="{{ STATIC_URL }}/js/filters.js"></script>
+      <script src="{{ STATIC_URL }}/js/directives.js"></script>
     {% else %}
     <script src="{{ STATIC_URL }}/js/sven.min.js"></script>
     {% endif %}

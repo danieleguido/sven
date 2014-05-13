@@ -4,12 +4,13 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
+from django.db import connection
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm
-from sven.models import Corpus, Document, Profile, Job, Segment, Tag
+from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
 
 
 logger = logging.getLogger("sven")
@@ -31,11 +32,11 @@ def notification(request):
   '''
   epoxy = Epoxy(request)
 
-  try:
-    epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
-  except OSError, e:
-    logger.exception(e)
-    
+  #try:
+  #  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
+  #except OSError, e:
+  #  logger.exception(e)
+  # DEPRECATED. too much. 
   jobs = Job.objects.filter(corpus__in=request.user.corpora.all())
   epoxy.queryset(jobs)
   epoxy.add('datetime', datetime.now().isoformat())
@@ -153,7 +154,7 @@ def document_segments(request, pk):
 @login_required
 def document_upload(request, corpus_pk):
   try:
-    corpus = Corpus.objects.get(pk=corpus_pk)
+    corpus = Corpus.objects.get(pk=corpus_pk, corpus__owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
@@ -165,6 +166,29 @@ def document_upload(request, corpus_pk):
   epoxy = Epoxy(request)
   return epoxy.json()
 
+
+@login_required
+def document_text_version_upload(request, document_pk):
+  '''
+  A special page to handle uploading of txt files
+  for images and videos.
+  '''
+  try:
+    doc = Document.objects.get(pk=document_pk, corpus__owners=request.user)
+  except Document.DoesNotExist, e:
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  f = request.FILES['file']
+
+  # open file for writing.
+  textified = '%s.txt' % doc.raw.path
+
+  with open(textified, 'wb+') as destination:
+    for chunk in f.chunks():
+      destination.write(chunk)
+  
+  epoxy = Epoxy(request)
+  return epoxy.json()
 
 
 @login_required
@@ -218,6 +242,12 @@ def corpus_segments(request, corpus_pk):
   if not epoxy.order_by:
     epoxy.order_by = ['max_tf DESC']
 
+  # total count
+  cursor = connection.cursor()
+  cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment")
+
+  row = cursor.fetchone()
+  epoxy.meta('total_count', row[0])
   segments = Segment.objects.raw("""
     SELECT 
       s.`id`, s.`content`,s.`language`, 
@@ -268,6 +298,9 @@ def corpus_segment(request, corpus_pk, segment_pk):
   if epoxy.is_POST():
     form = CorpusSegmentForm(epoxy.data)
     if form.is_valid():
+      status = form.cleaned_data['status']
+      cluster = form.cleaned_data['cluster']
+      Segment.objects.filter(corpus=c, cluster=s.cluster).update(status=status, cluster=cluster)
       #Segment.objects.filter(cluster=, documents)
       #form.cleaned_data['status'],form.cleaned_data['cluster']
 
@@ -281,7 +314,7 @@ def corpus_segment(request, corpus_pk, segment_pk):
   segments = Segment.objects.raw("""
     SELECT 
       s.`id`, s.`content`,s.`language`, 
-      s.`cluster`, ds.`status`, 
+      s.`cluster`, s.`status`, 
       ds.`tfidf`,
       ds.`tf`,
       ds.document_id

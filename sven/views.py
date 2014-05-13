@@ -45,6 +45,9 @@ def login_view(request):
     d = _shared_context(request, tags=[ "login" ], d=login_message)
     return render_to_response('sven/login.html', RequestContext(request, d ))
 
+  if not request.POST.get('remember_me', None):
+    request.session.set_expiry(0)
+
   if form.is_valid():
     user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
     if user is not None:
