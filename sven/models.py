@@ -85,7 +85,7 @@ def helper_colour():
 
 class Profile(models.Model):
   user = models.OneToOneField(User)
-  bio = models.TextField()
+  bio = models.TextField(null=True, blank=True)
   picture = models.URLField(max_length=160, blank=True, null=True)
 
 

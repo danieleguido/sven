@@ -2,6 +2,7 @@ local_settings.py
 sven.wsgi
 
 media/*
+dist/*
 
 *.pyc
 *~

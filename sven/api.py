@@ -388,9 +388,12 @@ def profile(request, pk=None):
   try:
     pro = Profile.objects.get(user__pk=pk) if pk is not None and request.user.is_staff else request.user.profile
   except Profile.DoesNotExist, e:
+    pro = Profile(user=request.user, bio="")
+    pro.save()
+  except Exception, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  if epoxy.is_POST:
+  if epoxy.is_POST():
     form = edit_object(instance=pro, Form=ProfileForm, epoxy=epoxy)
     if not form.is_valid():
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()

@@ -29,7 +29,7 @@ if MODULE not in sys.path:
 SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True#False
+DEBUG = local_settings.DEBUG#False
 
 TEMPLATE_DEBUG = True
 
