@@ -155,7 +155,7 @@ def document_segments(request, pk):
 @login_required
 def document_upload(request, corpus_pk):
   try:
-    corpus = Corpus.objects.get(pk=corpus_pk, corpus__owners=request.user)
+    corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 

@@ -3,7 +3,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SVEN_NAME = 'SVEN'
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [] # change this according to the documentation
 
 SECRET_KEY = 'your own generated secret key'
