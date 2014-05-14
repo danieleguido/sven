@@ -29,7 +29,7 @@ if MODULE not in sys.path:
 SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True#False
 
 TEMPLATE_DEBUG = True
 
@@ -92,7 +92,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = local_settings.STATIC_URL
-
+STATIC_ROOT = local_settings.STATIC_ROOT
 MEDIA_ROOT = local_settings.MEDIA_ROOT
 MEDIA_URL = local_settings.MEDIA_URL
 
