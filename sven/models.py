@@ -101,6 +101,7 @@ class Profile(models.Model):
     }
     return d
 
+
   def save(self, **kwargs):
     if self.pk is None or len(self.picture) == 0:
       try:
