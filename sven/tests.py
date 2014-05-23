@@ -69,8 +69,10 @@ class CorpusTest(TestCase):
     response = sven.api.corpus(request, pk=self.corpus.pk)
     jresponse = json.loads(response.content)
 
-    self.assertEqual('%s-%s-%s' % (jresponse['meta']['action'], jresponse['meta']['method'], jresponse['status']), 'corpus-DELETE-ok')
-
+    self.assertEqual(jresponse['meta']['action'], u'sven.api.corpus')
+    self.assertEqual(jresponse['meta']['method'], u'DELETE')
+    self.assertEqual(jresponse['status'], u'ok')
+   
 
   def text_delete_all_corpora(self):
     Corpus.objects.delete()
@@ -185,5 +187,7 @@ class DistillerTests(TestCase):
     from distiller import freebase
     if settings.FREEBASE_KEY is not None:
       concepts = freebase(query='Bohain-en-Vermandois', lang='fr', api_key=settings.FREEBASE_KEY)
-      for c in concepts:
-        print c
+      
+      if concepts is not None:
+        for c in concepts:
+          print c

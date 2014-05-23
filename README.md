@@ -3,9 +3,28 @@ sven is a django app which easily integrate text analysis with pattern with a po
 
 installing sven
 ---
-git clone, activate submodules, activate a virtualenv, mkvirtualenv
-copy localsettingssample and modify it according to your own configutation
+Welcome to our three minutes install! All you need is a terminal, virtualenv, virtualenvwrapper and a good knowledge of a Django structure. That's it. For development purpose, node and grunt-cli should be installed - cfr _troubleshooting_ part below. 
+	
+	cd ~/path/to
+	git clone https://gitub.com/danieleguido/sven.git
+	cd ~/path/to/sven
+	cp sven/locale_settings.sample.py sven/locale_settings.py
+	
+modify it according to your __own__ configutation.
+if you're going to use a _sqlite_ database (a light and fast alternative), you need to create a specific directory to hold the sqlite file. Then give adequate permissions access to both sqlite file and its parent directory.
 
+	cd ~/path/to/sven
+	mkvirtualenv sven
+		...
+	workon sven
+		...
+	(sven) python manage.py syncdb
+	(sven) python manage.py test
+
+sven in production: some hints
+---
+
+todo
 
 troubleshooting
 ---
@@ -37,3 +56,9 @@ wsgiref==0.1.2
 
 git submodule init
 git submodule update
+
+
+Structure
+---
+
+`./src` contains all the js and stylesheet used by Sven.

@@ -1,5 +1,8 @@
 import os
 
+DEBUG = True
+ALLOWED_HOSTS = []
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SVEN_NAME = 'SVEN'
@@ -10,9 +13,11 @@ DB_NAME = os.path.join(BASE_DIR, 'sqlite/db.sqlite3') # given as example
 
 LANGUAGE_CODE = 'en-us'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 PYTHON_INTERPRETER = '/home/daniele/.virtualenvs/sven/bin/python' # mine, given as exemple. Cfr virtualenv doc.
 

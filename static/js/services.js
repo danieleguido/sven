@@ -1,13 +1,17 @@
 'use strict';
 
 /* Services */
+
+
+// Demonstrate how to register services
+// In this case it is a simple value service.
 angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
-  .factory('NotificationFactory', function($resource) {
+   .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {
         query: {method: 'GET' },
     });
   })
-  .factory('CommandFactory', function($resource) {
+   .factory('CommandFactory', function($resource) {
     return $resource('/api/corpus/:id/start/:cmd', {}, {
         launch: {method: 'POST', params: {cmd: '@cmd', id:'@id'}}
     });
@@ -49,6 +53,11 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
   .factory('SegmentListFactory', function($resource) { // that is the segments service for a GIVEN corpus!
     return $resource('/api/corpus/:id/segment', {}, {
       query: {method: 'GET', isArray: false, params: {id: '@id'} }
+    });
+  })
+  .factory('SegmentFactory', function($resource) { // that is the segments service for a GIVEN corpus!
+    return $resource('/api/corpus/:corpus_id/segment/:segment_id', {}, {
+      query: {method: 'GET', isArray: false, params: {corpus_id: '@corpus_id', segment_id: '@segment_id', } }
     });
   })
   .value('version', '0.1');

@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SVEN_NAME = local_settings.SVEN_NAME
 
-
+# load local pattern
 MODULE = os.path.join(BASE_DIR, 'pattern')
 if MODULE not in sys.path:
   sys.path.append(MODULE)
@@ -29,11 +29,10 @@ if MODULE not in sys.path:
 SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = local_settings.DEBUG
+ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 
 TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -90,7 +89,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-
+STATIC_ROOT = local_settings.STATIC_ROOT
 STATIC_URL = local_settings.STATIC_URL
 
 MEDIA_ROOT = local_settings.MEDIA_ROOT

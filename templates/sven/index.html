@@ -15,9 +15,9 @@
     {% if DEBUG %}
     <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}/less/style.less" />
     <script src="{{ STATIC_URL }}/js/libs/less-1.7.0.min.js" type="text/javascript"></script>
-  {% else %}
-
-  {% endif %}
+    {% else %}
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}/build/css/style.min.css" />
+    {% endif %}
   </head>
   <body>
     <!-- fastest inline stylesheet as stated by gool -->
@@ -138,7 +138,7 @@
       <script src="{{ STATIC_URL }}/js/filters.js"></script>
       <script src="{{ STATIC_URL }}/js/directives.js"></script>
     {% else %}
-    <script src="{{ STATIC_URL }}/js/sven.min.js"></script>
+    <script src="{{ STATIC_URL }}/build/js/sven.min.js"></script>
     {% endif %}
 
   </body>

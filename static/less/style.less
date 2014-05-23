@@ -1,442 +1,646 @@
-@import 'base.less';
-@import 'plugins.less';
+//
+//
+//                                                                    |`-._
+//                                                                  .-'    `-.-;"\.
+//    .------------------------------------------------..-.. _ .-'\ |      /o\ | \\\
+//   |\ ________________________________________________\\ \\\/    \\      | |   ///\
+//   | |   ______     __   __   ______     __   __       ||-|||     '.      \/ //////|
+//   | |  /\  ___\   /\ \ / /  /\  ___\   /\ "-.\ \      || |||               ///////|
+//   | |  \ \___  \  \ \ \'/   \ \  __\   \ \ \-.  \     ||_|||         .    ////////|
+//   | |   \/\_____\  \ \__|    \ \_____\  \ \_\\"\_\    | . ||         \'..'/////////
+//   | |    \/_____/   \/_/      \/_____/   \/_/ \/_/    |( )||          `--`///////;
+//    \|                                                 | ' ||---.  ,,,////////////
+//  jgs'-------------------------------------------------'---'     `.//////////////'
+//  +dg                                               ```=///////='
+//                                         _
+//                                     _( `--.
+//                                  .-'       )--,
+//                                 (__, (_      ) )
+//                                   `-.__.\ _,--'
+//
+@white: #ffffff;
+@blue: #33cccc;
+@black: #181818;
+@grey: #777777;
+@red: #cc1600;
+@sand: #DBC6A9;
+@darkgrey: #4F514E;
+@lightgrey: lighten(@darkgrey, 55%);
+@almond: lighten(@lightgrey, 11%);
+@celeste: #85D9F1;
+@oil: lighten(#347385, 10%);
+@brown: #AB4A37;
 
-@import '../css/ui.css';
-@import '../css/animate.css';
 
-@black:  #001A25;
+@ease-in-quint: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+@ease-in-out-quint: cubic-bezier(0.860, 0.000, 0.070, 1.000);
 
-html {
-  font-size: 62.5%;
-  height: 100%;
+@module: 6px;
+@margin: @module*2;
+
+@sidebar-width: 180px;
+
+/*
+
+mixins
+======
+
+*/
+.transition(@property:all, @duration:.4s, @easing:ease-in-out){
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -ms-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
 }
-
-
-body{
-  font: 1.3em/1.618em 'Source Sans Pro', sans-serif;
-  background-color: #fff;
-  height:100%;
-  padding: 0;
-  margin: 0;
-  color: @black;
-}
-
-
-h1,h2,h3,h4,h5{
-  font: 2rem/1.618em 'Source Sans Pro', sans-serif;
-}
-
-a{
-  color: #046971;
-  text-decoration: none;
-}
-/* #Page Styles
-================================================== */
-button, a.boo {
-  font: 1.2rem/1.618em 'Source Code Pro', sans-serif;
-  font-weight: normal;
-  text-transform: uppercase;
-  text-decoration: none;
-  background: #ec5148;
-  color: #f9eedc;
-  text-align: center;
-  display: inline-block;
-  border-radius:2px;
-  padding: 6px 12px;
-  margin:0;
-  text-shadow: none;
-  border-width: 0px;
-  -webkit-transition: background 200ms ease-in-out;
-   -moz-transition: background 200ms ease-in-out;
-     -o-transition: background 200ms ease-in-out;
-        transition: background 200ms ease-in-out; /* easeOutQuint */
-
-
-}
-
-
-button:hover, a.boo:hover{
-  background: #ff5450;
-  color: white;
-  border-width: 0px;
-}
-
-
-button::disabled{
-  background: #ccc;
-}
-
-
-label{
-  display: block;
-  font-size: 1.2rem;
-}
-
-
-@mod: 6px;
-@mod2: 36px;
-@margin: @mod * 4;
-@header_height: @mod * 6;
-@sidebar_width: @mod * 36;
-@nav_height:  @mod * 10 + 2;
-
-header{
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: @header_height + 2px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-
-  >.wrapper{
-    position: relative;
-    margin: 0 @mod*4;
-    padding: 0;
-    border-bottom: 1px solid #EADBC4;
-    background: #ffffff;
-    height: @header_height + 2px;
-  
-  }
-
-  h1{
-    font: 1.2rem/@mod2 'Source Code Pro', sans-serif;
-    text-transform: uppercase;
-    margin-left: @margin/2;
-    color: #D70206;
-  }
-}
-
-
-sidebar{
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100%;
-  padding: 0;
-  width: @sidebar_width;
-  z-index: 999;
-  
-  >.wrapper{
-    margin: @header_height + 2px 0 0 @margin;
-    padding: 0;//@mod*2;//@margin;
-    border-right: 1px solid #EADBC4;
-    min-height: 400px;
-
-    ul li {
-      text-align: center;
-    }
-  }
-
-  input[type="text"]{
-    width: 139px;
-    margin: 0;
-    padding: 0;
-    border: 0px;
-    border-bottom: 1px solid black;
-    line-height: 32px;
-    padding: 0 12px;
-    margin: 12px;
-  }
-}
-
-
-footer{
-  position: fixed;
-  bottom: -@mod*12 + 24px;
-  left: 0;
-  width: 100%;
-  height: @mod*12;
-  background-color: @black;
-}
-
-
-.main{
-  margin: @header_height @margin @header_height @sidebar_width;
- 
-  >.wrapper{
-     padding: @margin;
-  }
-
-  .view-nav{
-    position: fixed;
-    width: 100%;
-    left: 0;
-    top: @header_height;
-    background: white;
-    height: @nav_height;
-      
-    >.wrapper{
-      position: relative;
-      padding: 12px;
-      margin: 0 @margin 0 @sidebar_width;
-      border-bottom: 1px solid #EADBC4;
-      padding: @margin/2;
-      
-      h2{
-        font-weight: bold;
-        font-size: 1.6rem;
-      }
-
-      h3{
-        color: #b7b7b7;
-        font-size: 1.3rem;
-        line-height: 1rem;
-      }
-    }
-  }
-
-  .view{
-    >.wrapper{
-      margin-top: @header_height + @nav_height;
-      padding:0;
-    }
-  }
-
-  .blackboard{
-    background: #151515;
-    color: white;
-    font: 1.1rem/1.618 'Source Code Pro';
-    padding: 12px 18px;
-    min-height: @mod * @mod * @mod;
-  }
-}
-
-
-.bottom-line{
-  position: absolute;
-  bottom: 1px;
-  left: 0;
-  background-color: #181818;
-  height: 1px;
-  width: 100%;
-}
-
 
 .clear{
   clear: both;
 }
 
 
-.bar-wrapper{
-  position: absolute;
-  height: 16px;
-  bottom: 3px;
+body {
+  color: @black;
+  background: #fff;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+// reset
+.inner{
+  position: relative;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6{
+  font-size: 13px;
+  margin: 0;
+  font-weight: normal;
+}
+
+
+a{
+  color: @oil;
+  text-decoration: none;
+
+  &:hover{
+    background-color: @celeste;
+  }
+}
+
+
+header{
+  position: fixed;
   left: 0;
+  top:0;
   width: 100%;
-  
-  .bar{
-    width: 20.45%;
-    background: #D70206;
+  padding: 0;
+  margin: 0;
+  z-index: 1001;
+  background: white;
+  border-bottom: 1px solid @red;
+  height: @module*@module;
+
+  h1{
+    font: 13px/36px 'Source Code Pro';
+    text-transform: uppercase;
+  }
+
+  .menu{
     position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 1px;
-    -webkit-transition: width 300ms ease-in-out;
-   -moz-transition: width 300ms ease-in-out;
-     -o-transition: width 300ms ease-in-out;
-        transition: width 300ms ease-in-out; /* easeOutQuint */
-  }
-
-  .bar-label {
-    font: 11px/1.6px 'Source Code Pro', sans-serif;
-    text-align: right;
-    margin-top: -6px;
-  }
-}
-
-
-#login{
-  margin: 0 auto;
-  width: @mod * 40;
-
-  p{
-    margin: @mod*4 0;
-  }
-}
-
-
-
-#user{
-  position: absolute;
-  top: 0;
-  right: @margin/2;
-  line-height: @header_height;
-
-  .picture{
-    display: block;
-    float: left;
-    height: 24px;
-    overflow: hidden;
-    width: 24px;
-    border-radius: 12px;
-    margin: @header_height/2 - 24px/2 0 0 0;
-
-    img{
-      width: 100%;
-      height: 100%;
-    }
+    right: 0;
+    top: 0;
+    line-height: @module*@module;
   }
 
   .username{
-    float: left;
-    margin-left: @mod*2;
-  }
-}
-
-
-
-.corpus{
-  padding: @mod @mod @mod @mod*2;
-  border-top: 1px solid #EADBC4;
-    
-  .name{
-    color: #b7b7b7;
-  }
-
-  &.ng-enter,
-  &.ng-move {
-    display:none;
-    
-  
-    -webkit-animation: fadeInLeft .6s;
-    -moz-animation: fadeInLeft .6s;
-    -ms-animation: fadeInLeft .6s;
-    animation: fadeInLeft .6s;
-
-    &.ng-enter-active{
-      display:block
-    }
-  }
-  
-  &.ng-leave {
-    -webkit-animation: bounceOut 1s;
-    -moz-animation: bounceOut 1s;
-    -ms-animation: bounceOut 1s;
-    animation: bounceOut 1s;
-  }
-
-  &.ng-enter-stagger {
-   -webkit-animation-delay:0.2s;
-  animation-delay:0.2s;
-
-  /* yes we still need to do this too */
-  -webkit-animation-duration:0;
-  animation-duration:0;
-  }
-}
-
-
-// single document or segment viewer
-.single{
-  padding:36px 60px;
-
-  h2{
-    font-size: 2.4rem;
     font-weight: bold;
-    max-width: 600px;
-    margin: @margin/2 0 0 0;
-    
   }
-
-  .content{
-    margin: @margin 0 0 0;
-    .text{
-      width: 400px;
-      float: left;
-      font-size: 1.5rem;
-    }
-
-    .segments{
-      margin-left: 400px + @margin;
-    }
-  }
-}
-
-
-
-.circle{
-  width: 36px;
-  height: 36px;
-  margin-right: 12px;
-  border-radius: 36px;
-}
-
-
-
-ul.plain-list{
-  margin: 0;// @margin;
   
-  li{
-    overflow: auto;
-    width: 100%;
-    clear:both;
 
-    &:nth-child(odd){
-      background: lighten(#EADBC4, 10%);
-    }
+  >.inner{
+    margin: 0 @margin;
+    height: 100%;
+  }
+}
 
-    .plain-list-item{
-      padding: @mod @mod*2;
-    
+
+
+.line{
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  bottom: 2px;
+  height: 1px;
+ 
+  >.inner{
+    //margin: 0 @margin;
+    background: @darkgrey;
+    height: 1px;
+  }
+}
+
+#main{
+  margin-top: @module*8;
+}
+
+.pure-img-responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+#layout,
+#menu,
+.menu-link {
+  .transition();
+}
+
+.content {
+  margin: 0 auto;
+  padding: 0;
+  margin-bottom: 50px;
+
+  .menu{
+    background: @white;
+    padding-top: @module;
+    padding-bottom: @module;
+    margin-bottom: @module;
+    border-left: 1px solid transparent;
+    &.scroll-to-fixed-fixed{
+      border-bottom: 1px solid @darkgrey;
+      border-left: 1px solid @lightgrey;
     }
   }
 }
 
-// # pseudogrid
-.g,.g-1,.g-2,.g-3,.g-4,.g-5{
-  float:left;
+
+#menu {
+  margin-left: -@sidebar-width; /* "#menu" width */
+  width: @sidebar-width;
+  position: fixed;
+  top: @module*@module;
+  left: 0;
+  bottom: 0;
+  z-index: 1000; /* so the menu or its navicon stays above all content */
+  background: @white;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-right: 1px solid @lightgrey;
+  
+  h2{
+
+  }
+
+  ul{
+
+  }
+  li{
+    padding: @margin;
+    border-bottom: 1px solid @lightgrey;
+    position: relative;
+
+    &.selected{
+        background-color: lighten(@lightgrey, 10%);
+      
+    }
+    
+  }
+
 }
 
-.g-1{
-  width:10%;
+
+.item{
+  border-bottom: 1px solid @lightgrey;
+  padding: @margin;
+
+  
+  &:hover{
+    background-color: lighten(@lightgrey, 10%);
+  }
 }
-.g-2{
-  width:20%;
+
+.pure-g [class *="pure-u"]{
+  font-family: 'Source Sans Pro';
+  
 }
-.g-3{
-  width:30%;
+
+.big-item{
+  h2{
+    color: @darkgrey;
+    margin: @margin;
+  }
+
+  .tags{
+    margin: 0 @margin @margin @margin;
+  }
+
+  .text{
+     margin: 0 @margin @margin @margin;
+     padding: 0 @margin 0 0;
+     position: relative;
+  }
+
+  .segment{
+    overflow: hidden;
+  }
 }
-.g-4{
-  width:40%;
+
+.profile{
+  border-top: 1px solid @lightgrey;
+  margin: @margin;
+  padding-top: @margin;
 }
-.g-5{
-  width:50%;
+
+.thumb{
+  position: relative;
+}
+
+    /*
+    Remove all background/borders, since we are applying them to #menu.
+    */
+     #menu .pure-menu,
+     #menu .pure-menu ul {
+        border: none;
+        background: transparent;
+    }
+
+    /*
+    Add that light border to separate items into groups.
+    */
+    #menu .pure-menu ul,
+    #menu .pure-menu .menu-item-divided {
+        border-top: 1px solid #333;
+    }
+        /*
+        Change color of the anchor links on hover/focus.
+        */
+        #menu .pure-menu li a:hover,
+        #menu .pure-menu li a:focus {
+            background: #333;
+        }
+
+    /*
+    This styles the selected menu item `<li>`.
+    */
+    #menu .pure-menu-selected,
+    #menu .pure-menu-heading {
+        background: #1f8dd6;
+    }
+        /*
+        This styles a link within a selected menu item `<li>`.
+        */
+        #menu .pure-menu-selected a {
+            color: #fff;
+        }
+
+    /*
+    This styles the menu heading.
+    */
+    #menu .pure-menu-heading {
+        font-size: 110%;
+        color: #fff;
+        margin: 0;
+    }
+
+/* -- Dynamic Button For Responsive Menu -------------------------------------*/
+
+/*
+The button to open/close the Menu is custom-made and not part of Pure. Here's
+how it works:
+*/
+
+/*
+`.menu-link` represents the responsive menu toggle that shows/hides on
+small screens.
+*/
+.menu-link {
+    position: fixed;
+    display: block; /* show this only on small screens */
+    top: 0;
+    left: 0; /* "#menu width" */
+    background: #000;
+    background: rgba(0,0,0,0.7);
+    font-size: 10px; /* change this value to increase/decrease button size */
+    z-index: 10;
+    width: 2em;
+    height: auto;
+    padding: 2.1em 1.6em;
+}
+
+    .menu-link:hover,
+    .menu-link:focus {
+        background: #000;
+    }
+
+    .menu-link span {
+        position: relative;
+        display: block;
+    }
+
+    .menu-link span,
+    .menu-link span:before,
+    .menu-link span:after {
+        background-color: #fff;
+        width: 100%;
+        height: 0.2em;
+    }
+
+        .menu-link span:before,
+        .menu-link span:after {
+            position: absolute;
+            margin-top: -0.6em;
+            content: " ";
+        }
+
+        .menu-link span:after {
+            margin-top: 0.6em;
+        }
+
+
+/* -- Responsive Styles (Media Queries) ------------------------------------- */
+
+/*
+Hides the menu at `48em`, but modify this based on your app's needs.
+*/
+@media (min-width: 48em) {
+
+    
+
+    #layout {
+        padding-left: @sidebar-width; /* left col width "#menu" */
+        left: 0;
+    }
+    #menu {
+        left: @sidebar-width;
+    }
+
+    .menu-link {
+        position: fixed;
+        left: @sidebar-width;
+        display: none;
+    }
+
+    #layout.active .menu-link {
+        left: @sidebar-width;
+    }
 }
 
 
-.floating{
-  float: left;
+
+
+
+
+/*
+  
+  Dropupload
+  ===
+*/
+.dropupload{
+  border: 1px dashed @lightgrey;
+  padding: @module*2;
+  text-align: center;
+  font: 12px/24px 'Source Code Pro';
+  height: 24px;
+  .transition(all);
+  
+  &.dragover{
+    background-color: @celeste;
+    height: 64px;
+    line-height: 64px;
+  }
 }
 
-input.flatten{
-  border-width: 0;
-  padding:0;
-  margin:0;
-  color: @black;
-  background: transparent;
-  box-shadow: none;
-  font: 1.3rem/1.618em 'Source Sans Pro', sans-serif;
+
+.tag{
+  background-color: @lightgrey;
+  padding: 3px @module;
 
   &:hover{
-    padding:0;
-  margin:0;
-     border-width: 0;
+    background-color: @celeste;
+  }
+}
+
+
+/*
+
+  Tooltip
+  ===
+
+*/
+
+.tooltip{
+    position:absolute;
+    z-index:1020;
+    display:block;
+    visibility:visible;
+    padding:5px;
+    font-size:11px;
+    opacity:0;
+    filter:alpha(opacity=0)
+}
+
+.tooltip.in{
+    opacity:.8;
+    filter:alpha(opacity=80)
+}
+
+.tooltip.top{
+    margin-top:-2px
+}
+
+.tooltip.right{
+    margin-left:2px
+}
+
+.tooltip.bottom{
+    margin-top:2px
+}
+
+.tooltip.left{
+    margin-left:-2px
+}
+
+.tooltip.top .tooltip-arrow{
+    bottom:0;
+    left:50%;
+    margin-left:-5px;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-top:5px solid #000
+}
+
+.tooltip.left .tooltip-arrow{
+    top:50%;
+    right:0;
+    margin-top:-5px;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-left:5px solid #000
+}
+
+.tooltip.bottom .tooltip-arrow{
+    top:0;
+    left:50%;
+    margin-left:-5px;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-bottom:5px solid #000
+}
+
+.tooltip.right .tooltip-arrow{
+    top:50%;
+    left:0;
+    margin-top:-5px;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-right:5px solid #000
+}
+
+.tooltip-inner{
+    max-width:200px;
+    padding:3px 8px;
+    color:#fff;
+    text-align:center;
+    text-decoration:none;
+    background-color:#000;
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    border-radius:4px
+}
+
+.tooltip-arrow{
+    position:absolute;
+    width:0;
+    height:0
+}
+
+
+
+/*
+
+  paginator
+  =========
+
+*/
+.paginator{
+  display: inline;
+  position: relative;
+
+  .inner{
+    border: 1px solid @lightgrey;
+    border-radius: @module*3;
+    padding: @module 0;
+    display: inline-block;
+    margin: 0;
+  }
+  
+  .circle{
+    position: absolute;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 24px;
+    z-index: 0;
+  }
+
+  .number{
+    position: relative;
+    z-index: 1;
+  }
+
+  .prev, .next, .page{
+    font: 12px/24px 'Source Code Pro';
+    color: @black;
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+    margin: 0 @module/2;
+    width: 24px;
+    height: 24px;
+  }
+
+  .prev:hover, .next:hover{
+    color: @red;
+  }
+
+  .prev{
+    border-right: 1px solid @lightgrey;
+  }
+
+  .next{
+    border-left: 1px solid @lightgrey;
+  }
+
+  .page{
+    &:hover, &.selected{
+      //color: @white;
+    }
+
+    &:not(.selected):hover .circle{
+       border: 1px solid @red;
+    }
+
+    &.selected .circle{
+      border: 1px solid @darkgrey;
+    }
+  }
+} // endof paginator
+
+
+
+/*
+
+  Counter
+  =======
+
+*/
+.counter{
+  position: relative;
+  display: inline;
+  line-height: 36px;
+  margin-top: @module;
+  margin-right: @module*3;
+  font: 1.4rem/36px 'Source Sans Pro';
+  padding: 0 @margin;
+  .number{
+    font: 1.8rem/36px 'Source Code Pro';
+    color: @black;
   }
 }
 
 
 
-#create-corpus-form{
-  -webkit-transition: all 380ms ease-in-out;
-   -moz-transition: all 380ms ease-in-out;
-     -o-transition: all 380ms ease-in-out;
-        transition: all 380ms ease-in-out; /* easeOutQuint */
+/*
 
-  margin-top: -50px;
+  buttons
+  =======
 
-  &.opened{
-    margin-top: 0px;
+*/
+.boo{
+  border: 0px solid;
+  font-family: 'Source Code Pro';
+  border-radius: 0;
+  background: @lightgrey;
+
+  &:hover {
+    background: @celeste;
+    
   }
+
+  
 }
+
+.pure-form .pure-control-group{
+  margin-bottom: @margin;
+}
+.pure-form input[type=text], .pure-form input[type=password], .pure-form input[type=email], .pure-form input[type=url], .pure-form input[type=date], .pure-form input[type=month], .pure-form input[type=time], .pure-form input[type=datetime], .pure-form input[type=datetime-local], .pure-form input[type=week], .pure-form input[type=number], .pure-form input[type=search], .pure-form input[type=tel], .pure-form input[type=color], .pure-form select, .pure-form textarea{
+  border: 0px solid transparent;
+  box-shadow: none;
+  border: 1px solid @lightgrey;
+  border-radius: 0;
+  background: @almond;
+  
+}
+
+

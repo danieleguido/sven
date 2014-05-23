@@ -86,6 +86,7 @@ def evaporate(segments):
 
 
 
+
 def freebase(api_key, query, lang):
   '''
   return some dummy tuple of "notable" id and result id in the freebase format.

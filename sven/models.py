@@ -383,14 +383,20 @@ class Document(models.Model):
     test: http://localhost:8000/api/corpus/1/document?search=king&indent
     '''
     from whoosh.qparser import QueryParser
-
+    from whoosh.query import Term, Or
     ix = Document.get_whoosh()
     parser = QueryParser("content", ix.schema)
     q = parser.parse(query)
 
+    qs = Document.objects.filter(**epoxy.filters)
+    ids = [u'%s' % d.id for d in qs]
+
+    print qs.count()
+    restrict_q = Or([Term("path", u'%s' % d.id) for d in qs])# [Term("path", u'1'), Term("path", u'3')])
+
     with ix.searcher() as searcher:
     #results = s.search(q)
-      results = searcher.search(q, limit=200)
+      results = searcher.search(q, limit=200, filter=restrict_q)
       epoxy.meta('total_count',  len(results))
       epoxy.meta('query', query)
       objs = []
