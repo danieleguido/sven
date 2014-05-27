@@ -31,9 +31,7 @@ SECRET_KEY = local_settings.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = local_settings.DEBUG
 ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
-
 TEMPLATE_DEBUG = True
-
 
 # Application definition
 
@@ -91,7 +89,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 STATIC_ROOT = local_settings.STATIC_ROOT
 STATIC_URL = local_settings.STATIC_URL
-
+STATIC_ROOT = local_settings.STATIC_ROOT
 MEDIA_ROOT = local_settings.MEDIA_ROOT
 MEDIA_URL = local_settings.MEDIA_URL
 

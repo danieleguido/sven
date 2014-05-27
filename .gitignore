@@ -3,6 +3,7 @@ sven.wsgi
 
 media/*
 static/*
+dist/*
 
 *.pyc
 *~

@@ -1,5 +1,5 @@
 from django import forms
-from sven.models import Corpus, Document, Segment, Profile
+from sven.models import Corpus, Document, Segment, Profile, Tag
 
 
 
@@ -7,6 +7,10 @@ class LoginForm(forms.Form):
   username = forms.CharField(max_length=32, widget=forms.TextInput)
   password = forms.CharField(max_length=64, label='Password', widget=forms.PasswordInput(render_value=False))
 
+
+class TagsForm(forms.Form):
+  type = forms.ChoiceField(choices=Tag.TYPE_CHOICES)
+  tags = forms.RegexField(regex=r'^[\=\.\?\:\/\s\w,\-\_\']*$',label='tags' )
 
 
 class CorpusForm(forms.ModelForm):

@@ -26,7 +26,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     limit and offset of the curtrent view are also set.
   */
-  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', function($scope, $rootScope, $location, $route) {
+  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', 'TagListFactory', function($scope, $rootScope, $location, $route, TagListFactory) {
 
     $scope.limit = 25;
     $scope.offset= 0;
@@ -107,6 +107,18 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.pages = pages;
       console.log('$scope.paginate', pages);
     };
+
+
+
+    $scope.suggestTags = function(tag_type, tag_val) {
+      return TagListFactory.query({
+          filters:'{"type":"'+tag_type+'"}',
+          search:tag_val
+      }).$promise.then(function(data) {
+        return data.objects;
+      });
+    };
+
 
 
     $scope.distill = function(options) {
@@ -211,7 +223,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     Sidebar user corpora ctrl.
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', function($scope, $upload, $routeParams, DocumentListFactory) {
+  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -263,6 +275,21 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
     $scope.sync();
     console.log('%c documentListCtrl ', CTRL_LOADED);
+
+    $scope.__adding_tag = false;
+    $scope.attachTag = function(tag_type, tag, item) {
+      DocumentTagsFactory.save({
+        id: item.id
+      }, {
+        tags: tag.name || tag,
+        type: tag_type
+      },function(data){
+        $scope.sync();     
+      });
+      $scope.__tag_candidate = "";
+      $scope.__adding_tag = false;
+      console.log(arguments, $scope.__tag_candidate);
+    };
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
     DocumentFactory.query({id: $routeParams.id}, function(data){

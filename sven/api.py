@@ -4,12 +4,13 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
-from django.db import connection
+from django.db import connection, transaction
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
-from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm
+from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm
+
 from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
 
 
@@ -154,7 +155,7 @@ def document_segments(request, pk):
 @login_required
 def document_upload(request, corpus_pk):
   try:
-    corpus = Corpus.objects.get(pk=corpus_pk, corpus__owners=request.user)
+    corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
@@ -165,6 +166,7 @@ def document_upload(request, corpus_pk):
 
   epoxy = Epoxy(request)
   return epoxy.json()
+
 
 
 @login_required
@@ -189,6 +191,34 @@ def document_text_version_upload(request, document_pk):
   
   epoxy = Epoxy(request)
   return epoxy.json()
+
+
+
+@login_required
+def tags(request):
+  epoxy = Epoxy(request)
+
+  epoxy.queryset(Tag.objects.filter())
+  return epoxy.json()
+
+
+
+@login_required
+def document_tags(request, pk):
+  epoxy = Epoxy(request)
+  try:
+    doc = Document.objects.get(pk=pk, corpus__owners=request.user)
+  except Document.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  if epoxy.is_POST():
+    is_valid, result = helper_free_tag(instance=doc, append=True, epoxy=epoxy)
+    if not is_valid:
+      return epoxy.throw_error(error=result, code=API_EXCEPTION_FORMERRORS).json()
+
+  epoxy.item(doc, deep=True)
+  return epoxy.json()
+
 
 
 @login_required
@@ -358,9 +388,12 @@ def profile(request, pk=None):
   try:
     pro = Profile.objects.get(user__pk=pk) if pk is not None and request.user.is_staff else request.user.profile
   except Profile.DoesNotExist, e:
+    pro = Profile(user=request.user, bio="")
+    pro.save()
+  except Exception, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  if epoxy.is_POST:
+  if epoxy.is_POST():
     form = edit_object(instance=pro, Form=ProfileForm, epoxy=epoxy)
     if not form.is_valid():
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
@@ -461,6 +494,7 @@ def jobs(request):
   return epoxy.json()
 
 
+
 @login_required
 def job(request, corpus_pk, cmd):
   epoxy = Epoxy(request)
@@ -484,9 +518,37 @@ def helper_get_available_documents(request, corpus):
   return queryset
 
 
+
 def helper_chunk_list(l, n):
     """
     Yield successive n-sized chunks from l.
     """
     for i in xrange(0, len(l), n):
       yield l[i:i+n]
+
+
+
+@transaction.atomic
+def helper_free_tag(instance, epoxy, append=True):
+  '''
+  instance's model should have tags m2m property...
+  '''
+  form = TagsForm(epoxy.data)
+
+  if form.is_valid():
+    tags = list(set([t.strip() for t in form.cleaned_data['tags'].split(',')]))# list of unique comma separated cleaned tags.
+    candidates = []
+    for tag in tags:
+      t, created = Tag.objects.get_or_create(name=tag, type=form.cleaned_data['type'])
+      if append:
+        instance.tags.add(t)
+      else:
+        candidates.append(t)
+
+    if not append:
+      instance.tags = candidates
+    
+    instance.save()
+
+    return True, instance
+  return False, form.errors

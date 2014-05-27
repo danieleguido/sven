@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import re, os, signal, mimetypes, shutil, urllib2, json, subprocess, logging, codecs
+import re, os, signal, operator, mimetypes, shutil, urllib2, json, subprocess, logging, codecs
 from datetime import datetime 
 
 from django.conf import settings
 from django.db import models, transaction, connection
-from django.db.models import Count
+from django.db.models import Q, Count
 from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -85,7 +85,7 @@ def helper_colour():
 
 class Profile(models.Model):
   user = models.OneToOneField(User)
-  bio = models.TextField()
+  bio = models.TextField(null=True, blank=True)
   picture = models.URLField(max_length=160, blank=True, null=True)
 
 
@@ -100,6 +100,7 @@ class Profile(models.Model):
       'lastname': self.user.last_name
     }
     return d
+
 
   def save(self, **kwargs):
     if self.pk is None or len(self.picture) == 0:
@@ -291,6 +292,14 @@ class Tag(models.Model):
       self.slug = helper_uuslug(model=Tag, instance=self, value=self.name)
     super(Tag, self).save()
 
+
+  @staticmethod
+  def search(query):
+    argument_list =[
+      Q(name__icontains=query),
+      Q(slug__icontains=query),   # add this only when there are non ascii chars in query. transform query into a sluggish field. @todo: prepare query as a slug
+    ]
+    return reduce(operator.or_, argument_list)
 
   def __unicode__(self):
     return "%s : %s"% (self.get_type_display(), self.name)
@@ -609,8 +618,10 @@ class Distance( models.Model ):
 
 class Sentence( models.Model ):
   '''
-  May contain something e.g to store a match result
+  May contain something e.g to store a match result. Not used,
+  DEPRECATED
   '''
   content = models.TextField()
   position = models.IntegerField()
   document =  models.ForeignKey(Document)
+

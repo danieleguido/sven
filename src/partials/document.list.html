@@ -18,13 +18,14 @@
         <span ng-repeat="tag in doc.tags" class="tag">{{tag.name}} <i tooltip="detach from this document" class="fa fa-times-circle"></i></span>
         <span ng-click="__adding_tag = !__adding_tag" ng-show="!__adding_tag">+</span>
         <span ng-show="__adding_tag">
-
+        <form ng-submit="attachTag('ac', __tag_candidate, doc)">
         <input type="text" ng-model="__tag_candidate"
               typeahead-loading="loadingLocations"
-              typeahead="address as address.name for address in suggestTags('CA', $viewValue)"
+              typeahead="tag as tag.name for tag in suggestTags('ac', $viewValue)"
               class="form-control typeahead-multi-input"
-              typeahead-on-select="attachTag('CA', __tag_candidate, item)" 
+              typeahead-on-select="attachTag('ac', __tag_candidate, doc)" 
               typeahead-wait-ms="150">
+        </form>
         </span>
       </div>
       <div class="pure-u-1-8">{{doc.date}}</div>
