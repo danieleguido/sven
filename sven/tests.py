@@ -86,10 +86,15 @@ class DocumentTest(TestCase):
     self.user = User.objects.create_user(
       username='jacob', email='jacob@…', password='top_secret')
     self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
-    self.corpus.owners.add(self.user)
+    self.corpus.owners.add(self.user) # adding two documents
 
-    # adding two documents
 
+  def test_create_whoosh(self):
+    '''
+    Create whoosh index. Normally we should add here a file as a test. @todo
+    '''
+    index = Document.get_whoosh()
+    self.assertEqual(os.path.exists(settings.WHOOSH_PATH), True)
 
 
   def test_create_document_having_datetime(self):
