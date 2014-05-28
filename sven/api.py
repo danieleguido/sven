@@ -78,7 +78,7 @@ def start(request, corpus_pk, cmd):
 
 
 @login_required
-def documents(request, corpus_pk):
+def corpus_documents(request, corpus_pk):
   epoxy = Epoxy(request)
   
   try:
@@ -102,11 +102,19 @@ def documents(request, corpus_pk):
 
 
 @login_required
+def documents(request):
+  epoxy = Epoxy(request)
+  epoxy.queryset(Document.objects.filter(corpus__owners=request.user))
+  return epoxy.json()
+
+
+
+@login_required
 def document(request, pk):
   epoxy = Epoxy(request)
   
   try:
-    d = Document.objects.get(pk=pk, corpus=request.user.corpora.all())
+    d = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   

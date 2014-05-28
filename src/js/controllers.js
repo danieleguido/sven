@@ -34,7 +34,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.default_offset = 0;
     
     $scope.filters = {};
-    $scope.query = {};
+    $scope.query = '';
     
     $scope.numofpages = 0;
     $scope.page = 0;
@@ -54,7 +54,9 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $location.path(path);
     };
     
-    $scope.search = function() {
+    $scope.search = function(query) {
+      if(query)
+        $scope.query = query;
       console.log("%c search ", 'color:white; background-color:#383838', $scope.query);
       $scope.limit = $scope.default_limit;
       $scope.offset = $scope.default_offset;
@@ -220,7 +222,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
   }])
   /*
 
-    Sidebar user corpora ctrl.
+    Document list for a single corpus
     ===
   */
   .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
@@ -300,6 +302,10 @@ angular.module('sven.controllers', ['angularFileUpload'])
         $scope.segments = data.objects
       })
     });
+
+  }])
+  .controller('searchCtrl', ['$scope', '$log', 'DocumentListFactory', function($scope, $log, DocumentListFactory) {
+    $log.info('searchCtrl loaded');
 
   }])
   .controller('contextCtrl', ['$scope', function($scope) {

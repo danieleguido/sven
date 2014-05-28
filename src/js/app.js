@@ -23,6 +23,8 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $routeProvider.when('/log', {templateUrl: '/static/partials/log.html', controller: 'logCtrl'});
   
   $routeProvider.when('/profile', {templateUrl: '/static/partials/profile.html', controller: 'profileCtrl'});
+  $routeProvider.when('/search', {templateUrl: '/static/partials/search.html', controller: 'searchCtrl'});
+
 
   $routeProvider.otherwise({redirectTo: '/'});
 

@@ -129,6 +129,7 @@ class Corpus(models.Model):
   date_last_modified = models.DateTimeField(auto_now_add=True)
 
   owners = models.ManyToManyField(User, related_name="corpora")
+  watchers = models.ManyToManyField(User, related_name="corpora_watched")
 
 
   def get_path(self):
