@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import math, logging, urllib2, json
+import math, logging, urllib, urllib2, json
 import pattern.en, pattern.nl, pattern.fr
+
 from pattern.search import search
 from pattern.vector import LEMMA, Document as PatternDocument
 
@@ -86,6 +87,18 @@ def evaporate(segments):
 
 
 
+def gooseapi(url):
+  '''
+  Return a goose instance (with title and content only) for a specific url provided.
+  '''
+  from goose import Goose
+  goo = Goose()
+  opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
+  response = opener.open(url)
+  raw_html = response.read()
+  return goo.extract(raw_html=raw_html)
+
+
 
 def freebase(api_key, query, lang):
   '''
@@ -124,3 +137,27 @@ freebase(query="Londres", api_key=settings.FREEBASE_KEY, lang='fr')
     else:
       logger.error(j['status'], contents)
     return results
+
+
+
+def alchemyapi(api_key, text, service='TextGetRankedNamedEntities'):
+  '''
+  Note that text should be utf8 string.
+  '''
+  if api_key is None:
+    return None
+
+  request = urllib2.Request(url='http://access.alchemyapi.com/calls/text/%s' % service,
+    data=urllib.urlencode({
+      'outputMode': 'json',
+      'apikey': api_key,
+      'text': text.encode('utf8')
+    }),
+    headers={
+      'User-Agent': "AlchemyAPI for Sven",
+      'Content-type': "application/x-www-form-urlencoded",
+    }
+  )
+  
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)  

@@ -18,6 +18,12 @@ if you're going to use a _sqlite_ database (a light and fast alternative), you n
 		...
 	workon sven
 		...
+
+install some pip dependence
+  (sven) pip install git+https://github.com/grangier/python-goose.git
+
+then sync and test.
+
 	(sven) python manage.py syncdb
 	(sven) python manage.py test
 

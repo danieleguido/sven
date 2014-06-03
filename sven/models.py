@@ -12,7 +12,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware, utc
 from django.dispatch import receiver
 
-from sven.distiller import dry
+from sven.distiller import dry, gooseapi
 
 logger = logging.getLogger("sven")
 
@@ -276,7 +276,10 @@ class Tag(models.Model):
   FREE = '' # i.e, no special category at all
   ACTOR = 'ac'
   INSTITUTION = 'in'
-
+  ALCHEMY = {
+    'City':'Ci'
+  }
+  
   TYPE_CHOICES = (
     (FREE, 'no category'),
     (ACTOR, 'actor'),
@@ -433,11 +436,16 @@ class Document(models.Model):
       with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
         content = f.read()
     else:
-      textified = '%s.txt' % self.raw.path
+      textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
+      elif self.url is not None:
+        goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
         
+        content = goo.cleaned_text
+        with codecs.open(textified, encoding='utf-8', mode='w') as f:
+          f.write(content)
       else:
         content = '%s does not have a text associed. %s' % (self.mimetype, textified)
       # exitsts text translations?
@@ -449,6 +457,19 @@ class Document(models.Model):
     return content
 
 
+  def autotag(self):
+    '''
+    Perform autotagging by using alchemyapi.
+    Note: Settings.ALCHEMYAPI_KEY var should be set !
+    '''
+    from distiller import alchemyapi
+    if settings.ALCHEMYAPI_KEY is not None:
+      res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
+      for ent in res['entities']:
+        pass
+
+
+
   def save(self, **kwargs):
     # understanding datetime included in file title... YYYY MM DD
     date = re.search(r'(?P<year>\d{4})[\-\./]*(?P<month>\d{2})[\-\./]*(?P<day>\d{2})',self.name)
@@ -458,6 +479,9 @@ class Document(models.Model):
     self.slug = helper_uuslug(model=Document, instance=self, value=self.name)
     if self.raw:
       self.mimetype = mimetypes.guess_type(self.raw.path)[0]
+
+    if self.pk is None and self.url:
+      pass
 
     super(Document, self).save()
   

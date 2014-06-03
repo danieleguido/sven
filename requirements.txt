@@ -1,7 +1,11 @@
 Django==1.6.2
-Pattern==2.6
+Markdown==2.4
 Whoosh==2.6.0
-argparse==1.2.1
+django-websocket-request==0.1.1
+ipython==1.2.1
 langid==1.1.4dev
+lorem-ipsum-generator==0.3
+micawber==0.3.0
 numpy==1.8.0
+six==1.6.1
 wsgiref==0.1.2

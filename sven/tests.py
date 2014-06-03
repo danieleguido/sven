@@ -97,10 +97,29 @@ class DocumentTest(TestCase):
     self.assertEqual(os.path.exists(settings.WHOOSH_PATH), True)
 
 
+  def test_oembed_services(self):
+    import micawber
+    mic = micawber.bootstrap_basic()
+    you = mic.request('https://www.youtube.com/watch?v=GGyLP6R4HTE') # youtube
+    vim = mic.request('http://vimeo.com/17081933') # vimeo
+
+    print self.assertEqual(you['provider_name'], u'YouTube')
+    print self.assertEqual(vim['provider_name'], u'Vimeo')
+
+
   def test_create_document_having_datetime(self):
     document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
     document.save()
     self.assertEqual(document.date.isoformat(), '2014-03-05T00:00:00+00:00')
+
+
+  def test_create_document_having_url(self):
+    document = Document(corpus=self.corpus, name=u'tunisian-youth')
+    document.mimetype = "text/html"
+    document.url = 'http://mideastposts.com/middle-east-politics-analysis/tunisian-youth-turned-politics-effect-change'
+    
+    document.save()
+    print document.text()
 
 
   def test_create_document(self):
@@ -188,6 +207,24 @@ class DistillerTests(TestCase):
     self.assertEqual(nps, [u'mary', u'a', u'little', u'lamb', u'it', u'none', u'mary', u'un', u'agneau', u'et', u'il', u'personne'])
 
 
+  def test_goose(self):
+    from distiller import gooseapi
+    article = gooseapi(url='http://www.nytimes.com/2013/08/18/world/middleeast/pressure-by-us-failed-to-sway-egypts-leaders.html?hp')
+      #'http://mideastposts.com/middle-east-politics-analysis/tunisian-youth-turned-politics-effect-change')
+    #self.assertEqual(article.title, u'Tunisia Revolution')
+    print article.title
+    print article.cleaned_text[:150]
+
+    article = gooseapi(url='http://mideastposts.com/middle-east-politics-analysis/tunisian-youth-turned-politics-effect-change')
+    print article.title
+    print article.cleaned_text[:150]
+
+    twit = gooseapi(url='https://twitter.com/IwatchTn')
+    print twit.title
+    print twit.cleaned_text
+
+
+
   def test_freebase(self):
     from distiller import freebase
     if settings.FREEBASE_KEY is not None:
@@ -195,4 +232,12 @@ class DistillerTests(TestCase):
       
       if concepts is not None:
         for c in concepts:
-          print c
+          pass #print c
+
+
+  def test_alchemyapi(self):
+    from distiller import alchemyapi
+    if settings.ALCHEMYAPI_KEY is not None:
+      res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=u"Mary Cachasça had a little lamb and it was really gorgeous, in Paris.")
+      #print res
+      self.assertEqual(res['entities'][0]['type'], u'Person')
