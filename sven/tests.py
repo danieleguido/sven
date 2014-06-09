@@ -109,6 +109,18 @@ class DocumentTest(TestCase):
     document.raw.save('test.txt', ContentFile(u'Mary had a little lamb.'.encode('UTF-8')), save=False)
     document.save()
     self.assertEqual(document.text(), u'Mary had a little lamb.'.encode('UTF-8'))
+    
+
+  def test_create_document_from_pdf(self):
+    from django.core.files import File
+    f = open(os.path.join(settings.BASE_DIR, 'contents/test.pdf')) # Open an existing file using Python's built-in open()
+    p = File(f)
+    doc = Document(corpus=self.corpus, name=u"unnamed")
+    doc.raw.save('test_copy.pdf', p, save=False)
+    doc.save()
+    print doc.mimetype
+    #print document.text()
+
 
 
   def test_computate_tf(self):

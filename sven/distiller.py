@@ -5,7 +5,7 @@ import pattern.en, pattern.nl, pattern.fr
 
 from pattern.search import search
 from pattern.vector import LEMMA, Document as PatternDocument
-
+from pattern.web import PDF
 logger = logging.getLogger("sven")
 
 NL_STOPWORDS = [u"aan",u"af",u"al",u"alles",u"als",u"altijd",u"andere",u"ben",u"bij",u"daar",u"dan",u"dat",u"de",u"der",u"deze",u"die",u"dit",u"doch",u"doen",u"door",u"dus",u"een",u"eens",u"en",u"er",u"ge",u"geen",u"geweest",u"haar",u"had",u"heb",u"hebben",u"heeft",u"hem",u"het",u"hier",u"hij",u"hij ",u"hoe",u"hun",u"iemand",u"iets",u"ik",u"in",u"is",u"ja",u"je",u"je ",u"kan",u"kon",u"kunnen",u"maar",u"me",u"meer",u"men",u"met",u"mij",u"mijn",u"moet",u"na",u"naar",u"niet",u"niets",u"nog",u"nu",u"of",u"om",u"omdat",u"onder",u"ons",u"ook",u"op",u"over",u"reeds",u"te",u"tegen",u"toch",u"toen",u"tot",u"u",u"uit",u"uw",u"van",u"veel",u"voor",u"want",u"waren",u"was",u"wat",u"we",u"wel",u"werd",u"wezen",u"wie",u"wij",u"wil",u"worden",u"wordt",u"zal",u"ze",u"zei",u"zelf",u"zich",u"zij",u"zijn",u"zo",u"zonder",u"zou"]
@@ -97,13 +97,16 @@ def evaporate(segments):
 
 
 
-def pdftotext(path, to):
+def pdftotext(path):
   '''
   try to get the text from a pdf file (pattern module)
   @param path from
   @param to
   '''
-  pass
+  import codecs
+  with codecs.open(path, "r" ) as source:
+    content = PDF(source).string
+  return content
 
 
 def gooseapi(url):
