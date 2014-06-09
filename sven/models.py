@@ -286,9 +286,19 @@ class Tag(models.Model):
     (INSTITUTION, 'Institution'),
   )
 
+  OEMBED_PROVIDER_NAME = 'OP' #tag specify an oembed field...
+  OEMBED_TITLE = 'OT' #tag specify an oembed field...
+  OEMBED_THUMBNAIL_URL = 'OH'
+
+  TYPE_OEMBED_CHOICES = (
+    (OEMBED_PROVIDER_NAME, 'oembed_provider_name'),
+    (OEMBED_TITLE, 'oembed_title'),
+    (OEMBED_THUMBNAIL_URL, 'oembed_thumbnail_url'),
+  )
+
   name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
   slug = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
-  type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
+  type = models.CharField(max_length=2, choices=TYPE_CHOICES + TYPE_OEMBED_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
 
 
   def save(self, **kwargs):
@@ -462,12 +472,11 @@ class Document(models.Model):
     Perform autotagging by using alchemyapi.
     Note: Settings.ALCHEMYAPI_KEY var should be set !
     '''
-    from distiller import alchemyapi
     if settings.ALCHEMYAPI_KEY is not None:
+      from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
       for ent in res['entities']:
         pass
-
 
 
   def save(self, **kwargs):
@@ -480,10 +489,27 @@ class Document(models.Model):
     if self.raw:
       self.mimetype = mimetypes.guess_type(self.raw.path)[0]
 
-    if self.pk is None and self.url:
-      pass
+    super(Document, self).save()
+
+    if self.url:
+      import micawber
+      mic = micawber.bootstrap_basic()
+      # add issuu rule...?
+      try:
+        oem = mic.request(self.url)
+      except micawber.exceptions.ProviderNotFoundException, e:
+        pass
+      else: # store as oembed tags
+        t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=oem['provider_name'])
+        t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=oem['title'])
+        t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=oem['thumbnail_url'])
+        
+        self.tags.add(t1)
+        self.tags.add(t2)
 
     super(Document, self).save()
+
+    
   
 
 

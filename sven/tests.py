@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
-from sven.models import Segment, Corpus, Document, Job, Document_Segment
+from sven.models import Segment, Corpus, Document, Job, Document_Segment< Tag
 
 from django.test.client import RequestFactory
 import glue.api
@@ -105,6 +105,14 @@ class DocumentTest(TestCase):
 
     print self.assertEqual(you['provider_name'], u'YouTube')
     print self.assertEqual(vim['provider_name'], u'Vimeo')
+
+    document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
+    document.save()
+
+    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=vim['provider_name'])
+    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=vim['title'])
+    t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=vim['thumbnail_url'])
+        
 
 
   def test_create_document_having_datetime(self):
