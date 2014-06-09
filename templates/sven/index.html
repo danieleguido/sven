@@ -113,10 +113,12 @@
 
     {% if DEBUG %}
       {% if ENABLE_CDN_SERVICES %}
+      <script src="https://code.jquery.com/jquery-git2.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
+
       {% else %}
       <script src="{{ STATIC_URL }}/js/libs/jquery.min.js"></script>
       <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
