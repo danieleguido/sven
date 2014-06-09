@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
-from sven.models import Segment, Corpus, Document, Job, Document_Segment< Tag
+from sven.models import Segment, Corpus, Document, Job, Document_Segment, Tag
 
 from django.test.client import RequestFactory
 import glue.api
@@ -97,37 +97,10 @@ class DocumentTest(TestCase):
     self.assertEqual(os.path.exists(settings.WHOOSH_PATH), True)
 
 
-  def test_oembed_services(self):
-    import micawber
-    mic = micawber.bootstrap_basic()
-    you = mic.request('https://www.youtube.com/watch?v=GGyLP6R4HTE') # youtube
-    vim = mic.request('http://vimeo.com/17081933') # vimeo
-
-    print self.assertEqual(you['provider_name'], u'YouTube')
-    print self.assertEqual(vim['provider_name'], u'Vimeo')
-
-    document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
-    document.save()
-
-    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=vim['provider_name'])
-    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=vim['title'])
-    t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=vim['thumbnail_url'])
-        
-
-
   def test_create_document_having_datetime(self):
     document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
     document.save()
     self.assertEqual(document.date.isoformat(), '2014-03-05T00:00:00+00:00')
-
-
-  def test_create_document_having_url(self):
-    document = Document(corpus=self.corpus, name=u'tunisian-youth')
-    document.mimetype = "text/html"
-    document.url = 'http://mideastposts.com/middle-east-politics-analysis/tunisian-youth-turned-politics-effect-change'
-    
-    document.save()
-    print document.text()
 
 
   def test_create_document(self):
@@ -141,6 +114,8 @@ class DocumentTest(TestCase):
   def test_computate_tf(self):
     from pattern.vector import LEMMA, Document as PatternDocument
 
+
+
     doc_a = Document(corpus=self.corpus)
     doc_a.raw.save('alice_a.txt', ContentFile(u' She follows it down a rabbit hole when suddenly she falls a long way to a curious hall with many locked doors of all sizes. She finds a small key to a door too small for her to fit through, but through it she sees an attractive garden.'.encode('UTF-8')), save=False)
     doc_a.save()
@@ -149,6 +124,11 @@ class DocumentTest(TestCase):
     doc_b.raw.save('alice_b.txt', ContentFile(u' She then discovers a bottle on a table labelled "DRINK ME," the contents of which cause her to shrink too small to reach the key which she has left on the table. She eats a cake with "EAT ME" written on it in currants as the chapter closes.'.encode('UTF-8')), save=False)
     doc_b.save()
 
+    try:
+      self.corpus.tfidf()
+    except Exception, e:
+      print e
+      
     segments_a = distill(content=doc_a.text())
     
     for i,(match, lemmata, tf, wf) in enumerate(segments_a):
@@ -161,8 +141,65 @@ class DocumentTest(TestCase):
       seg, created = Segment.objects.get_or_create(content=match, lemmata=lemmata, cluster=lemmata, language=settings.EN, corpus=self.corpus)
       dos, created = Document_Segment.objects.get_or_create(document=doc_b, segment=seg, tf=tf, wf=wf)
 
+    self.corpus.tfidf()
     pass
 
+
+
+class WebServicesTest(TestCase):
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    self.corpus.owners.add(self.user) # adding two documents
+
+
+  def test_oembed_services(self):
+    import micawber
+    mic = micawber.bootstrap_basic()
+    you = mic.request('https://www.youtube.com/watch?v=GGyLP6R4HTE') # youtube
+    vim = mic.request('http://vimeo.com/17081933') # vimeo
+
+    print self.assertEqual(you['provider_name'], u'YouTube')
+    print self.assertEqual(vim['provider_name'], u'Vimeo')
+
+    document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
+    document.mimetype = "text/html"
+    document.save()
+
+    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=vim['provider_name'])
+    t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=vim['title'])
+    t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=vim['thumbnail_url'])  
+
+  def test_create_document_having_url(self):
+    document = Document(corpus=self.corpus, name=u'tunisian-youth')
+    document.mimetype = "text/html"
+    document.url = 'http://mideastposts.com/middle-east-politics-analysis/tunisian-youth-turned-politics-effect-change'
+    
+    document.save()
+    print document.text()
+
+
+
+class DocumentInfoTest(TestCase):
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    self.corpus.owners.add(self.user) # adding two documents
+    
+
+  def test_save_document_info(self):
+    '''
+    test post_save receiver for DocumentInfo model
+    '''
+    doc = Document(corpus=self.corpus, name=u'docuemntinfotest.txt')
+    doc.save()
+    doc.info.date_textified = doc.info.date_last_modified
+    print doc.info.date_textified
+    self.assertEqual(doc.info.pk, 1)
 
 
 

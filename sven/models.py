@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import re, os, signal, operator, mimetypes, shutil, urllib2, json, subprocess, logging, codecs
+import math, re, os, signal, operator, mimetypes, shutil, urllib2, json, subprocess, logging, codecs
 from datetime import datetime 
 
 from django.conf import settings
@@ -12,7 +12,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware, utc
 from django.dispatch import receiver
 
-from sven.distiller import dry, gooseapi
+from sven.distiller import dry, gooseapi, pdftotext, dictfetchall
 
 logger = logging.getLogger("sven")
 
@@ -181,6 +181,62 @@ class Corpus(models.Model):
       })
     return d
 
+
+  def tfidf(self):
+    '''
+    computate tfidf and wfidf calculation for every document in corpus
+    '''
+    number_of_documents = self.documents.count()
+    number_of_segments  = self.segments.count()
+
+    if number_of_documents == 0:
+      raise Exception('not enough "documents" in corpus to perform tfidf')# @todo
+
+    if number_of_segments == 0:
+      raise Exception('not enough "segments" in corpus to perform tfidf')# @todo
+
+    # 2. get all languages in corpus
+    with transaction.atomic():
+      number_of_languages = self.segments.values('language').distinct()
+      
+      # 3. start querying per language stats
+      cursor = connection.cursor()
+      for i in number_of_languages:
+        language = i['language']
+        # get number of clusters per language to print completion percentage (can we save it if self.job exists)
+        #clusters = self.segments.filter(language=language).values('cluster').annotate(Count('cluster'))
+        #for c in clusters:
+        #  print c['cluster'], c
+
+        # distribution query. In how many document can a cluster be found?
+        clusters = cursor.execute("""
+          SELECT
+            COUNT( DISTINCT ds.document_id ) as distribution, 
+            s.language,
+            s.cluster
+          FROM `sven_document_segment` ds
+          JOIN `sven_segment` s ON ds.segment_id = s.id
+          JOIN `sven_document` d ON d.id = ds.document_id
+          WHERE d.corpus_id = %s AND s.language = %s AND s.status = %s
+          GROUP BY s.cluster
+          ORDER BY distribution DESC, cluster ASC""", [
+            self.id,
+            language,
+            Segment.IN
+          ]
+        )
+        
+        for i, cluster in enumerate(dictfetchall(cursor)):
+
+          # for each cluster, calculate df value inside the overall corpus.
+          df = float(cluster['distribution'])/number_of_documents
+          
+          # group by cluster and update value for the document_segment table. TFIDF is specific for each couple.
+          for ds in Document_Segment.objects.filter(segment__cluster=cluster['cluster'], segment__language=language):
+            ds.tfidf = ds.tf * math.log(1/df) 
+            ds.wfidf = ds.wf * math.log(1/df)
+            print i, cluster['cluster'], df, ds.tf, ds.tfidf
+            ds.save()
 
   class Meta:
     verbose_name_plural = 'corpora'
@@ -442,14 +498,19 @@ class Document(models.Model):
     '''
     Get utf8 text content of the file
     '''
-    if self.mimetype == 'text/plain':
+    if self.mimetype is None:
+      content = "" # not yet ready ... Empty string
+    elif self.mimetype == 'text/plain':
       with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
         content = f.read()
-    else:
+    else: #document need textification
+
       textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
+      elif self.mimetype == "text/pdf":
+        content = ""
       elif self.url is not None:
         goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
         
@@ -491,7 +552,9 @@ class Document(models.Model):
 
     super(Document, self).save()
 
-    if self.url:
+    self.text() # textify please!
+
+    if self.url: # load metadata if is a oembed service.
       import micawber
       mic = micawber.bootstrap_basic()
       # add issuu rule...?
@@ -509,8 +572,6 @@ class Document(models.Model):
 
     super(Document, self).save()
 
-    
-  
 
 
 class Job(models.Model):
@@ -653,6 +714,29 @@ class Document_Segment( models.Model ):
 
   class Meta:
     unique_together = ("segment", "document")
+
+
+
+class DocumentInfo(models.Model):
+  '''
+  This class is a good companion for Document: here will be held everythingstatus or boolean information
+  '''
+  document = models.OneToOneField(Document, related_name="info")
+  
+  date_last_modified = models.DateTimeField(auto_now_add=True)
+
+  date_indexed  = models.DateTimeField(blank=True, null=True) # None = not set, false = No, tru = Set
+  date_deleted  = models.DateTimeField(blank=True, null=True) # true here means recovered?
+  date_texified = models.DateTimeField(blank=True, null=True) #useful for texified documents
+  date_analyzed = models.DateTimeField(blank=True, null=True)
+
+
+
+@receiver(post_save, sender=Document)
+def create_document_info(sender, instance, created, **kwargs):
+  if created:
+    dif = DocumentInfo(document=instance)
+    dif.save()
 
 
 

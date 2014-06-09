@@ -19,6 +19,16 @@ def tf_filter(tf):
 
 
 
+def dictfetchall(cursor):
+    "Returns all rows from a cursor as a dict"
+    desc = cursor.description
+    return [
+      dict(zip([col[0] for col in desc], row))
+      for row in cursor.fetchall()
+    ]
+
+
+
 def dry(content):
   '''
   Return a purged, celaned text. Try into test.
@@ -85,6 +95,15 @@ def evaporate(segments):
   return uniques
   pass
 
+
+
+def pdftotext(path, to):
+  '''
+  try to get the text from a pdf file (pattern module)
+  @param path from
+  @param to
+  '''
+  pass
 
 
 def gooseapi(url):
