@@ -8,7 +8,7 @@
         {{document.date}}
       </div>
       <h2>
-        #{{document.id}} {{document.name}}
+        {{document.name || "Untitled Document"}}
       </h2>
       
       <div class="tags">
@@ -18,15 +18,32 @@
       
         <div class="pure-g">
           <div class="pure-u-1-2">
+            <div class="profile">
+            <form class="pure-form  pure-form-stacked" ng-submit="save()">
+              <div class="pure-control-group">
+            
+                <label>title</label>
+                <input type="text" required ng-model="document.name" class="pure-input-1">
+              
+              </div>
+              <div class="pure-control-group">
+            
+                <label>permalink
+                  <p style="color: grey">N.b. text will be extracted from this link.
+                  It could also be a Youtube video or Vimeo video.</p>
+                </label>
+
+                <input type="url" required ng-model="document.url" class="pure-input-1">
+                
+              </div>
+
+              <button class="boo pure-button">save changes</button>
+            </form>
+            </div>
             <div ng-switch="document.mimetype">
               <div ng-when="image/jpeg">
                 <!-- -->
                 <img src="{{document.media}}">
-              </div>
-              <div ng-when="text/html">
-                <div ng-if="document.tags.oembed_provider_name">
-                  <img src="{{document.tags.oembed_thumbnail_url[0].name}}">
-                </div>
               </div>
             </div>
           

@@ -15,7 +15,7 @@
 
       </div>
       <div class="pure-u-3-8 tags">
-        <span ng-repeat="tag in doc.tags" class="tag">{{tag.name}} <i tooltip="detach from this document" class="fa fa-times-circle"></i></span>
+        <span ng-repeat="tag in doc.tags.actor" class="tag">{{tag.name}} <i tooltip="detach from this document" class="fa fa-times-circle"></i></span>
         <span ng-click="__adding_tag = !__adding_tag" ng-show="!__adding_tag">+</span>
         <span ng-show="__adding_tag">
         <form ng-submit="attachTag('ac', __tag_candidate, doc)">

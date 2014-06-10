@@ -37,7 +37,7 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
   .factory('DocumentListFactory', function($resource) {
     return $resource('/api/corpus/:id/document', {}, {
         query: {method: 'GET', isArray: false },
-        create: {method: 'POST' }
+        save: {method: 'POST', params: {id: '@id'} }
     });
   })
   .factory('DocumentFactory', function($resource) {

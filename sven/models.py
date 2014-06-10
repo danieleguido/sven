@@ -416,15 +416,22 @@ class Document(models.Model):
       'date': self.date.strftime("%Y-%m-%d") if self.date else None,
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat(),
-      'tags': [t.json() for t in self.tags.all()]
+      'tags': {}
+      #[t.json() for t in self.tags.all()]
     }
 
-    if self.mimetype != "text/plain":
+    for t in self.tags.all():
+      k = t.get_type_display()
+      if k not in d['tags']:
+        d['tags'][k] = []
+      d['tags'][k].append(t.json())
+
+    if self.raw and self.mimetype != "text/plain":
       d['media'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))
       
     if deep:
       d.update({
-        'text': self.text(),
+        'text': self.text()[:2500],
         'corpus': self.corpus.json()
       })
     return d
@@ -566,11 +573,12 @@ class Document(models.Model):
         pass
       else: # store as oembed tags
         t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=oem['provider_name'])
-        t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=oem['title'])
-        t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=oem['thumbnail_url'])
+        t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=oem['title'])
+        t3, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=oem['thumbnail_url'])
         
         self.tags.add(t1)
         self.tags.add(t2)
+        self.tags.add(t3)
 
     super(Document, self).save()
 

@@ -293,16 +293,51 @@ angular.module('sven.controllers', ['angularFileUpload'])
       console.log(arguments, $scope.__tag_candidate);
     };
   }])
-  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
-    DocumentFactory.query({id: $routeParams.id}, function(data){
-      $scope.document = data.object;
-      
-      DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
-        console.log(data);
-        $scope.segments = data.objects
-      })
-    });
+  /*
+    
+    DocumentCtrl
+    ---
+    
+    load or add a brand new document
 
+  */
+  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $routeParams, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
+    $scope.document = {
+      mimetype: 'text/html'
+    };
+    $scope.segments = [];
+
+    $scope.sync = function() {
+      DocumentFactory.query({id: $routeParams.id}, function(data){
+        $scope.document = data.object;
+        
+        DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
+          console.log(data);
+          $scope.segments = data.objects
+        })
+      });
+    };
+
+    $scope.save = function() {
+      if(!$routeParams.corpus_id)
+        return;
+      $log.info('documentCtrl save()', angular.copy($scope.document));
+      DocumentListFactory.save(
+        {
+          id: $routeParams.corpus_id
+        },
+        angular.copy($scope.document),
+        function(data) {
+          console.log(data);
+
+        }
+      );
+
+    };
+
+    $routeParams.id && $scope.sync();
+
+    $log.info('documentCtrl loaded');
   }])
   .controller('searchCtrl', ['$scope', '$log', 'DocumentListFactory', function($scope, $log, DocumentListFactory) {
     $log.info('searchCtrl loaded');

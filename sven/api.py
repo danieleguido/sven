@@ -87,7 +87,7 @@ def corpus_documents(request, corpus_pk):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
-    form = DocumentForm(request.REQUEST)
+    form = DocumentForm(epoxy.data)
     if form.is_valid():
       d = form.save(commit=False)
       d.corpus = c
