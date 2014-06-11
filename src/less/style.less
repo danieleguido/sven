@@ -167,9 +167,23 @@ header{
     padding-bottom: @module;
     margin-bottom: @module;
     border-left: 1px solid transparent;
+
     &.scroll-to-fixed-fixed{
       border-bottom: 1px solid @darkgrey;
       border-left: 1px solid @lightgrey;
+    }
+
+    h2{
+      margin: 0px 12px;
+      font-size: 18px;
+      line-height: 1.618em;
+    }
+
+
+
+    h3, .datetime, .tags{
+      margin: 0px 12px;
+      
     }
   }
 }
@@ -222,15 +236,23 @@ header{
 
 .pure-g [class *="pure-u"]{
   font-family: 'Source Sans Pro';
-  
+}
+
+.pure-button.linear{
+
 }
 
 .big-item{
   h2{
     color: @darkgrey;
     margin: @margin;
+    font-size: 18px;
+    line-height: 1.618em;
   }
 
+  .datetime{
+    margin: @margin;
+  }
   .tags{
     margin: 0 @margin @margin @margin;
   }

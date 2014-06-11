@@ -1,19 +1,19 @@
 
 <div class="view">
   <div class="wrapper">
-    
+    <div scroll-to-fixed class="menu" margin-top="36">
+        <div class="datetime">
+          {{document.date}} 
+        </div>
+        <h2>
+          <a href="/#/corpus/{{document.corpus.id}}/documents">{{document.corpus.name}}</a>/{{document.name}}
+        </h2>
+        <h3>{{document.mimetype}}</h3>
+        <div class="tags">
+          <span class="tag language">{{document.language}}</span>
+        </div>
+      </div>
     <div class="single document big-item">
-
-      <div class="datetime">
-        {{document.date}}
-      </div>
-      <h2>
-        #{{document.id}} {{document.name}}
-      </h2>
-      
-      <div class="tags">
-        <span class="tag language">{{document.language}}</span>
-      </div>
 
       
         <div class="pure-g">
