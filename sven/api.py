@@ -511,6 +511,18 @@ def job(request, corpus_pk, cmd):
 
 
 
+@login_required
+def d3_timeline(request):
+  '''
+  Format (filtered) document to be displayed with d3 datas.
+  Cfr src/js/
+  and 
+  '''
+  epoxy = Epoxy(request)
+  return epoxy.json()
+
+
+
 def helper_get_available_documents(request, corpus):
   '''
   Return a queryset according to user auth level and document status

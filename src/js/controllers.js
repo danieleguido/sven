@@ -26,7 +26,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     limit and offset of the curtrent view are also set.
   */
-  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', 'TagListFactory', function($scope, $rootScope, $location, $route, TagListFactory) {
+  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', 'TagListFactory', 'ToastFactory', function($scope, $rootScope, $location, $route, TagListFactory, ToastFactory) {
 
     $scope.limit = 25;
     $scope.offset= 0;
@@ -39,11 +39,17 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.numofpages = 0;
     $scope.page = 0;
     console.log('%c layoutCtrl ', CTRL_LOADED);
-    
+  
     
     $scope.ctrl = ''; // current view controller
     // look after the current corpus, babe.
     
+    $scope.toast = function(message, title, options) {
+      ToastFactory.toast(message, title, options);
+    };
+
+    $scope.toast('sven loaded correctly', {position: 'middle-center'});
+
     $scope.setCorpus = function(id) {
       $rootScope.selected_corpus_id = id;
     };
