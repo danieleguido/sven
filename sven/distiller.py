@@ -183,3 +183,24 @@ def alchemyapi(api_key, text, service='TextGetRankedNamedEntities'):
   
   contents = urllib2.urlopen(request).read()
   return json.loads(contents)  
+
+
+
+def alchemyapi_url(api_key, url, service='URLGetText'):
+  if api_key is None:
+    return None
+
+  request = urllib2.Request(url='http://access.alchemyapi.com/calls/url/%s' % service,
+    data=urllib.urlencode({
+      'outputMode': 'json',
+      'apikey': api_key,
+      'url': url
+    }),
+    headers={
+      'User-Agent': "AlchemyAPI for Sven",
+      'Content-type': "application/x-www-form-urlencoded",
+    }
+  )
+  
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)  

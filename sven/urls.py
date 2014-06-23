@@ -38,6 +38,8 @@ apipatterns = patterns('sven.api',
   
   url(r'^notification$', 'notification', name='sven_api_notification'),
 
+  url(r'^d3/timeline$', 'd3_timeline', name='sven_api_d3_timeline'), # all user corpus timeline. restrict via filters
+
   url(r'^.*$', 'not_found', name='sven_api_not_found'),
 )
 

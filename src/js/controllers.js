@@ -206,8 +206,15 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.distill(); // push current controllername
     });
   }])
-  .controller('indexCtrl', ['$scope', function() {
-
+  /*
+    global rapid visualizations
+  */
+  .controller('indexCtrl', ['$scope', 'D3Factory', function($scope, D3Factory) {
+    $scope.values = {};
+    
+    D3Factory.timeline({},function(data) {
+      $scope.values.timeline = data.values;
+    });
 
   }])
   /*

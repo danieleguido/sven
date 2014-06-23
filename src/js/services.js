@@ -30,12 +30,17 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
           position: "bottom-right",
           inEffectDuration: 200,
           outEffectDuration: 200,
-          stayTime: 1000900
+          stayTime: 1900
         },options);
 
         $().toastmessage("showToast", settings);
       }
     };
+  })
+  .factory('D3Factory', function($resource) {
+    return $resource('/api/d3/:vis', {}, { // vi can be timeline|
+        timeline: {method: 'GET', params: {vis: 'timeline'}},
+    });
   })
    .factory('NotificationFactory', function($resource) {
     return $resource('/api/notification', {}, {

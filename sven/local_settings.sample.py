@@ -25,3 +25,7 @@ ENABLE_CDN_SERVICES = False # set to true if you want to use CDN. This const wil
 
 FREEBASE_KEY = None #' set to your own server to server api key. Cfr GoogleDevelopers Console. Set to None if you're not interested in freebase search
 ALCHEMYAPI_KEY = None #' set to your own alchemy api key. Cfr <http://lchemyapi.com>. Set to None if you're not interested in alchemy api
+TWITTER_CONSUMER_KEY = None
+TWITTER_CONSUMER_SECRET =  None
+TWITTER_ACCESS_TOKEN = None
+TWITTER_ACCESS_TOKEN_SECRET = None

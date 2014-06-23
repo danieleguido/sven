@@ -519,22 +519,48 @@ def d3_timeline(request):
   and 
   '''
   epoxy = Epoxy(request)
+  values = {}
+  warnings = 0;
+
+  docs = helper_get_available_documents(request).filter(**epoxy.filters)
+  epoxy.meta('total_count',docs.count())
+
+  for t in docs.order_by().values('date'):
+    if t['date']:
+      _date = t['date'].strftime('%Y-%m-%d')
+    
+      if _date not in values:
+        values[_date] = {
+          'count' : 0,
+          'value' : _date
+        }
+      values[_date]['count'] =  values[_date]['count'] + 1
+    else:
+      warnings = warnings + 1;
+
+  values["1980-02-01"] = {'count': 7, 'value': "1980-02-01"}
+
+  epoxy.add('values', values.values())
+  epoxy.warning('no_datetime', warnings)
   return epoxy.json()
 
 
 
-def helper_get_available_documents(request, corpus):
+def helper_get_available_documents(request, corpus=None):
   '''
   Return a queryset according to user auth level and document status
   @param request
   @return <django.model.Queryset>
   '''
-  if request.user.is_staff:
-    queryset = Document.objects.filter(corpus=corpus).distinct()
-  elif request.user.is_authenticated():
-    queryset = Document.objects.filter(corpus=corpus)
+  if corpus is not None:
+    if request.user.is_staff:
+      queryset = Document.objects.filter(corpus=corpus).distinct()
+    elif request.user.is_authenticated():
+      queryset = Document.objects.filter(corpus=corpus)
+    else:
+      queryset = Document.objects.filter().distinct()
   else:
-    queryset = Document.objects.filter().distinct()
+    queryset = Document.objects.filter(corpus__owners=request.user)
   return queryset
 
 
