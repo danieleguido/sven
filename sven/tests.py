@@ -332,7 +332,7 @@ class DistillerTests(TestCase):
 
 class TwitterTests(TestCase):
   def setUp(self):
-    if settings.TWITTER_CONSUMER_KEY is not None:
+    if settings.DEBUG and settings.TWITTER_CONSUMER_KEY is not None:
       import tweepy # cfr tweepy api references
       auth = tweepy.OAuthHandler(
         settings.TWITTER_CONSUMER_KEY,
@@ -349,6 +349,7 @@ class TwitterTests(TestCase):
   def test_twitterapi_having_links(self):
     '''
     Extract text from twits. Auto add as documents ?
+    enable only for specific tests!!
     '''
     from distiller import gooseapi, alchemyapi_url
     if self.api:

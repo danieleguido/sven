@@ -30,14 +30,14 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $routeProvider.otherwise({redirectTo: '/'});
 
   // warning/ error code given by my glue api
-  $httpProvider.responseInterceptors.push(['$q', function($q) {
+  $httpProvider.responseInterceptors.push(['$q','$log', function($q, $log) {
     return function(promise) {
       return promise.then(function(response) {
         response.data.extra = 'Interceptor strikes back';
         if(response.data.meta && response.data.meta.warnings){ // form error from server!
           // if(response.data.meta.warnings.invalid && response.data.meta.warnings.limit):
           // exceute, but send a message
-          console.log('',response.data.meta.warnings);
+          $log.info('warnings',response.data.meta.warnings);
           // return $q.reject(response);
         }
         return response; 

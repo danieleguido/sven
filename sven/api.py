@@ -178,13 +178,27 @@ def document_upload(request, corpus_pk):
 
 
 @login_required
-def document_text_version_upload(request, document_pk):
+def document_text_version_download(request, pk):
   '''
   A special page to handle uploading of txt files
   for images and videos.
   '''
   try:
-    doc = Document.objects.get(pk=document_pk, corpus__owners=request.user)
+    doc = Document.objects.get(pk=pk, corpus__owners=request.user)
+  except Document.DoesNotExist, e:
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+  pass
+
+
+
+@login_required
+def document_text_version_upload(request, pk):
+  '''
+  A special page to handle uploading of txt files
+  for images and videos.
+  '''
+  try:
+    doc = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
@@ -198,6 +212,7 @@ def document_text_version_upload(request, document_pk):
       destination.write(chunk)
   
   epoxy = Epoxy(request)
+  epoxy.item(doc, True)
   return epoxy.json()
 
 

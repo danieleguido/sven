@@ -210,7 +210,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     global rapid visualizations
   */
   .controller('indexCtrl', ['$scope', 'D3Factory', function($scope, D3Factory) {
-    $scope.values = {};
+    $scope.values = {timeline:[]};
     
     D3Factory.timeline({},function(data) {
       $scope.values.timeline = data.values;
@@ -314,7 +314,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     load or add a brand new document
 
   */
-  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $routeParams, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
+  .controller('documentCtrl', ['$scope', '$upload', '$routeParams', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $upload, $routeParams, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
     $scope.document = {
       mimetype: 'text/html'
     };
@@ -345,7 +345,32 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
         }
       );
+    };
 
+    /*
+      Upload txt version of the file.
+    */
+    $scope.onFileSelect = function($files) {
+      for (var i = 0; i < $files.length; i++) {
+        var file = $files[i];
+        $scope.upload = $upload.upload({
+          url: '/api/document/' + $routeParams.id + '/upload', //upload.php script, node.js route, or servlet url
+          file: file,
+        }).progress(function(evt) {
+          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total)
+          console.log('percent: ' + $scope.uploadprogress);
+        }).success(function(data, status, headers, config) {
+          // file is uploaded successfully
+          $scope.uploadprogress = 100;
+          
+          console.log('percent: ' + $scope.uploadprogress);
+          console.log(data);
+          $scope.document.text = data.object.text
+        });
+        //.error(...)
+        //.then(success, error, progress); 
+      }
+    // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
     };
 
     $routeParams.id && $scope.sync();
