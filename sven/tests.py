@@ -332,7 +332,7 @@ class DistillerTests(TestCase):
 
 class TwitterTests(TestCase):
   def setUp(self):
-    if settings.DEBUG and settings.TWITTER_CONSUMER_KEY is not None:
+    if settings.TWITTER_CONSUMER_KEY is not None:
       import tweepy # cfr tweepy api references
       auth = tweepy.OAuthHandler(
         settings.TWITTER_CONSUMER_KEY,
