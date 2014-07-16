@@ -111,6 +111,8 @@ class DocumentTest(TestCase):
     self.assertEqual(document.text(), u'Mary had a little lamb.'.encode('UTF-8'))
     
 
+
+
   def test_create_document_from_pdf(self):
     from django.core.files import File
     f = open(os.path.join(settings.BASE_DIR, 'contents/test.pdf')) # Open an existing file using Python's built-in open()
@@ -118,7 +120,8 @@ class DocumentTest(TestCase):
     doc = Document(corpus=self.corpus, name=u"unnamed")
     doc.raw.save('test_copy.pdf', p, save=False)
     doc.save()
-    print doc.mimetype
+    
+    self.assertEqual(doc.mimetype, 'application/pdf')
     #print document.text()
 
 
@@ -313,15 +316,15 @@ class DistillerTests(TestCase):
     #print article.title
     #print article.cleaned_text[:150]
 
-    twit = gooseapi(url='https://twitter.com/nawaat')
-    print "twitter account"
-    print twit.title
-    print twit.cleaned_text
+    #twit = gooseapi(url='https://twitter.com/nawaat')
+    ##print "twitter account"
+    #print twit.title
+    #print twit.cleaned_text
 
-    yout = gooseapi(url='https://www.youtube.com/watch?v=OqlEgcC_XTo')
-    print "youtube account"
-    print yout.title
-    print yout.cleaned_text
+    #yout = gooseapi(url='https://www.youtube.com/watch?v=OqlEgcC_XTo')
+    #print "youtube account"
+    #print yout.title
+    #print yout.cleaned_text
 
     #youch = gooseapi(url='https://www.youtube.com/user/canadiantourism') useless
     #print "youtube channel"
@@ -329,60 +332,3 @@ class DistillerTests(TestCase):
     #print youch.cleaned_text
     
 
-
-class TwitterTests(TestCase):
-  def setUp(self):
-    if settings.TWITTER_CONSUMER_KEY is not None:
-      import tweepy # cfr tweepy api references
-      auth = tweepy.OAuthHandler(
-        settings.TWITTER_CONSUMER_KEY,
-        settings.TWITTER_CONSUMER_SECRET
-      )
-      auth.set_access_token(
-        settings.TWITTER_ACCESS_TOKEN,
-        settings.TWITTER_ACCESS_TOKEN_SECRET
-      )
-
-      self.api = tweepy.API(auth)
-    
-
-  def test_twitterapi_having_links(self):
-    '''
-    Extract text from twits. Auto add as documents ?
-    enable only for specific tests!!
-    '''
-    from distiller import gooseapi, alchemyapi_url
-    if self.api:
-      public_tweets = self.api.user_timeline('nawaat')
-      for tweet in public_tweets:
-        urls = [t['expanded_url'] for t in tweet.entities[u'urls']]
-        if len(urls) > 0:
-          print tweet.created_at, 'by', tweet.author.screen_name
-          for url in urls:
-            twitter_url = gooseapi(url=url)
-            print 'url: ', url
-            print 'title: ',twitter_url.title
-            print 'with goose: ', twitter_url.cleaned_text[:150] #first 50 chars, if any
-            
-            if settings.ALCHEMYAPI_KEY is not None:
-              res = alchemyapi_url(api_key=settings.ALCHEMYAPI_KEY, url=url)
-              print 'with alchemy: ',res['text'][:150]
-      #print res
-          print '---'
-           # break at first
-
-
-
-  def test_twitterapi(self):
-    if self.api:
-      public_tweets = self.api.user_timeline('nawaat')
-      for tweet in public_tweets:
-        print tweet.created_at, 'by', tweet.author.screen_name
-        print 'hashtags', [t['text'] for t in tweet.entities[u'hashtags']] 
-        urls = [t['expanded_url'] for t in tweet.entities[u'urls']]
-        
-        for i in urls:
-          print 'url', i
-        print tweet.text
-        break
-     

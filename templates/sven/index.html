@@ -84,10 +84,11 @@
 
       <div id="menu">
         
+        <div ng-controller="notificationCtrl"></div>
         <ul ng-controller="corpusListCtrl">
-          <li>
+          <!-- li>
             {%verbatim%}{{ctrl}}{%endverbatim%}
-          </li>
+          </li -->
           <li ng-repeat="corpus in items" ng-class="selected_corpus_id == corpus.id? 'selected': ''">
             <div ng-include="'{{ STATIC_URL }}/partials/corpus.thumb.html'">
 
@@ -95,6 +96,13 @@
             
           </li>
           
+        </ul>
+
+        <ul data-c="taskCtrl">
+          <li>1. include documents</li>
+          <li>2. define stopwords</li>
+          <li>define stopwords</li>
+          <li>define stopwords</li>
         </ul>
       </div>
 

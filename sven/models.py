@@ -503,7 +503,7 @@ class Document(models.Model):
 
   def text(self):
     '''
-    Get utf8 text content of the file
+    Get utf8 text content of the file. If the document is of type text/html
     '''
     if self.mimetype is None:
       content = "" # not yet ready ... Empty string
@@ -516,21 +516,26 @@ class Document(models.Model):
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
-      elif self.mimetype == "application/pdf":
-        content = pdftotext(self.raw.path)
-        with codecs.open(textified, encoding='utf-8', mode='w') as f:
-          f.write(content)
-      elif self.url is not None:
-        goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
+      else: # content needs to b created
+        if self.mimetype == "application/pdf":
+          content = pdftotext(self.raw.path)
+          with codecs.open(textified, encoding='utf-8', mode='w') as f:
+            f.write(content)
+        elif self.url is not None:
+          goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
+          
+          content = goo.cleaned_text
+          with codecs.open(textified, encoding='utf-8', mode='w') as f:
+            f.write(content)
+        else:
+          content = '' #%s does not have a text associed. %s' % (self.mimetype, textified)
+        # exitsts text translations?
         
-        content = goo.cleaned_text
-        with codecs.open(textified, encoding='utf-8', mode='w') as f:
-          f.write(content)
-      else:
-        content = '%s does not have a text associed. %s' % (self.mimetype, textified)
-      # exitsts text translations?
-      
-    
+        # store whoosh, only if contents needs to be created. not that store update document content in index
+        if len(content):
+          logger.info("storing content of file")
+          self.store(content)
+
     # clean content
     content = dry(content)
 
@@ -539,14 +544,27 @@ class Document(models.Model):
 
   def autotag(self):
     '''
+    DEPRECATED as UNUSED
     Perform autotagging by using alchemyapi.
     Note: Settings.ALCHEMYAPI_KEY var should be set !
+
     '''
     if settings.ALCHEMYAPI_KEY is not None:
       from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
       for ent in res['entities']:
         pass
+
+
+  def store(self, content):
+    ix = Document.get_whoosh()
+    writer = ix.writer() # multi thread cfr. from whoosh.writing import AsyncWriter
+
+    writer.update_document(
+      title = self.name,
+      path = u"%s"%self.id,
+      content = content)
+    writer.commit()
 
 
   def save(self, **kwargs):
@@ -661,11 +679,36 @@ class Job(models.Model):
     http://localhost:8000/api/corpus/1/start/harvest
     http://localhost:8000/api/corpus/1/start/whoosher
     '''
-    # check if there are job running...
+    # check if there are similar job running...
     if Job.is_busy():
-      logger.debug('job is busy %s' % command) 
-      
+      logger.debug('job is busy %s , you need to wait for your turn...' % command)
       return None
+
+    # creating corpus related job
+    job, created = Job.objects.get_or_create(corpus=corpus)
+    job.status = Job.RUNNING
+    
+    # set as default
+    logger.debug('command "%s" not stored as management command, running start command instead' % command) 
+    popen_args = [
+      settings.PYTHON_INTERPRETER, # the virtualenv python
+      os.path.join(settings.BASE_DIR, 'manage.py'), # local manage script
+      'start_job', 
+      '--cmd', command,
+      '--job', str(job.pk)
+    ]
+
+    
+    s = subprocess.Popen(popen_args, stdout=None, stderr=None, close_fds=True)
+    job.cmd = ' '.join(popen_args)
+    job.pid = s.pid
+    job.save()
+
+    return job
+
+    print popen_args
+    
+
     if command not in settings.STANDALONE_COMMANDS:
       logger.debug('command "%s" not stored as management command, running start command instead' % command) 
       # cpmmand stored into start

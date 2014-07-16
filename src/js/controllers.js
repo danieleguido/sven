@@ -219,6 +219,27 @@ angular.module('sven.controllers', ['angularFileUpload'])
   }])
   /*
 
+    notificationCtrl. Probably better with webworker, even better with socket
+    ===
+  */
+  .controller('notificationCtrl', ['$scope', '$log', '$timeout', 'NotificationFactory', function($scope, $log, $timeout, NotificationFactory) {
+    function tick() {
+      NotificationFactory.query({id: $scope.job_id}, function(data){
+        //console.log(data);
+        $timeout(tick, 3617);
+        //$rootScope.$emit(JOB_RUNNING, data.object);
+      }, function(data){
+        $log.info('ticking error',data); // status 500 or 404 or other stuff
+        $timeout(tick, 3917);
+      }); /// todo HANDLE correctly connection refused
+    };
+    
+    tick(); // once done, allorw syncing in other controllers!
+
+    $log.info('%c notificationCtrl ', CTRL_LOADED);
+  }])
+  /*
+
     Sidebar user corpora ctrl.
     ===
   */
