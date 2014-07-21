@@ -18,10 +18,11 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   $routeProvider.when('/corpus/:id/documents', {templateUrl: '/static/partials/document.list.html', controller: 'documentListCtrl', reloadOnSearch:false});
   $routeProvider.when('/corpus/:id/segments', {templateUrl: '/static/partials/segment.list.html', controller: 'segmentListCtrl'});
   $routeProvider.when('/corpus/:corpus_id/document/new', {templateUrl: '/static/partials/document.new.html', controller: 'documentCtrl'});
+  $routeProvider.when('/corpus/:corpus_id/monitor', {templateUrl: '/static/partials/monitor.html', controller: 'monitorCtrl'});
+  
   $routeProvider.when('/document/:id', {templateUrl: '/static/partials/document.html', controller: 'documentCtrl'});
   
   $routeProvider.when('/document', {templateUrl: '/static/partials/document.list.html', controller: 'MyCtrl2'});
-  $routeProvider.when('/log', {templateUrl: '/static/partials/log.html', controller: 'logCtrl'});
   
   $routeProvider.when('/profile', {templateUrl: '/static/partials/profile.html', controller: 'profileCtrl'});
   $routeProvider.when('/search', {templateUrl: '/static/partials/search.html', controller: 'searchCtrl'});

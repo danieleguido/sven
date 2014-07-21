@@ -161,10 +161,20 @@ header > .inner {
 .big-item .tags {
   margin: 0 12px 12px 12px;
 }
-.big-item .text {
+.big-item .text,
+.big-item .code {
   margin: 0 12px 12px 12px;
   padding: 0 12px 0 0;
   position: relative;
+}
+.big-item .code {
+  background: #4f514e;
+  color: white;
+  padding: 0 12px;
+}
+.big-item .code pre {
+  margin: 0;
+  padding: 6px 0;
 }
 .big-item .segment {
   overflow: hidden;

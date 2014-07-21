@@ -607,12 +607,14 @@ class Job(models.Model):
   RUNNING = 'RUN'
   LOST = 'RIP'
   COMPLETED = 'END'
+  ERROR = 'ERR'
 
   STATUS_CHOICES = (
     (STARTED, u'started'),
     (RUNNING, u'running'),
     (LOST, u'process not found'),
-    (COMPLETED, u'job completed')  
+    (COMPLETED, u'job completed'),  
+    (ERROR, u'job error') ,
   )
 
   pid = models.CharField(max_length=32)
@@ -679,17 +681,21 @@ class Job(models.Model):
     http://localhost:8000/api/corpus/1/start/harvest
     http://localhost:8000/api/corpus/1/start/whoosher
     '''
-    # check if there are similar job running...
-    if Job.is_busy():
-      logger.debug('job is busy %s , you need to wait for your turn...' % command)
-      return None
 
+    # check if there are similar job running...
+    #if Job.is_busy():
+    #  logger.debug('job is busy %s , you need to wait for your turn...' % command)
+    #  return None
+    running_jobs = Job.objects.filter(corpus=corpus, status__in=[Job.RUNNING, Job.STARTED])
+    if running_jobs.count() > 0:
+      logger.debug('ouch, your corpus is busy in doing something else ...')
+      return None
     # creating corpus related job
     job, created = Job.objects.get_or_create(corpus=corpus)
     job.status = Job.RUNNING
     
     # set as default
-    logger.debug('command "%s" not stored as management command, running start command instead' % command) 
+    logger.debug('init start "%s"' % command) 
     popen_args = [
       settings.PYTHON_INTERPRETER, # the virtualenv python
       os.path.join(settings.BASE_DIR, 'manage.py'), # local manage script
@@ -743,6 +749,18 @@ class Job(models.Model):
         logger.exception(e)
     # everything below will not be executed, since the process id has benn killed.
 
+
+  def json(self, deep=False):
+    d = {
+      'cmd': self.cmd,
+      'completion': self.completion,
+      'corpus': self.corpus.json(),
+      'document': self.document.json(),
+      'id': self.id,
+      'pid': self.pid,
+      'status': self.status
+    }
+    return d
 
 
 class Document_Segment( models.Model ):

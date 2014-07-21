@@ -33,12 +33,14 @@ def notification(request):
   '''
   epoxy = Epoxy(request)
 
-  #try:
-  #  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
-  #except OSError, e:
-  #  logger.exception(e)
+  try:
+    epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
+  except OSError, e:
+    logger.exception(e)
   # DEPRECATED. too much. 
-  jobs = Job.objects.filter(corpus__in=request.user.corpora.all())
+  corpora = request.user.corpora.all()
+  epoxy.add('corpora', [c.json() for c in corpora])
+  jobs = Job.objects.filter(corpus__in=corpora)
   epoxy.queryset(jobs)
   epoxy.add('datetime', datetime.now().isoformat())
 
@@ -399,6 +401,49 @@ def corpus_segment(request, corpus_pk, segment_pk):
   return epoxy.json()
 
 
+def export_corpus_segments(request, corpus_pk):
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  import unicodecsv
+  from django.http import HttpResponse
+  
+  ss = Segment.objects.raw("""
+    SELECT 
+      s.`id`, s.`content`, s.`language`, 
+      s.`cluster`, s.`status`,
+      MAX( ds.`tfidf`) AS `max_tfidf`,
+      MAX( ds.`tf`) AS `max_tf`, 
+      COUNT(DISTINCT ds.document_id) AS `distro` 
+    FROM sven_segment s
+      JOIN sven_document_segment ds ON s.id = ds.segment_id 
+      JOIN sven_document d ON ds.document_id = d.id
+    WHERE d.corpus_id = %s
+    GROUP BY s.cluster
+    """,[corpus_pk]
+  )
+  
+  if 'plain-text' not in request.REQUEST:
+    response = HttpResponse(mimetype='text/csv; charset=utf-8')
+    response['Content-Description'] = "File Transfer";
+    response['Content-Disposition'] = "attachment; filename=%s.csv" % c.name 
+  
+  else:
+    response = HttpResponse(mimetype='text/plain; charset=utf-8')
+  
+  
+  writer = unicodecsv.writer(response, encoding='utf-8')
+  
+  # headers  
+  writer.writerow(['_id', 'content', 'concept',  'distribution', 'status', 'max_tf', 'max_tfidf'])
+
+  for s in ss:
+    writer.writerow([  s.id, s.content, s.cluster, s.distro, s.status, s.max_tf, s.max_tfidf])
+  
+  return response
 
 @login_required
 def profile(request, pk=None):

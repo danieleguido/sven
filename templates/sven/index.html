@@ -8,7 +8,11 @@
 
     
     <!-- purecss grid + fontawesome icons -->
+    {% if ENABLE_CDN_SERVICES %}
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
+    {% else %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}/css/pure-min.css">
+    {% endif %}
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
 
@@ -97,13 +101,15 @@
           </li>
           
         </ul>
-
+        {% verbatim %}
         <ul data-c="taskCtrl">
-          <li>1. include documents</li>
-          <li>2. define stopwords</li>
-          <li>define stopwords</li>
-          <li>define stopwords</li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/documents">1. include documents</a></li>
+          <li ><span style="text-decoration: line-through">2. define stopwords</span> (not yet!)</li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/monitor">3. monitor analysis</a></li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/segments">4. view concepts</a></li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/exports">5. export data</a></li>
         </ul>
+        {% endverbatim %}
       </div>
 
       <div id="main">

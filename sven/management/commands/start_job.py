@@ -5,7 +5,7 @@ from optparse import make_option
 from datetime import datetime
 
 from django.conf import settings
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
@@ -51,7 +51,71 @@ class Command(BaseCommand):
     job.completion = .8
     job.save()
     time.sleep(15)
+  
+
+  def _tfidf(self, job):
+    import math
+    from sven.distiller import dictfetchall
+
+    number_of_documents = job.corpus.documents.count()
+    number_of_segments  = job.corpus.segments.count()
+
+    print number_of_documents
+
+    print number_of_segments
+    if number_of_documents == 0:
+      raise Exception('not enough "documents" in corpus to perform tfidf')# @todo
+
+    if number_of_segments == 0:
+      raise Exception('not enough "segments" in corpus to perform tfidf')# @todo
+
+    # 2. get all languages in corpus
+    number_of_languages = job.corpus.segments.values('language').distinct()
     
+    print "number_of_languages", number_of_languages
+    # 3. start querying per language stats
+    cursor = connection.cursor()
+
+    step = 0;
+    for i in number_of_languages:
+      language = i['language']
+      # get number of clusters per language to print completion percentage (can we save it if self.job exists)
+      #clusters = self.segments.filter(language=language).values('cluster').annotate(Count('cluster'))
+      #for c in clusters:
+      #  print c['cluster'], c
+
+      # distribution query. In how many document can a cluster be found?
+      clusters = cursor.execute("""
+        SELECT
+          COUNT( DISTINCT ds.document_id ) as distribution, 
+          s.language,
+          s.cluster
+        FROM `sven_document_segment` ds
+        JOIN `sven_segment` s ON ds.segment_id = s.id
+        JOIN `sven_document` d ON d.id = ds.document_id
+        WHERE d.corpus_id = %s AND s.language = %s AND s.status = %s
+        GROUP BY s.cluster
+        ORDER BY distribution DESC, cluster ASC""", [
+          job.corpus.id,
+          language,
+          Segment.IN
+        ]
+      )
+      
+      for i, cluster in enumerate(dictfetchall(cursor)):
+        step = step+1
+        
+        with transaction.atomic():  
+          # for each cluster, calculate df value inside the overall corpus.
+          df = float(cluster['distribution'])/number_of_documents
+          
+          # group by cluster and update value for the document_segment table. TFIDF is specific for each couple.
+          for ds in Document_Segment.objects.filter(segment__cluster=cluster['cluster'], segment__language=language):
+            ds.tfidf = ds.tf * math.log(1/df) 
+            ds.wfidf = ds.wf * math.log(1/df)
+            print i, cluster['cluster'], df, ds.tf, ds.tfidf
+            ds.save()
+
     
 
   def _harvest(self, job):

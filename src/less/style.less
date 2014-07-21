@@ -257,10 +257,21 @@ header{
     margin: 0 @margin @margin @margin;
   }
 
-  .text{
+  .text, .code{
      margin: 0 @margin @margin @margin;
      padding: 0 @margin 0 0;
      position: relative;
+  }
+
+  .code{
+    background: @darkgrey;
+    color: white;
+    padding: 0 @margin;
+  
+    pre{
+      margin:0;
+      padding: @module 0;
+    }
   }
 
   .segment{

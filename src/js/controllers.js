@@ -3,6 +3,7 @@
 var CTRL_LOADED = 'background: lime; color: #181818',
     STYLE_INFO = 'color: #b8b8b8',
     CONTROLLER_PARAMS_UPDATED = "CONTROLLER_PARAMS_UPDATED",
+    JOBS_RUNNING = 'JOBS_RUNNING',
 
     gimmesize = function(obj) {
       var obj = angular.copy(obj),
@@ -222,12 +223,12 @@ angular.module('sven.controllers', ['angularFileUpload'])
     notificationCtrl. Probably better with webworker, even better with socket
     ===
   */
-  .controller('notificationCtrl', ['$scope', '$log', '$timeout', 'NotificationFactory', function($scope, $log, $timeout, NotificationFactory) {
+  .controller('notificationCtrl', ['$rootScope', '$scope', '$log', '$timeout', 'NotificationFactory', function($rootScope, $scope, $log, $timeout, NotificationFactory) {
     function tick() {
       NotificationFactory.query({id: $scope.job_id}, function(data){
         //console.log(data);
         $timeout(tick, 3617);
-        //$rootScope.$emit(JOB_RUNNING, data.object);
+        $rootScope.$emit(JOBS_RUNNING, data);
       }, function(data){
         $log.info('ticking error',data); // status 500 or 404 or other stuff
         $timeout(tick, 3917);
@@ -253,6 +254,42 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     $scope.sync();
     console.log('%c corpusListCtrl ', CTRL_LOADED);
+  }])
+  /*
+
+    Monitor: enable analysis and check global log file
+    ===
+  */
+  .controller('monitorCtrl', ['$rootScope','$scope','$routeParams', '$log', 'CommandFactory', function($rootScope, $scope, $routeParams, $log, CommandFactory) {
+    $log.info('%c monitorCtrl ', CTRL_LOADED);
+
+    $scope.job = {}; // current corpus monitoring
+
+    $rootScope.$on(JOBS_RUNNING, function(e, data) {
+      $scope.corpus_id = $routeParams.corpus_id; // or guess
+      $scope.log = data.log;
+      // console.log(data);
+      for(var i in data.objects) {
+        if(data.objects[i].corpus.id == $scope.corpus_id) {
+          $scope.job = data.objects[i];
+          break;
+        }
+      }; // change what needs to be changed @todo
+      
+    })
+
+    /*
+      @param a valid cmd command to be passed to api/start. Cfr api.py
+    */
+    $scope.start = function(cmd) {
+      CommandFactory.query({
+        id: $routeParams.corpus_id,
+        cmd: cmd
+      }, function() {
+        console.log(arguments);
+      })
+    };
+
   }])
   /*
 
