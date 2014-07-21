@@ -3,4 +3,4 @@
 	url = https://github.com/danieleguido/glue.git
 [submodule "pattern"]
 	path = pattern
-	url = git://github.com/danieleguido/pattern.git
+	url = https://github.com/danieleguido/pattern.git
