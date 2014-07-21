@@ -3,6 +3,7 @@
 var CTRL_LOADED = 'background: lime; color: #181818',
     STYLE_INFO = 'color: #b8b8b8',
     CONTROLLER_PARAMS_UPDATED = "CONTROLLER_PARAMS_UPDATED",
+    JOBS_RUNNING = 'JOBS_RUNNING',
 
     gimmesize = function(obj) {
       var obj = angular.copy(obj),
@@ -26,7 +27,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     
     limit and offset of the curtrent view are also set.
   */
-  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', function($scope, $rootScope, $location, $route) {
+  .controller('layoutCtrl', ['$scope', '$rootScope','$location', '$route', 'TagListFactory', 'ToastFactory', function($scope, $rootScope, $location, $route, TagListFactory, ToastFactory) {
 
     $scope.limit = 25;
     $scope.offset= 0;
@@ -34,16 +35,22 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.default_offset = 0;
     
     $scope.filters = {};
-    $scope.query = {};
+    $scope.query = '';
     
     $scope.numofpages = 0;
     $scope.page = 0;
     console.log('%c layoutCtrl ', CTRL_LOADED);
-    
+  
     
     $scope.ctrl = ''; // current view controller
     // look after the current corpus, babe.
     
+    $scope.toast = function(message, title, options) {
+      ToastFactory.toast(message, title, options);
+    };
+
+    $scope.toast('sven loaded correctly', {position: 'middle-center'});
+
     $scope.setCorpus = function(id) {
       $rootScope.selected_corpus_id = id;
     };
@@ -54,7 +61,9 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $location.path(path);
     };
     
-    $scope.search = function() {
+    $scope.search = function(query) {
+      if(query)
+        $scope.query = query;
       console.log("%c search ", 'color:white; background-color:#383838', $scope.query);
       $scope.limit = $scope.default_limit;
       $scope.offset = $scope.default_offset;
@@ -107,6 +116,18 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.pages = pages;
       console.log('$scope.paginate', pages);
     };
+
+
+
+    $scope.suggestTags = function(tag_type, tag_val) {
+      return TagListFactory.query({
+          filters:'{"type":"'+tag_type+'"}',
+          search:tag_val
+      }).$promise.then(function(data) {
+        return data.objects;
+      });
+    };
+
 
 
     $scope.distill = function(options) {
@@ -186,9 +207,37 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.distill(); // push current controllername
     });
   }])
-  .controller('indexCtrl', ['$scope', function() {
+  /*
+    global rapid visualizations
+  */
+  .controller('indexCtrl', ['$scope', 'D3Factory', function($scope, D3Factory) {
+    $scope.values = {timeline:[]};
+    
+    D3Factory.timeline({},function(data) {
+      $scope.values.timeline = data.values;
+    });
 
+  }])
+  /*
 
+    notificationCtrl. Probably better with webworker, even better with socket
+    ===
+  */
+  .controller('notificationCtrl', ['$rootScope', '$scope', '$log', '$timeout', 'NotificationFactory', function($rootScope, $scope, $log, $timeout, NotificationFactory) {
+    function tick() {
+      NotificationFactory.query({id: $scope.job_id}, function(data){
+        //console.log(data);
+        $timeout(tick, 3617);
+        $rootScope.$emit(JOBS_RUNNING, data);
+      }, function(data){
+        $log.info('ticking error',data); // status 500 or 404 or other stuff
+        $timeout(tick, 3917);
+      }); /// todo HANDLE correctly connection refused
+    };
+    
+    tick(); // once done, allorw syncing in other controllers!
+
+    $log.info('%c notificationCtrl ', CTRL_LOADED);
   }])
   /*
 
@@ -208,10 +257,46 @@ angular.module('sven.controllers', ['angularFileUpload'])
   }])
   /*
 
-    Sidebar user corpora ctrl.
+    Monitor: enable analysis and check global log file
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', function($scope, $upload, $routeParams, DocumentListFactory) {
+  .controller('monitorCtrl', ['$rootScope','$scope','$routeParams', '$log', 'CommandFactory', function($rootScope, $scope, $routeParams, $log, CommandFactory) {
+    $log.info('%c monitorCtrl ', CTRL_LOADED);
+
+    $scope.job = {}; // current corpus monitoring
+
+    $rootScope.$on(JOBS_RUNNING, function(e, data) {
+      $scope.corpus_id = $routeParams.corpus_id; // or guess
+      $scope.log = data.log;
+      // console.log(data);
+      for(var i in data.objects) {
+        if(data.objects[i].corpus.id == $scope.corpus_id) {
+          $scope.job = data.objects[i];
+          break;
+        }
+      }; // change what needs to be changed @todo
+      
+    })
+
+    /*
+      @param a valid cmd command to be passed to api/start. Cfr api.py
+    */
+    $scope.start = function(cmd) {
+      CommandFactory.query({
+        id: $routeParams.corpus_id,
+        cmd: cmd
+      }, function() {
+        console.log(arguments);
+      })
+    };
+
+  }])
+  /*
+
+    Document list for a single corpus
+    ===
+  */
+  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -263,16 +348,95 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
     $scope.sync();
     console.log('%c documentListCtrl ', CTRL_LOADED);
+
+    $scope.__adding_tag = false;
+    $scope.attachTag = function(tag_type, tag, item) {
+      DocumentTagsFactory.save({
+        id: item.id
+      }, {
+        tags: tag.name || tag,
+        type: tag_type
+      },function(data){
+        $scope.sync();     
+      });
+      $scope.__tag_candidate = "";
+      $scope.__adding_tag = false;
+      console.log(arguments, $scope.__tag_candidate);
+    };
   }])
-  .controller('documentCtrl', ['$scope', '$routeParams', 'DocumentFactory', 'DocumentSegmentsFactory', function($scope, $routeParams, DocumentFactory, DocumentSegmentsFactory) {
-    DocumentFactory.query({id: $routeParams.id}, function(data){
-      $scope.document = data.object;
-      
-      DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
-        console.log(data);
-        $scope.segments = data.objects
-      })
-    });
+  /*
+    
+    DocumentCtrl
+    ---
+    
+    load or add a brand new document
+
+  */
+  .controller('documentCtrl', ['$scope', '$upload', '$routeParams', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $upload, $routeParams, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
+    $scope.document = {
+      mimetype: 'text/html'
+    };
+    $scope.segments = [];
+
+    $scope.sync = function() {
+      DocumentFactory.query({id: $routeParams.id}, function(data){
+        $scope.document = data.object;
+        
+        DocumentSegmentsFactory.query({id: $routeParams.id}, function(data){
+          console.log(data);
+          $scope.segments = data.objects
+        })
+      });
+    };
+
+    $scope.save = function() {
+      if(!$routeParams.corpus_id)
+        return;
+      $log.info('documentCtrl save()', angular.copy($scope.document));
+      DocumentListFactory.save(
+        {
+          id: $routeParams.corpus_id
+        },
+        angular.copy($scope.document),
+        function(data) {
+          console.log(data);
+
+        }
+      );
+    };
+
+    /*
+      Upload txt version of the file.
+    */
+    $scope.onFileSelect = function($files) {
+      for (var i = 0; i < $files.length; i++) {
+        var file = $files[i];
+        $scope.upload = $upload.upload({
+          url: '/api/document/' + $routeParams.id + '/upload', //upload.php script, node.js route, or servlet url
+          file: file,
+        }).progress(function(evt) {
+          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total)
+          console.log('percent: ' + $scope.uploadprogress);
+        }).success(function(data, status, headers, config) {
+          // file is uploaded successfully
+          $scope.uploadprogress = 100;
+          
+          console.log('percent: ' + $scope.uploadprogress);
+          console.log(data);
+          $scope.document.text = data.object.text
+        });
+        //.error(...)
+        //.then(success, error, progress); 
+      }
+    // $scope.upload = $upload.upload({...}) alternative way of uploading, sends the the file content directly with the same content-type of the file. Could be used to upload files to CouchDB, imgur, etc... for HTML5 FileReader browsers. 
+    };
+
+    $routeParams.id && $scope.sync();
+
+    $log.info('documentCtrl loaded');
+  }])
+  .controller('searchCtrl', ['$scope', '$log', 'DocumentListFactory', function($scope, $log, DocumentListFactory) {
+    $log.info('searchCtrl loaded');
 
   }])
   .controller('contextCtrl', ['$scope', function($scope) {
