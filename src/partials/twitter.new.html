@@ -1,0 +1,30 @@
+
+<div class="view">
+  <div class="wrapper">
+    
+    <div class="single document big-item">
+      <h2>
+        {{twitter.name || "Please add a Twitter account"}}
+      </h2>
+      
+      <div class="pure-g">
+        <div class="pure-u-1-2">
+          <div class="profile">
+            <form class="pure-form  pure-form-stacked" ng-submit="save()">
+              <div class="pure-control-group">
+                <label>twitter account url (something like <a href="https://twitter.com/paris" target="_blank"> https://twitter.com/paris</a>)</label>
+                <input type="url" required ng-model="document.url" class="pure-input-1">
+              </div>
+              <div class="pure-control-group">
+                <label>a short description: why do you want to put it here? </label>
+                <textarea type="text" required ng-model="twitter.abstract" class="pure-input-1"></textarea>
+              </div>
+              <button class="boo pure-button">save twitter account</button>
+              
+            </form>
+          </div>       
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

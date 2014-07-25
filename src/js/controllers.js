@@ -2,9 +2,13 @@
 
 var CTRL_LOADED = 'background: lime; color: #181818',
     STYLE_INFO = 'color: #b8b8b8',
+
+    // events
     CONTROLLER_PARAMS_UPDATED = "CONTROLLER_PARAMS_UPDATED",
     JOBS_RUNNING = 'JOBS_RUNNING',
+    UPDATE_STATUS = 'UPDATE_STATUS',
 
+    // common funcitons
     gimmesize = function(obj) {
       var obj = angular.copy(obj),
           size = 0,
@@ -267,6 +271,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
 
     $rootScope.$on(JOBS_RUNNING, function(e, data) {
       $scope.corpus_id = $routeParams.corpus_id; // or guess
+
       $scope.log = data.log;
       // console.log(data);
       for(var i in data.objects) {
@@ -277,6 +282,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
       }; // change what needs to be changed @todo
       
     })
+
+    $scope.setCorpus($routeParams.corpus_id);
 
     /*
       @param a valid cmd command to be passed to api/start. Cfr api.py
@@ -296,7 +303,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     Document list for a single corpus
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
+  .controller('documentListCtrl', ['$scope', '$rootScope', '$log', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $rootScope, $log, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -309,9 +316,12 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.setCorpus($routeParams.id); // explicit corpus id assignment
     };
 
-    $scope.uploadprogress = 100;
+    $scope.uploadprogress = 50;
 
     $scope.onFileSelect = function($files) {
+      $log.info('onFileSelect', $files);
+      $rootScope.$emit(UPDATE_STATUS, 'starting upload...');
+
       for (var i = 0; i < $files.length; i++) {
         var file = $files[i];
         $scope.upload = $upload.upload({
@@ -327,12 +337,15 @@ angular.module('sven.controllers', ['angularFileUpload'])
           /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
           //formDataAppender: function(formData, key, val){} //#40#issuecomment-28612000
         }).progress(function(evt) {
-          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total)
+          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total);
+          $rootScope.$emit(UPDATE_STATUS, 'uploading ' + $scope.uploadprogress+ '%');
           console.log('percent: ' + $scope.uploadprogress);
         }).success(function(data, status, headers, config) {
-          // file is uploaded successfully
-          console.log(data);
+          // file has been uploaded successfully !
+          // console.log(data);
           $scope.uploadprogress = 100;
+          $rootScope.$emit(UPDATE_STATUS, '');
+          $scope.toast('upload completed', {position: 'middle-center'});
           $scope.sync();
         });
         //.error(...)
@@ -347,7 +360,6 @@ angular.module('sven.controllers', ['angularFileUpload'])
     });
 
     $scope.sync();
-    console.log('%c documentListCtrl ', CTRL_LOADED);
 
     $scope.__adding_tag = false;
     $scope.attachTag = function(tag_type, tag, item) {
@@ -363,6 +375,9 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.__adding_tag = false;
       console.log(arguments, $scope.__tag_candidate);
     };
+
+
+    $log.info('%c documentListCtrl ', CTRL_LOADED, 'loaded');
   }])
   /*
     
@@ -372,7 +387,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     load or add a brand new document
 
   */
-  .controller('documentCtrl', ['$scope', '$upload', '$routeParams', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $upload, $routeParams, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
+  .controller('documentCtrl', ['$scope', '$upload', '$routeParams', '$location', 'DocumentFactory', 'DocumentListFactory', 'DocumentSegmentsFactory', '$log', function($scope, $upload, $routeParams, $location, DocumentFactory, DocumentListFactory, DocumentSegmentsFactory, $log) {
     $scope.document = {
       mimetype: 'text/html'
     };
@@ -392,6 +407,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.save = function() {
       if(!$routeParams.corpus_id)
         return;
+      $scope.toast('saving link ...');
       $log.info('documentCtrl save()', angular.copy($scope.document));
       DocumentListFactory.save(
         {
@@ -400,7 +416,9 @@ angular.module('sven.controllers', ['angularFileUpload'])
         angular.copy($scope.document),
         function(data) {
           console.log(data);
-
+          $scope.toast('link saved',{});
+          $location.path('/document/' + data.object.id);
+          // redirect to new document
         }
       );
     };
@@ -432,6 +450,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     };
 
     $routeParams.id && $scope.sync();
+    $routeParams.corpus_id && $scope.setCorpus($routeParams.corpus_id);// add new docuemnt to a given corpus
 
     $log.info('documentCtrl loaded');
   }])
@@ -507,6 +526,28 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $scope.sync();
     console.log('%c segmentListCtrl ', CTRL_LOADED);
   }])
+  /*
+    Independent controller, change the header 'what I m doing' message with 
+    something more appropriate
+  */
+  .controller('statusCtrl', ['$scope', '$rootScope', '$log', function($scope, $rootScope, $log) {
+    $scope.message = ''
+    $rootScope.$on(UPDATE_STATUS, function(e, message) {
+      $scope.message = message;
+    });
+    $log.info('%c statusCtrl ', CTRL_LOADED);
+  }])
+  /*
+    Add twitter account to be monitored.
+  */
+  .controller('twitterCtrl', ['$scope', '$log', '$routeParams', function($scope, $log, $routeParams) {
+
+    $log.info('%c twitterCtrl ', CTRL_LOADED);
+    $scope.setCorpus($routeParams.corpus_id); 
+  }])
+  /*
+    A dummy, blank controller
+  */
   .controller('blankCtrl', ['$scope', function($scope) {
 
 

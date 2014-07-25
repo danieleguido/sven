@@ -416,7 +416,8 @@ class Document(models.Model):
       'date': self.date.strftime("%Y-%m-%d") if self.date else None,
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat(),
-      'tags': {}
+      'tags': {},
+      'url': self.url
       #[t.json() for t in self.tags.all()]
     }
 
