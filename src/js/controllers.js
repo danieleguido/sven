@@ -538,12 +538,25 @@ angular.module('sven.controllers', ['angularFileUpload'])
     $log.info('%c statusCtrl ', CTRL_LOADED);
   }])
   /*
-    Add twitter account to be monitored.
+    Add twitter account to be monitored to the current corpus
   */
-  .controller('twitterCtrl', ['$scope', '$log', '$routeParams', function($scope, $log, $routeParams) {
+  .controller('twitterCtrl', ['$scope', '$log', '$routeParams', 'TwitterListFactory', function($scope, $log, $routeParams, TwitterListFactory) {
 
+    $scope.item = {};
+
+    $scope.setCorpus($routeParams.corpus_id); // last corpus id
+
+    $scope.save = function(item) {
+      TwitterListFactory.save({},{
+        corpus: $routeParams.id,
+        url: $scope.item.url
+      }, function(data) {
+        $scope.toast('twitter account added to queue !');
+        console.log(data);
+      })
+    };
     $log.info('%c twitterCtrl ', CTRL_LOADED);
-    $scope.setCorpus($routeParams.corpus_id); 
+    
   }])
   /*
     A dummy, blank controller

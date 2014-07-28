@@ -13,11 +13,11 @@
             <form class="pure-form  pure-form-stacked" ng-submit="save()">
               <div class="pure-control-group">
                 <label>twitter account url (something like <a href="https://twitter.com/paris" target="_blank"> https://twitter.com/paris</a>)</label>
-                <input type="url" required ng-model="document.url" class="pure-input-1">
+                <input type="url" required ng-model="item.url" class="pure-input-1">
               </div>
               <div class="pure-control-group">
                 <label>a short description: why do you want to put it here? </label>
-                <textarea type="text" required ng-model="twitter.abstract" class="pure-input-1"></textarea>
+                <textarea type="text" required ng-model="item.abstract" class="pure-input-1"></textarea>
               </div>
               <button class="boo pure-button">save twitter account</button>
               

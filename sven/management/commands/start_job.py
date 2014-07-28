@@ -104,6 +104,7 @@ class Command(BaseCommand):
       
       for i, cluster in enumerate(dictfetchall(cursor)):
         step = step+1
+        print step
         
         with transaction.atomic():  
           # for each cluster, calculate df value inside the overall corpus.

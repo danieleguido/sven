@@ -1,12 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from twit.models import Twit
+from sven.models import Corpus, Document
 
 
 class TwitTests(TestCase):
+  def setUp(self):
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.admin = User(
+      username='jacob_admin', email='jacob@…', password='top_secret', is_staff=True)
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----twit-test----')
+    self.corpus.owners.add(self.user)
+    self.corpus.save()
+
   def test_modification_date(self):
     t, created = Twit.objects.get_or_create(url='https://twitter.com/nawaat')
     import time
@@ -17,10 +28,34 @@ class TwitTests(TestCase):
     d = d2 - d1
     self.assertEquals(d.total_seconds > 0, True)
 
+
   def test_get_twitter_account(self):
     t, created = Twit.objects.get_or_create(url='https://twitter.com/nawaat')
     account = Twit.get_twitter_account(url=t.url)
     self.assertEquals(account, 'nawaat')
+
+
+  def test_todolist(self):
+    t, created = Twit.objects.get_or_create(url='https://twitter.com/nawaat')
+    t.corpus.add(self.corpus)
+    t.save()
+    todos = t.todolist()
+    from sven.distiller import gooseapi
+
+    for todo in todos:
+      url_exists = Document.objects.filter(url=todo['url']).count()
+      if url_exists > 0:
+        continue #skip
+      #twitter_url = gooseapi(url=url)
+      document = Document(corpus=self.corpus, mimetype="text/html", url=todo['url'], name=u'%s'%t.name)
+      document.save()
+      t.documents.add(document)
+      t.save()
+
+
+
+
+
 
 
 class TwitterTests(TestCase):
@@ -44,7 +79,7 @@ class TwitterTests(TestCase):
     Extract text from twits. Auto add as documents ?
     enable only for specific tests!!
     '''
-    from distiller import gooseapi, alchemyapi_url
+    from sven.distiller import gooseapi, alchemyapi_url
     if self.api:
       public_tweets = self.api.user_timeline('nawaat')
       for tweet in public_tweets:
