@@ -12,6 +12,9 @@ DB_ENGINE = 'django.db.backends.sqlite3'
 DB_NAME = os.path.join(BASE_DIR, 'sqlite/db.sqlite3') # given as example
 DB_USER = None # not used in sqlite
 DB_PASS = None # not used in sqlite
+DB_HOST = None # not used in sqlite,
+DB_PORT = None # not used in sqlite
+
 
 LANGUAGE_CODE = 'en-us'
 

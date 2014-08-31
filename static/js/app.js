@@ -17,6 +17,9 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   
   $routeProvider.when('/corpus/:id/documents', {templateUrl: '/static/partials/document.list.html', controller: 'documentListCtrl', reloadOnSearch:false});
   $routeProvider.when('/corpus/:id/segments', {templateUrl: '/static/partials/segment.list.html', controller: 'segmentListCtrl'});
+  
+  $routeProvider.when('/corpus/:corpus_id/twitter/new', {templateUrl: '/static/partials/twitter.new.html', controller: 'twitterCtrl', reloadOnSearch:false});
+  
   $routeProvider.when('/corpus/:corpus_id/document/new', {templateUrl: '/static/partials/document.new.html', controller: 'documentCtrl'});
   $routeProvider.when('/corpus/:corpus_id/monitor', {templateUrl: '/static/partials/monitor.html', controller: 'monitorCtrl'});
   

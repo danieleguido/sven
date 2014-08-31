@@ -36,7 +36,11 @@ module.exports = function(grunt) {
             './src/js/libs/angular-elastic.js',
             './src/js/libs/angular-svenD3.js',
             './src/js/libs/jquery.toastmessage.js',
-            './src/js/*.js'
+            './src/js/services.js',
+            './src/js/controllers.js',
+            './src/js/filters.js',
+            './src/js/directives.js',
+            './src/js/app.js'
           ]
         }
       }
@@ -48,6 +52,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-angular-templates');
 
   grunt.registerTask('default', ['less:development','uglify:production']);
   grunt.registerTask('production', ['less:production','uglify:production']);

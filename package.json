@@ -1,7 +1,9 @@
 {
   "name": "sven",
   "description": "a light django app which easily integrate text analysis with a powerful corpus management.",
-  "bugs": "https://github.com/danieleguido/sven/issues",
+  "bugs": {
+    "url": ""
+  },
   "version": "0.0.1",
   "private": true,
   "author": "Daniele Guido",
@@ -9,9 +11,6 @@
   "contributors": [
     "Daniele Guido <gui.daniele@gmail.com> (https://github.com/danieleguido)"
   ],
-  "bugs": {
-    "url": ""
-  },
   "dependencies": {},
   "keywords": [
     "text analysis",
@@ -32,6 +31,7 @@
     "grunt": "~0.4.2",
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-contrib-less": "~0.9.0",
-    "grunt-contrib-handlebars": "~0.6.1"
+    "grunt-contrib-handlebars": "~0.6.1",
+    "grunt-angular-templates": "^0.5.7"
   }
 }
