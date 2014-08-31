@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       production: {
         files: {
           './src/build/js/sven.min.js': [
-            './src/libs/*.js',
+            './src/js/libs/*.js',
             './src/js/*.js'
           ]
         }
