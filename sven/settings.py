@@ -69,7 +69,9 @@ DATABASES = {
         'ENGINE': local_settings.DB_ENGINE,
         'NAME': local_settings.DB_NAME,
         'USER': local_settings.DB_USER,
-        'PASSWORD': local_settings.DB_PASS
+        'PASSWORD': local_settings.DB_PASS,
+        'HOST': local_settings.DB_HOST,
+        'PORT': local_settings.DB_PORT
     }
 }
 
