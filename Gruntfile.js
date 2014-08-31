@@ -27,7 +27,15 @@ module.exports = function(grunt) {
       production: {
         files: {
           './src/build/js/sven.min.js': [
-            './src/js/libs/*.js',
+            // jquery stuffs
+            './src/js/libs/jquery.scrolltofixed.min.js',
+            // angular plugins without CDN
+            './src/js/libs/angular-ui-bootstrap-tpls.min.js',
+            './src/js/libs/angular-file-upload.min.js',
+            './src/js/libs/angular-ui-bootstrap-tpls.min.js',
+            './src/js/libs/angular-elastic.js',
+            './src/js/libs/angular-svenD3.js',
+            './src/js/libs/jquery.toastmessage.js',
             './src/js/*.js'
           ]
         }
