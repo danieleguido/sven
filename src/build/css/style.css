@@ -50,6 +50,16 @@ header h1 {
   font: 13px/36px 'Source Code Pro';
   text-transform: uppercase;
 }
+header .status {
+  position: absolute;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
+  text-align: center;
+  top: 0px;
+  line-height: 36px;
+  font-size: 12px;
+}
 header .menu {
   position: absolute;
   right: 0;
