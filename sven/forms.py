@@ -23,7 +23,7 @@ class CorpusForm(forms.ModelForm):
 class DocumentForm(forms.ModelForm):
   class Meta:
     model = Document
-    exclude = ['corpus', 'mimetype', 'slug', 'language']
+    exclude = ['corpus', 'slug', 'language']
 
 
 

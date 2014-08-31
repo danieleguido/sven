@@ -168,7 +168,8 @@ def document_upload(request, corpus_pk):
     corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
-
+  import time
+  time.sleep(10)
   f = request.FILES['file']
   d = Document(corpus=corpus, raw=f, name=f.name)
   d.save()

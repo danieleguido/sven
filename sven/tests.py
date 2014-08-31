@@ -89,6 +89,19 @@ class DocumentTest(TestCase):
     self.corpus.owners.add(self.user) # adding two documents
 
 
+  def test_upload_file(self):
+    self.factory = RequestFactory()
+    with open(os.path.join(settings.BASE_DIR, 'contents/test.pdf')) as fp:
+      request = self.factory.post(reverse('sven_api_document_upload', args=[self.corpus.pk]), {'file': fp})
+      request.user = self.user
+
+      # admin is among owners
+      response = sven.api.document_upload(request, corpus_pk=self.corpus.pk)
+      jresponse = json.loads(response.content)
+      print jresponse
+
+
+
   def test_create_whoosh(self):
     '''
     Create whoosh index. Normally we should add here a file as a test. @todo

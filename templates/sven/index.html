@@ -67,12 +67,17 @@
       margin-top: -150px;
       margin-left: -110px;
     }
+
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+      display: none !important;
+    }
     </style>
     {% block page %}
     
     <header>
       <div class="inner">
         <h1>{{SVEN_NAME}}</h1>
+        <div class="status" ng-controller="statusCtrl" ng-cloak> {% verbatim %}{{message}}{% endverbatim %}</div>
         <div class="menu">
           {% trans 'hi'%} <span class="username">{{user.username}}</span> / <a href="#/profile">your profile</a> {{LANGUAGE}}/ <a href="{% url 'sven_logout' %}">logout</a>
         </div>
@@ -102,9 +107,12 @@
           
         </ul>
         {% verbatim %}
-        <ul data-c="taskCtrl">
-          <li><a href="#/corpus/{{selected_corpus_id}}/documents">1. include documents</a></li>
+        <ul data-c="taskCtrl" ng-if="selected_corpus_id">
+          <li><a href="#/corpus/{{selected_corpus_id}}/documents"> add documents</a></li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/document/new"> add html document from URL</a></li>
+          <li><a href="#/corpus/{{selected_corpus_id}}/twitter/new"> add twitter account</a></li>
           <li ><span style="text-decoration: line-through">2. define stopwords</span> (not yet!)</li>
+
           <li><a href="#/corpus/{{selected_corpus_id}}/monitor">3. monitor analysis</a></li>
           <li><a href="#/corpus/{{selected_corpus_id}}/segments">4. view concepts</a></li>
           <li><a href="#/corpus/{{selected_corpus_id}}/exports">5. export data</a></li>

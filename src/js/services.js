@@ -107,4 +107,13 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
       query: {method: 'GET', isArray: false}
     });
   })
+
+
+  .factory('TwitterListFactory', function($resource) {
+    return $resource('/twit/account', {}, {
+        query: {method: 'GET', isArray: false }
+    });
+  })
+
+
   .value('version', '0.2');
