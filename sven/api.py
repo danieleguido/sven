@@ -1,4 +1,4 @@
-import subprocess, logging, math
+import subprocess, logging, math, langid
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -11,6 +11,7 @@ from glue.api import edit_object
 
 from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm
 
+from sven.models import helper_truncatesmart
 from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
 
 
@@ -26,7 +27,7 @@ def home(request):
   return result.json()
 
 
-
+@login_required
 def notification(request):
   '''
   Tail
@@ -168,12 +169,30 @@ def document_upload(request, corpus_pk):
     corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
-  import time
-  time.sleep(10)
+  import time, random
+  
   f = request.FILES['file']
+  
+  logger.info("%(user)s is uploading %(filename)s" % {
+    'user': request.user.username,
+    'filename':  f.name
+  })
+
   d = Document(corpus=corpus, raw=f, name=f.name)
   d.save()
-  print d
+   # textify please! but only if it hasn't been done yet ;-)
+  content = d.text()
+  d.abstract = helper_truncatesmart(content, 150)
+  #evaluate language
+  language, probability = langid.classify(content[:255])
+  d.language = language
+  
+  d.save()
+
+  logger.info("%(user)s correctly uploaded %(filename)s" % {
+    'user': request.user.username,
+    'filename':  f.name
+  })
 
   epoxy = Epoxy(request)
   return epoxy.json()

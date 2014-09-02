@@ -1,6 +1,11 @@
 <div class="menu" scroll-to-fixed margin-top="36" ng-include src="'/static/partials/helpers.menu.html'"></div>
 <div class="menu">
-  {{uploadprogress}} %
+  <div ng-if="uploadprogress" style="position:relative">
+    <div class="upload-wrapper" style="position:absolute">
+      <div class="upload-bar" style="width:{{uploadprogress}}%;height:12px;color:blue;">{{uploadprogress}} %</div>
+    </div>
+  </div>
+  
   <div class="dropupload" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="dragover"
                 ng-show="dropSupported">drop files here</div>
           <div ng-file-drop-available="dropSupported=true" 
@@ -9,7 +14,7 @@
 <div ng-repeat="doc in items">
   <div class="item">
     <div class="pure-g">
-      <div class="pure-u-1-8"><span class="tag" ng-click="setProperty('language', doc.language)">{{doc.language}}</span></div>
+      <div class="pure-u-1-8"><span ng-if="doc.language" class="tag" ng-click="setProperty('language', doc.language)">{{doc.language}}</span></div>
       <div class="pure-u-3-8">
         <a ng-href="#/document/{{doc.id}}">{{doc.name}}</a>
 

@@ -18,6 +18,26 @@ logger = logging.getLogger("sven")
 
 
 
+def helper_truncatesmart(value, limit=80):
+    """
+    Truncates a string after a given number of chars keeping whole words.
+    
+    Usage as templatetag:
+        {{ string|truncatesmart }}
+        {{ string|truncatesmart:50 }}
+        # Join the words and return
+    """
+    value = unicode(value).strip() # Make sure it's unicode
+    
+    if len(value) <= limit:# Return the string itself if length is smaller or equal to the limit
+      return value
+    
+    value = value[:limit] # Cut the string
+    words = value.split(' ')[:-1] # Break into words and remove the last
+    
+    return ' '.join(words) + '...'
+
+
 
 def helper_uuslug(model, instance, value, max_length=128):
   slug = slugify(value)[:max_length] # safe autolimiting
@@ -389,12 +409,15 @@ class Tag(models.Model):
 class Document(models.Model):
   name = models.CharField(max_length=128)
   slug = models.CharField(max_length=128, unique=True)
+  abstract = models.CharField(max_length=160,  blank=True, null=True) # sample taken from .text() transformation 
   corpus = models.ForeignKey(Corpus, related_name='documents')
   
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
 
   raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True)
   mimetype = models.CharField(max_length=100)
+
+
 
   date = models.DateTimeField(blank=True, null=True)
   date_created = models.DateTimeField(auto_now=True)
@@ -411,6 +434,7 @@ class Document(models.Model):
       'id': self.id,
       'name': self.name,
       'slug': self.slug,
+      'abstract': self.abstract,
       'mimetype': self.mimetype,
       'language': self.language,
       'date': self.date.strftime("%Y-%m-%d") if self.date else None,
@@ -570,7 +594,7 @@ class Document(models.Model):
 
   def save(self, **kwargs):
     # understanding datetime included in file title... YYYY MM DD
-    date = re.search(r'(?P<year>\d{4})[\-\./]*(?P<month>\d{2})[\-\./]*(?P<day>\d{2})',self.name)
+    date = re.search(r'(?P<year>\d{4})[\-\./]+(?P<month>\d{2})[\-\./]+(?P<day>\d{2})',self.name)
     if date:
       self.date = make_aware(datetime.strptime('%s-%s-%s' % (date.group('year'), date.group('month'), date.group('day')), '%Y-%m-%d'), utc)
 
@@ -578,9 +602,10 @@ class Document(models.Model):
     if self.raw:
       self.mimetype = mimetypes.guess_type(self.raw.path)[0]
 
-    super(Document, self).save()
-
-    self.text() # textify please!
+    # super(Document, self).save() # save here for security reaons?
+    #try:
+    
+      # super(Document, self).save()
 
     if self.url: # load metadata if is a oembed service.
       import micawber
@@ -598,6 +623,8 @@ class Document(models.Model):
         self.tags.add(t1)
         self.tags.add(t2)
         self.tags.add(t3)
+    #except Exception, e:
+    #  logger.exception(e)
 
     super(Document, self).save()
 

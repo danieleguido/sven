@@ -316,37 +316,88 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.setCorpus($routeParams.id); // explicit corpus id assignment
     };
 
-    $scope.uploadprogress = 50;
+    $scope.uploadprogress = false;
+    $scope.total = 0;
+    $scope.loaded = 0;
+
 
     $scope.onFileSelect = function($files) {
       $log.info('onFileSelect', $files);
       $rootScope.$emit(UPDATE_STATUS, 'starting upload...');
+      // do not accept files while uploading...
+      var numfiles = $files.length,
+          queue = {},
+          getQueueProgress = function(){
+            var l = 0,
+                t = 0;
+            console.log('@getQueueProgress', queue)
+            for(var i in queue) {
+              l += queue[i].loaded;
+              t += queue[i].expected;
+            }
+            return t==0? 0: parseInt(l*10000/t)/100;
+          },
+          getQueueErrors = function() {
 
-      for (var i = 0; i < $files.length; i++) {
+          },
+          queueLoading = function() {
+            $scope.uploadprogress = getQueueProgress();
+            $log.info('@queueLoading',$scope.uploadprogress, queue);
+            if($scope.uploadprogress == 100)
+              queueLoaded();
+          },
+          queueLoaded = function() {
+            $log.info('@queueloaded',$scope.uploadprogress, queue);
+            $scope.toast('upload completed', {position: 'middle-center'});
+            $scope.sync();
+            $scope.uploadprogress = false;
+          };
+
+      $scope.uploadprogress = '0.0';
+      
+      for (var i = 0; i < numfiles; i++) {
         var file = $files[i];
+        
+        queue[''+file.name] = {
+          loaded:0,
+          expected:file.size
+        };
+      };
+      console.log('aodapdapdoapodapda',queue);
+      // separate call for each file here... sorry...
+      for (var name in queue) {
         $scope.upload = $upload.upload({
           url: '/api/corpus/' + $routeParams.id + '/upload', //upload.php script, node.js route, or servlet url
           // method: POST or PUT,
           // headers: {'headerKey': 'headerValue'},
           // withCredentials: true,
-          data: {myObj: $scope.myModelObj},
+          data: {},
           file: file,
-          // file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
+          //file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
           /* set file formData name for 'Content-Desposition' header. Default: 'file' */
           //fileFormDataName: myFile, //OR for HTML5 multiple upload only a list: ['name1', 'name2', ...]
           /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
           //formDataAppender: function(formData, key, val){} //#40#issuecomment-28612000
         }).progress(function(evt) {
-          $scope.uploadprogress = parseInt(100.0 * evt.loaded / evt.total);
-          $rootScope.$emit(UPDATE_STATUS, 'uploading ' + $scope.uploadprogress+ '%');
-          console.log('percent: ' + $scope.uploadprogress);
-        }).success(function(data, status, headers, config) {
+          console.log('progress', name, evt);
+          //queue[''+file.name].loaded = evt.loaded;
+          queueLoading();
+
+        }).success(function(data, status, headers, obj) {
           // file has been uploaded successfully !
-          // console.log(data);
-          $scope.uploadprogress = 100;
-          $rootScope.$emit(UPDATE_STATUS, '');
-          $scope.toast('upload completed', {position: 'middle-center'});
-          $scope.sync();
+          console.log('success', name, arguments);
+          queue[''+obj.file.name].loaded = obj.file.size;
+          queueLoading();
+
+          //$rootScope.$emit(UPDATE_STATUS, '');
+          //$scope.toast('upload completed', {position: 'middle-center'});
+          //$scope.sync();
+
+        }).error(function(data, status, headers, obj){
+          queue[''+obj.file.name].expected = 0;
+          queue[''+obj.file.name].error = 'error';
+          console.log('error uploading', obj.file.name,'',arguments);
+          queueLoading();
         });
         //.error(...)
         //.then(success, error, progress); 

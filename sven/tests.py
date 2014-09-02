@@ -13,11 +13,26 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
+from sven.models import helper_truncatesmart
 from sven.models import Segment, Corpus, Document, Job, Document_Segment, Tag
 
 from django.test.client import RequestFactory
 import glue.api
 import sven.api
+
+
+
+class HelpersTest(TestCase):
+  '''
+  This class test helper function in models.py
+  '''
+  def test_truncatesmart(self):
+    v1 = helper_truncatesmart('This class test helper function in models.py', 25)
+    v2 = helper_truncatesmart('This class test helper function in models.py', 125)
+    print len(v1), len(v2), 
+    self.assertEqual(len(v1) < 28, True)
+    self.assertEqual(len(v2), len('This class test helper function in models.py'))
+
 
 
 class OSTest(TestCase):
