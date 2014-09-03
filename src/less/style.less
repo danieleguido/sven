@@ -242,6 +242,13 @@ header{
   
   &:hover{
     background-color: lighten(@lightgrey, 10%);
+    .remove{
+      display: block;
+    }
+  }
+  .remove{
+    display: none;
+    cursor: pointer;
   }
 }
 
@@ -453,14 +460,21 @@ Hides the menu at `48em`, but modify this based on your app's needs.
   Dropupload
   ===
 */
-.dropupload{
-  border: 1px dashed @lightgrey;
-  padding: @module*2;
+.drop-upload{
+  position: fixed;
+  right: @module*2;
+  bottom: @module*2;
+  background: @lightgrey;
+  width: 228px;
+  height: 36px;
+  //border: 1px dashed @grey;
+  font: 12px/36px 'Source Code Pro';
+  line-height: 36px;
   text-align: center;
-  font: 12px/24px 'Source Code Pro';
-  height: 24px;
+
   .transition(all);
   
+
   &.dragover{
     background-color: @celeste;
     height: 64px;
@@ -903,4 +917,51 @@ ul.dropdown-menu{
     margin-left: -140px;
     margin-top: -40px;
     top: 50%;
+}
+
+
+
+.spinner {
+  margin: 100px auto 0;
+  width: 70px;
+  text-align: center;
+}
+
+.spinner > div {
+  width: 18px;
+  height: 18px;
+  background-color: #333;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+  animation: bouncedelay 1.4s infinite ease-in-out;
+  /* Prevent first frame from flickering when animation starts */
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bouncedelay {
+  0%, 80%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 40% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
 }

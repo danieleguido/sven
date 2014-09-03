@@ -1,5 +1,12 @@
 
-<div class="view">
+<div class="view" ng-if="!document.id">
+  <div class="spinner">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+</div>
+</div>
+<div class="view" ng-if="document.id">
   <div class="wrapper">
     <div scroll-to-fixed class="menu" margin-top="36">
         <div class="datetime">
@@ -33,12 +40,14 @@
                 </div>
               </div>
             </div>
-            <div class="upload-txt">
-              <input type="file" ng-file-select="onFileSelect($files)" >
-            </div>
+            
             <div class="text">
-              {{document.text}}
-
+              {{document.abstract}}
+              [note: this is only a short preview]
+              
+              <div class="upload-txt">
+                <input type="file" ng-file-select="onFileSelect($files)" >
+              </div>
             </div>
           
           </div>

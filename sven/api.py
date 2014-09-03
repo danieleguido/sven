@@ -115,13 +115,17 @@ def documents(request):
 @login_required
 def document(request, pk):
   epoxy = Epoxy(request)
-  
+
   try:
     d = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
-  epoxy.item(d, deep=True)
+  if epoxy.is_DELETE():
+    d.delete()
+    epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
+  else:
+    epoxy.item(d, deep=True)
 
   return epoxy.json()
 
@@ -165,12 +169,14 @@ def document_segments(request, pk):
 
 @login_required
 def document_upload(request, corpus_pk):
+  epoxy = Epoxy(request)
   try:
     corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
-    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   import time, random
-  
+  time.sleep(random.randint(1,3))
+
   f = request.FILES['file']
   
   logger.info("%(user)s is uploading %(filename)s" % {
@@ -178,23 +184,33 @@ def document_upload(request, corpus_pk):
     'filename':  f.name
   })
 
-  d = Document(corpus=corpus, raw=f, name=f.name)
+  d = Document(corpus=corpus, raw=f, name=f.name, abstract="(document recently uploaded)")
   d.save()
-   # textify please! but only if it hasn't been done yet ;-)
-  content = d.text()
-  d.abstract = helper_truncatesmart(content, 150)
-  #evaluate language
-  language, probability = langid.classify(content[:255])
-  d.language = language
+  epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
   
-  d.save()
+  #try:
+     # textify please! but only if it hasn't been done yet ;-)
+    #content = d.text()
+    #d.abstract = helper_truncatesmart(content, 150)
+    #evaluate language
+    #language, probability = langid.classify(content[:255])
+    #d.language = language
+    
+    #d.save()
+
+  #except Exception, e:
+  #  epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_FORMERRORS).json()
+  #finally:
+  
+  epoxy.item(d, deep=False)
+
 
   logger.info("%(user)s correctly uploaded %(filename)s" % {
     'user': request.user.username,
     'filename':  f.name
   })
 
-  epoxy = Epoxy(request)
+  
   return epoxy.json()
 
 

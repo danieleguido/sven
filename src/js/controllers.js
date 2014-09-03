@@ -239,7 +239,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
       }); /// todo HANDLE correctly connection refused
     };
     
-    tick(); // once done, allorw syncing in other controllers!
+    //tick(); // once done, allorw syncing in other controllers!
 
     $log.info('%c notificationCtrl ', CTRL_LOADED);
   }])
@@ -303,7 +303,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     Document list for a single corpus
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$rootScope', '$log', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentTagsFactory', function($scope, $rootScope, $log, $upload, $routeParams, DocumentListFactory, DocumentTagsFactory) {
+  .controller('documentListCtrl', ['$scope', '$rootScope', '$log', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentFactory', 'DocumentTagsFactory', function($scope, $rootScope, $log, $upload, $routeParams, DocumentListFactory, DocumentFactory, DocumentTagsFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -315,6 +315,26 @@ angular.module('sven.controllers', ['angularFileUpload'])
       });
       $scope.setCorpus($routeParams.id); // explicit corpus id assignment
     };
+
+    /*
+      Remove the selected ID after a simpe confirm action
+    */
+    $scope.remove = function(doc) {
+      if(confirm("Do you really want to delete document '" + doc.name + "'?")){
+        DocumentFactory.remove({
+          id: doc.id
+        }, function(data) {
+          for(var i in $scope.items) {
+            $scope.items[i].id == doc.id && $scope.items.splice(i, 1);
+          }
+          
+          $scope.paginate({
+            total_count: data.meta.total_count
+          });   
+        })
+      };
+    };
+
 
     $scope.uploadprogress = false;
     $scope.total = 0;
@@ -360,7 +380,8 @@ angular.module('sven.controllers', ['angularFileUpload'])
         
         queue[''+file.name] = {
           loaded:0,
-          expected:file.size
+          expected:file.size,
+          index: i
         };
       };
       console.log('aodapdapdoapodapda',queue);
@@ -372,7 +393,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
           // headers: {'headerKey': 'headerValue'},
           // withCredentials: true,
           data: {},
-          file: file,
+          file: $files[queue[name].index],
           //file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
           /* set file formData name for 'Content-Desposition' header. Default: 'file' */
           //fileFormDataName: myFile, //OR for HTML5 multiple upload only a list: ['name1', 'name2', ...]

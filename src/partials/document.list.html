@@ -1,43 +1,51 @@
 <div class="menu" scroll-to-fixed margin-top="36" ng-include src="'/static/partials/helpers.menu.html'"></div>
-<div class="menu">
+
+<div class="drop-upload"
+    ng-file-drop="onFileSelect($files)"
+    ng-file-drag-over-class="dragover"
+    ng-show="dropSupported">
   <div ng-if="uploadprogress" style="position:relative;margin: 0 12px;">
     <div class="upload-wrapper" style="position:absolute;width:100%;top:2px;">
       <div class="upload-bar" style="position:absolute;width:{{uploadprogress}}%;height:4px;background-color:#85d9f1;"></div>
     </div>
   </div>
   
-  <div class="dropupload" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="dragover"
-                ng-show="dropSupported">
-                <span ng-if="uploadprogress">uploading {{uploadprogress}}%</span>
-                <span ng-if="!uploadprogress">drop files here</span></div>
-          <div ng-file-drop-available="dropSupported=true" 
-                ng-show="!dropSupported">HTML5 Drop File is not supported!</div>
+  <span ng-if="uploadprogress">uploading {{uploadprogress}}%</span>
+  <span ng-if="!uploadprogress">drop files here</span>
+  <div ng-file-drop-available="dropSupported=true" 
+    ng-show="!dropSupported">
+    HTML5 Drop File is not supported!
+  </div>
 </div>
-<div ng-repeat="doc in items">
-  <div class="item">
-    <div class="pure-g">
-      <div class="pure-u-1-8" style="width:36px; margin-top:6px"><span class="tag" ng-if="doc.language" ng-click="setProperty('language', doc.language)">{{doc.language}}</span></div>
-      <div class="pure-u-3-8">
-        <a ng-href="#/document/{{doc.id}}">{{doc.name}} 
 
-        </a>
-        <span ng-if="doc.abstract" class="abstract">- {{doc.abstract}}</span>
+<div>
+  <div ng-repeat="doc in items">
+    <div class="item">
+      <div class="pure-g">
+        <div class="pure-u-1-8" style="width:36px; margin:6px 0"><span class="tag" ng-if="doc.language" ng-click="setProperty('language', doc.language)">{{doc.language}}</span></div>
+        <div class="pure-u-1-2">
+          <a ng-href="#/document/{{doc.id}}">{{doc.name}}</a>
+          <span ng-if="doc.abstract" class="abstract">- {{doc.abstract}}</span>
+        </div>
+        <div class="pure-u-1-4 tags">
+          {{doc.date}}
+          <span ng-repeat="tag in doc.tags.actor" class="tag">{{tag.name}} <i tooltip="detach from this document" class="fa fa-times-circle"></i></span>
+          <span ng-click="__adding_tag = !__adding_tag" ng-show="!__adding_tag">+</span>
+          <span ng-show="__adding_tag">
+          <form ng-submit="attachTag('ac', __tag_candidate, doc)">
+          <input type="text" ng-model="__tag_candidate"
+                typeahead-loading="loadingLocations"
+                typeahead="tag as tag.name for tag in suggestTags('ac', $viewValue)"
+                class="form-control typeahead-multi-input"
+                typeahead-on-select="attachTag('ac', __tag_candidate, doc)" 
+                typeahead-wait-ms="150">
+          </form>
+          </span>
+        </div>
+        <div class="pure-u-1-8 ">
+         <button class="pure-button remove" ng-click="remove(doc)"><i class="fa fa-trash"></i> delete</button>
+        </div>
       </div>
-      <div class="pure-u-3-8 tags">
-        <span ng-repeat="tag in doc.tags.actor" class="tag">{{tag.name}} <i tooltip="detach from this document" class="fa fa-times-circle"></i></span>
-        <span ng-click="__adding_tag = !__adding_tag" ng-show="!__adding_tag">+</span>
-        <span ng-show="__adding_tag">
-        <form ng-submit="attachTag('ac', __tag_candidate, doc)">
-        <input type="text" ng-model="__tag_candidate"
-              typeahead-loading="loadingLocations"
-              typeahead="tag as tag.name for tag in suggestTags('ac', $viewValue)"
-              class="form-control typeahead-multi-input"
-              typeahead-on-select="attachTag('ac', __tag_candidate, doc)" 
-              typeahead-wait-ms="150">
-        </form>
-        </span>
-      </div>
-      <div class="pure-u-1-8">{{doc.date}}</div>
     </div>
   </div>
 </div>

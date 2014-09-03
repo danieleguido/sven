@@ -541,6 +541,7 @@ class Document(models.Model):
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
+
       else: # content needs to b created
         if self.mimetype == "application/pdf":
           content = pdftotext(self.raw.path)
@@ -561,7 +562,13 @@ class Document(models.Model):
           logger.info("storing content of file")
           self.store(content)
 
-    # clean content
+    if not self.language:
+      import langid
+      self.abstract = helper_truncatesmart(content, 150)
+      language, probability = langid.classify(content[:255])
+      self.language = language
+      self.save()
+    
     content = dry(content)
 
     return content

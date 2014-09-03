@@ -73,12 +73,13 @@ angular.module('sven.services', ['ngResource', ])//'ngAnimate'])
   .factory('DocumentListFactory', function($resource) {
     return $resource('/api/corpus/:id/document', {}, {
         query: {method: 'GET', isArray: false },
-        save: {method: 'POST', params: {id: '@id'} }
+        save: {method: 'POST', params: {id: '@id'} },
     });
   })
   .factory('DocumentFactory', function($resource) {
     return $resource('/api/document/:id', {}, {
-        query: {method: 'GET', isArray: false, params: {id: '@id'} }
+      query: {method: 'GET', isArray: false, params: {id: '@id'} },
+      remove: {method: 'DELETE', params: {id: '@id'} }
     });
   })
   .factory('DocumentTagsFactory', function($resource) {
