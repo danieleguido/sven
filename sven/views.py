@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from django.template import RequestContext
 
 from sven.forms import LoginForm
-
+from sven.models import Document
 
 
 @login_required

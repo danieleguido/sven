@@ -228,18 +228,30 @@ angular.module('sven.controllers', ['angularFileUpload'])
     ===
   */
   .controller('notificationCtrl', ['$rootScope', '$scope', '$log', '$timeout', 'NotificationFactory', function($rootScope, $scope, $log, $timeout, NotificationFactory) {
+    $scope.jobs = {}; // active jobs only...
+    $scope.has_active_jobs = false;
     function tick() {
       NotificationFactory.query({id: $scope.job_id}, function(data){
-        //console.log(data);
+        //todo jobs diff
+        for(var i=0; i<data.objects.length; i++) {
+          console.log(data.objects[i], data.objects[i].completion);
+          if(data.objects[i].completion != 1)
+            $scope.jobs[data.objects[i].id] = data.objects[i];
+
+        };
+
+        console.log(data.objects, data.meta)
         $timeout(tick, 3617);
         $rootScope.$emit(JOBS_RUNNING, data);
+
       }, function(data){
+        $scope.jobs = [];
         $log.info('ticking error',data); // status 500 or 404 or other stuff
         $timeout(tick, 3917);
       }); /// todo HANDLE correctly connection refused
     };
     
-    //tick(); // once done, allorw syncing in other controllers!
+    tick(); // once done, allorw syncing in other controllers!
 
     $log.info('%c notificationCtrl ', CTRL_LOADED);
   }])
@@ -303,7 +315,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     Document list for a single corpus
     ===
   */
-  .controller('documentListCtrl', ['$scope', '$rootScope', '$log', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentFactory', 'DocumentTagsFactory', function($scope, $rootScope, $log, $upload, $routeParams, DocumentListFactory, DocumentFactory, DocumentTagsFactory) {
+  .controller('documentListCtrl', ['$scope', '$rootScope', '$modal', '$log', '$upload', '$routeParams', 'DocumentListFactory', 'DocumentFactory', 'DocumentTagsFactory', function($scope, $rootScope, $modal, $log, $upload, $routeParams, DocumentListFactory, DocumentFactory, DocumentTagsFactory) {
     
     $scope.sync = function() {
       DocumentListFactory.query({id: $routeParams.id, limit:$scope.limit, offset:$scope.offset, filters:$scope.filters}, function(data){
@@ -316,6 +328,39 @@ angular.module('sven.controllers', ['angularFileUpload'])
       $scope.setCorpus($routeParams.id); // explicit corpus id assignment
     };
 
+
+    /*
+      Opena a modal with a tag selector.
+      @param doc - the angular item mapping a sven document
+    */
+    $scope.tag = function(doc) {
+      var modalInstance = $modal.open({
+        templateUrl: 'static/partials/modals/tag.html',
+        controller: function ($scope, $modalInstance, items) {
+          
+          $scope.ok = function () {
+            $modalInstance.close($scope.selected.item);
+          };
+
+          $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+          };
+        },
+        size: 'sm',
+        backdrop: true,
+        resolve: {
+          items: function () {
+            return $scope.items;
+          }
+        }
+      });
+      modalInstance.result.then(function (selectedItem) {
+        $scope.selected = selectedItem;
+      }, function () {
+        $log.info('Modal dismissed at: ' + new Date());
+      });
+
+    };
     /*
       Remove the selected ID after a simpe confirm action
     */
@@ -465,6 +510,7 @@ angular.module('sven.controllers', ['angularFileUpload'])
     };
     $scope.segments = [];
 
+
     $scope.sync = function() {
       DocumentFactory.query({id: $routeParams.id}, function(data){
         $scope.document = data.object;
@@ -476,16 +522,27 @@ angular.module('sven.controllers', ['angularFileUpload'])
       });
     };
 
+
     $scope.save = function() {
       if(!$routeParams.corpus_id)
         return;
       $scope.toast('saving link ...');
       $log.info('documentCtrl save()', angular.copy($scope.document));
+      
+      var params = angular.copy($scope.document);
+
+      if(!params.name)
+        params.name = params.url
+          .replace(/http:\/\/w+/g,'')
+          .replace(/[^\w]/g, ' ')
+          .replace(/\s+/g,' ')
+          .trim().substring(0,64);
+
       DocumentListFactory.save(
         {
           id: $routeParams.corpus_id
         },
-        angular.copy($scope.document),
+        params,
         function(data) {
           console.log(data);
           $scope.toast('link saved',{});

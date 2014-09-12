@@ -63,7 +63,7 @@ mixins
 body {
   color: @black;
   background: #fff;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 18px;
 }
 
@@ -235,22 +235,35 @@ header{
 }
 
 
+
 .item{
   border-bottom: 1px solid @lightgrey;
   padding: @margin;
+    
+  .action{
+    display: block;
+    cursor: pointer;
+    background-color: transparent;
+    transition: color .24s ease-in-out;
+    color: transparent;
+    text-align: center;
+  }
 
-  
   &:hover{
     background-color: lighten(@lightgrey, 10%);
-    .remove{
-      display: block;
+    
+    .action{
+      color: @lightgrey;
+
+      &:hover {
+        color: @black;
+        background-color: transparent;
+      }
     }
   }
-  .remove{
-    display: none;
-    cursor: pointer;
-  }
 }
+
+
 
 .pure-g [class *="pure-u"]{
   font-family: 'Source Sans Pro';
@@ -493,6 +506,7 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 }
 
 
+
 /*
 
   Tooltip
@@ -506,7 +520,7 @@ Hides the menu at `48em`, but modify this based on your app's needs.
     display:block;
     visibility:visible;
     padding:5px;
-    font-size:11px;
+    font-size:16px;
     opacity:0;
     filter:alpha(opacity=0)
 }
@@ -584,6 +598,137 @@ Hides the menu at `48em`, but modify this based on your app's needs.
     position:absolute;
     width:0;
     height:0
+}
+
+
+
+/*
+
+  Bootstrap Modal
+  ===============
+
+*/
+.modal-open {
+  //overflow: hidden;
+}
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+}
+.modal.fade .modal-dialog {
+  -webkit-transition: -webkit-transform .23s ease-in-out;
+       -o-transition:      -o-transform .23s ease-in-out;
+          transition:         transform .23s ease-in-out;
+  -webkit-transform: translate3d(0, -25%, 0);
+       -o-transform: translate3d(0, -25%, 0);
+          transform: translate3d(0, -25%, 0);
+}
+.modal.in .modal-dialog {
+  -webkit-transform: translate3d(0, 0, 0);
+       -o-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+}
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 10px;
+}
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+          background-clip: padding-box;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 6px;
+  outline: 0;
+  -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.19);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.19);
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: transparent;
+}
+.modal-backdrop.fade {
+  filter: alpha(opacity=0);
+  opacity: 0;
+}
+.modal-backdrop.in {
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+.modal-header {
+  min-height: 16.42857143px;
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.modal-header .close {
+  margin-top: -2px;
+}
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143;
+}
+.modal-body {
+  position: relative;
+  padding: 15px;
+}
+.modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+}
+.modal-footer .btn + .btn {
+  margin-bottom: 0;
+  margin-left: 5px;
+}
+.modal-footer .btn-group .btn + .btn {
+  margin-left: -1px;
+}
+.modal-footer .btn-block + .btn-block {
+  margin-left: 0;
+}
+.modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll;
+}
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: 600px;
+    margin: 30px auto;
+  }
+  .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+  }
+  .modal-sm {
+    width: 300px;
+  }
+}
+@media (min-width: 992px) {
+  .modal-lg {
+    width: 900px;
+  }
 }
 
 

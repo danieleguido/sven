@@ -451,14 +451,23 @@ class Document(models.Model):
         d['tags'][k] = []
       d['tags'][k].append(t.json())
 
-    if self.raw and self.mimetype != "text/plain":
-      d['media'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))
-      
+    if self.raw:
+      if self.mimetype != "text/plain":
+        d['media'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))
+        d['media_txt'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))+'.txt'
+      else:
+        d['media_txt'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, os.path.basename(self.raw.url))
+
+    elif self.mimetype == "text/html":
+      d['media_txt'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, self.slug) + '.txt'
+    
     if deep:
       d.update({
         'text': self.text()[:2500],
         'corpus': self.corpus.json()
       })
+
+   
     return d
 
 

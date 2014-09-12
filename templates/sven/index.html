@@ -90,10 +90,16 @@
         <!-- Hamburger icon -->
         <span></span>
       </a>
-
+      <div ng-controller="notificationCtrl">
+        <div style="position:fixed;bottom: 30px;text-align:center;left:50%;width:160px">
+          {% verbatim %}
+          <div ng-repeat="job in jobs">{{job.completion}}</div>
+          {% endverbatim %}
+        </div>
+      </div>
       <div id="menu">
         
-        <div ng-controller="notificationCtrl"></div>
+
         <ul ng-controller="corpusListCtrl">
           <!-- li>
             {%verbatim%}{{ctrl}}{%endverbatim%}

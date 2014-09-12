@@ -34,14 +34,14 @@ def notification(request):
   '''
   epoxy = Epoxy(request)
 
-  try:
-    epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
-  except OSError, e:
-    logger.exception(e)
+  #try:
+  #  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
+  #except OSError, e:
+  #  logger.exception(e)
   # DEPRECATED. too much. 
-  corpora = request.user.corpora.all()
-  epoxy.add('corpora', [c.json() for c in corpora])
-  jobs = Job.objects.filter(corpus__in=corpora)
+  #corpora = request.user.corpora.all()
+  #epoxy.add('corpora', [c.json() for c in corpora])
+  jobs = Job.objects.filter(corpus__owners=request.user)
   epoxy.queryset(jobs)
   epoxy.add('datetime', datetime.now().isoformat())
 
@@ -72,7 +72,7 @@ def start(request, corpus_pk, cmd):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   logger.debug('starting "%s" on corpus %s' % (cmd, corpus_pk))
-    
+
   job = Job.start(corpus=c, command=cmd)
   if job is not None:
     epoxy.item(job)
