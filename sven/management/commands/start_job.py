@@ -42,16 +42,30 @@ class Command(BaseCommand):
 
 
   def _test(self, job):
-    job.completion = .2
-    job.save()
-    time.sleep(15)
-    job.completion = .6
-    job.save()
-    time.sleep(15)
-    job.completion = .8
-    job.save()
-    time.sleep(15)
+    job.completion = 0
+    while job.completion < 1:
+      job.completion = job.completion + 0.1
+      job.save()
+      time.sleep(10)
   
+
+
+  def _alchemy(self, job):
+    '''
+    Enrich document with alchemy top entities (max: 5)
+    '''
+    number_of_documents = job.corpus.documents.count()
+    
+    docs = job.corpus.documents.all()
+    c = 0.0
+    for doc in docs:
+      c += 1
+      with transaction.atomic():
+        doc.autotag()
+        job.completion = c/number_of_documents
+        job.save()
+
+
 
   def _tfidf(self, job):
     import math

@@ -15,7 +15,7 @@ from sven.models import Document
 @login_required
 def home(request):
   d = _shared_context(request)
-  return render_to_response("sven/index.html", RequestContext(request, d))
+  return render_to_response("app/index.html", RequestContext(request, d))
 
 
 
@@ -26,7 +26,7 @@ def home_dev(request):
   Visible only by admins
   '''
   d = _shared_context(request)
-  return render_to_response("sven/index.dev.html", RequestContext(request, d))
+  return render_to_response("app/index.dev.html", RequestContext(request, d))
 
 
 
@@ -43,7 +43,7 @@ def login_view(request):
 
   if request.method != 'POST':
     d = _shared_context(request, tags=[ "login" ], d=login_message)
-    return render_to_response('sven/login.html', RequestContext(request, d ))
+    return render_to_response('app/login.html', RequestContext(request, d ))
 
   if not request.POST.get('remember_me', None):
     request.session.set_expiry(0)
@@ -66,7 +66,7 @@ def login_view(request):
     login_message['invalid_fields'] = form.errors
   
   d = _shared_context( request, tags=[ "login" ], d=login_message )
-  return render_to_response('sven/login.html', RequestContext(request, d ) )
+  return render_to_response('app/login.html', RequestContext(request, d ) )
 
 
 

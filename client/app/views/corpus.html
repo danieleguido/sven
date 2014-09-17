@@ -1,0 +1,14 @@
+
+<h2>{{localCorpus.name}}</h2>
+{{localCorpus.count.documents}} documents 
+<a class="btn" ng-click="executeCommand('alchemy', localCorpus)">autotag</a>
+<row>
+
+  <venn data="localCorpus.venn"><div class="viewer"></div></venn>
+
+</row>
+
+<h3>actions</h3>
+{{jobs}}
+<a class="btn" ng-click="executeCommand('test', localCorpus)">test</a>
+

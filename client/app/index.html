@@ -1,0 +1,189 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Gentium+Basic|Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="{{STATIC_URL}}/bower_components/bootstrap/dist/css/bootstrap.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="{{STATIC_URL}}/app/styles/main.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}/app/styles/simple-sidebar.css">
+    <!-- endbuild -->
+  </head>
+  <body ng-app="svenClientApp">
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    {% block page%}
+    {% verbatim %}
+    <div id="wrapper" ng-controller="CoreCtrl">
+        <!-- header -->
+        <div id="header-wrapper">
+          <div id="header">
+            <div id="menu-toggle" class="fa fa-bars"></div>
+            <h1>SVEN</h1>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav" ng-if="status=='RUNNING'">
+                <li class="profile">
+                  <div class="circle"><img ng-src="{{profile.picture}}"></div>
+
+                  <div class="user">
+                    <a href="#/profile" class="username">{{profile.firstname}} {{profile.lastname}}</a>
+                    <div class="documents">26 documents</div>
+
+                  </div>
+
+                </li> 
+                <li class="sidebar-brand">
+                  <a ng-href="#/corpus/{{corpus.id}}">
+                      {{corpus.name}}
+                  </a>
+                  <div class="row">
+                    <div class="col-lg-7">
+                      <a href="#/corpus/{{corpus.id}}/documents" style="text-indent: 0">
+                     <strong>{{corpus.count.documents}}</strong> documents
+                      </a>
+                    </div>
+                    <div class="col-lg-5">
+                      <div class="uploader" ng-file-select="onFileSelect($files)" data-multiple="true">
+                        <span>upload</span> <i class="fa fa-upload"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div>{{corpus.job}}</div>
+                </li>
+                <!-- other (not selected) user's corpora -->
+                <li class="corpus" ng-repeat="cor in corpora" ng-if="cor.id != corpus.id">
+                  <a ng-href="#/corpus/{{cor.id}}">
+                      {{cor.name}}
+                  </a>
+                  <div class="row">
+                    <div class="col-lg-7">
+                      <a href="#/corpus/{{cor.id}}/documents" style="text-indent: 0">
+                       <strong>{{cor.count.documents || 0}}</strong> documents 
+                      </a>
+                    </div>
+                    <div class="col-lg-5">
+                      <div style="margin-right: 10px; text-indent: 0; text-align:right">
+                        active <i class="fa fa-camera"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div ng-repeat="job in cor.jobs" class="bar {{job.status}}">
+                      <div class="completion" style="width:{{job.completion*100}}%"></div>
+                    
+                  </div>
+                </li>
+
+                <li class="spacer"></li>
+                
+                <li>
+                    <a href="#">Contact</a>
+                </li>
+            </ul>
+            <div class="sidebar-nav" ng-if="status=='Unauthorized'">
+                
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row" ng-if="status=='RUNNING'">
+                    <div class="col-lg-12" ng-view>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row" ng-if="status=='Unauthorized'">
+                    please login...
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    {% endverbatim %}
+    {%endblock%}
+    <!-- /#wrapper -->
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+     <script>
+       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+       ga('create', 'UA-XXXXX-X');
+       ga('send', 'pageview');
+    </script>
+
+    <!-- build:js(.) {{STATIC_URL}}/app/scripts/oldieshim.js -->
+    <!--[if lt IE 9]>
+    <script src="{{STATIC_URL}}/bower_components/es5-shim/es5-shim.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/json3/lib/json3.js"></script>
+    <![endif]-->
+    <!-- endbuild -->
+
+    <!-- build:js(.) {{STATIC_URL}}/app/scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="{{STATIC_URL}}/bower_components/jquery/dist/jquery.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/d3/d3.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular/angular.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-resource/angular-resource.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-animate/angular-animate.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-touch/angular-touch.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-route/angular-route.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="{{STATIC_URL}}/bower_components/ng-file-upload/angular-file-upload.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) {{STATIC_URL}}/app/scripts/scripts.js -->
+        <script src="{{STATIC_URL}}/app/scripts/app.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/main.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/about.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/documents.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/core.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/services/documents.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/document.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/concepts.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/concept.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/services/core.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/profile.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/corpus.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/d3/venn.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/directives/venn.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/directives/d3.js"></script>
+        <!-- endbuild -->
+
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+
+
+</body>
+</html>

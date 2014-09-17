@@ -32,7 +32,7 @@ SECRET_KEY = local_settings.SECRET_KEY
 DEBUG = local_settings.DEBUG
 ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 TEMPLATE_DEBUG = True
-
+CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
 INSTALLED_APPS = (
@@ -44,11 +44,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'sven',
     'glue',
-    'twit'
+    'twit',
+    'corsheaders'
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -101,11 +103,11 @@ MEDIA_URL = local_settings.MEDIA_URL
 LOGIN_URL = '/login/'
 
 STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'src'),
+  os.path.join(BASE_DIR, 'client'),
 )
 
 TEMPLATE_DIRS = (
-  os.path.join(BASE_DIR, 'templates'),
+  os.path.join(BASE_DIR, 'client'),
 )
 
 PYTHON_INTERPRETER = local_settings.PYTHON_INTERPRETER

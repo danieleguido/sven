@@ -4,7 +4,7 @@ from sven.models import Corpus, Document, Segment, Profile, Tag
 
 
 class LoginForm(forms.Form):
-  username = forms.CharField(max_length=32, widget=forms.TextInput)
+  username = forms.CharField(max_length=128, widget=forms.TextInput)
   password = forms.CharField(max_length=64, label='Password', widget=forms.PasswordInput(render_value=False))
 
 

@@ -108,6 +108,9 @@ class Profile(models.Model):
   bio = models.TextField(null=True, blank=True)
   picture = models.URLField(max_length=160, blank=True, null=True)
 
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
+
 
   def json(self, deep=False):
     d = {
@@ -117,7 +120,9 @@ class Profile(models.Model):
       'picture': self.picture,
       'username': self.user.username,
       'firstname': self.user.first_name,
-      'lastname': self.user.last_name
+      'lastname': self.user.last_name,
+      'date_created': self.date_created.isoformat(),
+      'date_last_modified': self.date_last_modified.isoformat() if self.date_last_modified else None,
     }
     return d
 
@@ -145,8 +150,8 @@ class Corpus(models.Model):
   slug = models.CharField(max_length=32, unique=True)
   color = models.CharField(max_length=6, blank=True)
 
-  date_created = models.DateTimeField(auto_now=True)
-  date_last_modified = models.DateTimeField(auto_now_add=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
+  date_created = models.DateTimeField(auto_now_add=True)
 
   owners = models.ManyToManyField(User, related_name="corpora")
   watchers = models.ManyToManyField(User, related_name="corpora_watched")
@@ -183,7 +188,8 @@ class Corpus(models.Model):
       'count':{
         'documents': self.documents.count(),
         'owners': self.owners.count()
-      }
+      },
+      'jobs': [j.json() for j in self.job.all()]
     }
 
     # raw query to ge count. Probably there should be a better place :D
@@ -197,8 +203,35 @@ class Corpus(models.Model):
 
     if deep:
       d.update({
-        'owners': [helper_user_to_dict(u) for u in self.owners.all()]
+        'owners': [helper_user_to_dict(u) for u in self.owners.all()],
+
+        'venn':{
+          'sets': [
+            {"label": "Radiohead", "size": 77348},
+            {"label": "Thom Yorke", "size": 5621},
+            {"label": "John Lennon", "size": 7773},
+            {"label": "Kanye West", "size": 27053},
+            {"label": "Eminem", "size": 19056},
+            {"label": "Elvis Presley", "size": 15839},
+            {"label": "Explosions in the Sky", "size": 10813},
+            {"label": "Bach", "size": 9264},
+            {"label": "Mozart", "size": 3959},
+            {"label": "Philip Glass", "size": 4793},
+            {"label": "St. Germain", "size": 4136},
+            {"label": "Morrissey", "size": 10945},
+            {"label": "Outkast", "size": 8444}
+          ],
+          'overlaps': [
+            {"sets": [0, 1], "size": 4832},
+            {"sets": [0, 4], "size": 2723},
+            {"sets": [0, 5], "size": 3177},
+            {"sets": [0, 6], "size": 5384},
+            {"sets": [0, 7], "size": 2252},
+          ]
+        }
       })
+
+
     return d
 
 
@@ -420,9 +453,9 @@ class Document(models.Model):
 
 
   date = models.DateTimeField(blank=True, null=True)
-  date_created = models.DateTimeField(auto_now=True)
-  date_last_modified = models.DateTimeField(auto_now_add=True)
-
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
+  
   url = models.URLField(blank=True, null=True) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
@@ -593,8 +626,12 @@ class Document(models.Model):
     if settings.ALCHEMYAPI_KEY is not None:
       from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
-      for ent in res['entities']:
-        pass
+      for ent in res['entities'][:5]:
+        # max 5 entities
+        print ent
+        t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['text'], ent['type']))
+        self.tags.add(t)
+    
 
 
   def store(self, content):
@@ -663,14 +700,14 @@ class Job(models.Model):
 
   pid = models.CharField(max_length=32)
   cmd = models.TextField()
-  corpus = models.ForeignKey(Corpus, unique=True)
+  corpus = models.ForeignKey(Corpus, unique=True, related_name='job')
   document = models.ForeignKey(Document, null=True, blank=True) # current working on document...
 
   status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=STARTED)
   completion = models.FloatField(default='0')
 
-  date_created = models.DateTimeField(auto_now=True)
-  date_last_modified = models.DateTimeField(auto_now_add=True)
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
 
 
   def __unicode__(self):
@@ -798,8 +835,7 @@ class Job(models.Model):
     d = {
       'cmd': self.cmd,
       'completion': self.completion,
-      'corpus': self.corpus.json(),
-      'document': self.document.json(),
+      'document': self.document.json() if self.document else '',
       'id': self.id,
       'pid': self.pid,
       'status': self.status
@@ -838,7 +874,7 @@ class DocumentInfo(models.Model):
   '''
   document = models.OneToOneField(Document, related_name="info")
   
-  date_last_modified = models.DateTimeField(auto_now_add=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
 
   date_indexed  = models.DateTimeField(blank=True, null=True) # None = not set, false = No, tru = Set
   date_deleted  = models.DateTimeField(blank=True, null=True) # true here means recovered?

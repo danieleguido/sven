@@ -1,0 +1,13 @@
+<div class="col-lg-6">
+  <h2>Add document from url</h2>
+  <form role="form" ng-submit="saveUrl()">
+    <div class="form-group">
+      <label>permalink
+        
+      </label> N.b. text will be extracted from this link.
+        It could also be a Youtube video or Vimeo video.
+      <input type="url" required ng-model="document.url" class="form-control">
+    </div>
+    <button class="btn btn-primary">add document</button>
+  </form>
+</div>

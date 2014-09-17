@@ -1,7 +1,9 @@
 import subprocess, logging, math, langid
 from datetime import datetime
 from django.conf import settings
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
 from django.db import connection, transaction
@@ -9,7 +11,7 @@ from django.db import connection, transaction
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
-from sven.forms import CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm
+from sven.forms import LoginForm, CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm
 
 from sven.models import helper_truncatesmart
 from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
@@ -27,22 +29,23 @@ def home(request):
   return result.json()
 
 
-@login_required
+@login_required(login_url='/api/login')
 def notification(request):
   '''
   Tail
   '''
   epoxy = Epoxy(request)
-
+  epoxy.meta('profile', request.user.profile.json())
+    
   #try:
   #  epoxy.add('log', subprocess.check_output(["tail", settings.LOG_FILE], close_fds=True))
   #except OSError, e:
   #  logger.exception(e)
   # DEPRECATED. too much. 
-  #corpora = request.user.corpora.all()
-  #epoxy.add('corpora', [c.json() for c in corpora])
+  corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
-  epoxy.queryset(jobs)
+  epoxy.queryset(corpora)
+  epoxy.add('jobs', [j.json() for j in jobs])
   epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()
@@ -58,8 +61,89 @@ def not_found(request):
   return result.json()
 
 
+@csrf_exempt
+def require_login(request):
+  '''
+  Help or manual should be placed here
+  '''
+  if request.user.is_authenticated():
+    return home(request)
 
-@login_required
+  epoxy = Epoxy(request)
+  
+  if epoxy.is_GET():
+    return epoxy.throw_error(error='unauthenticated', code=API_EXCEPTION_AUTH).json()
+  
+  form = LoginForm(epoxy.data)
+  if not form.is_valid():
+    return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+
+  user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+  if user is not None:
+    if user.is_active:
+      login(request, user)
+      return home(request)
+    else:
+      return epoxy.throw_error(error='wrong credentials', code=API_EXCEPTION_AUTH).json()
+  else:
+    return epoxy.throw_error(error='wrong credentials', code=API_EXCEPTION_AUTH).json()
+  
+  if not request.POST.get('remember_me', None):
+    request.session.set_expiry(0)
+
+
+  return epoxy.json()
+
+
+
+def login_view(request):
+  if request.user.is_authenticated():
+    return home(request)
+
+  form = LoginForm(request.POST)
+  next = request.REQUEST.get('next', 'sven_home')
+
+  login_message = {
+    'next': next if len( next ) else 'sven_home'
+  }
+
+  if request.method != 'POST':
+    d = _shared_context(request, tags=[ "login" ], d=login_message)
+    return render_to_response('sven/login.html', RequestContext(request, d ))
+
+  if not request.POST.get('remember_me', None):
+    request.session.set_expiry(0)
+
+  if form.is_valid():
+    user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+    if user is not None:
+      if user.is_active:
+        login(request, user)
+        # @todo: Redirect to next page
+
+        return redirect(login_message['next'])
+      else:
+        login_message['error'] = _("user has been disabled")
+    else:
+      login_message['error'] = _("invalid credentials")
+      # Return a 'disabled account' error message
+  else:
+    login_message['error'] = _("invalid credentials")
+    login_message['invalid_fields'] = form.errors
+  
+  d = _shared_context( request, tags=[ "login" ], d=login_message )
+  return render_to_response('sven/login.html', RequestContext(request, d ) )
+
+
+
+def require_logout( request ):
+  logout( request )
+  epoxy = Epoxy(request)
+  return epoxy.json()
+
+
+
+@login_required(login_url='/api/login')
 def start(request, corpus_pk, cmd):
   '''
   Usage url: 
@@ -76,11 +160,14 @@ def start(request, corpus_pk, cmd):
   job = Job.start(corpus=c, command=cmd)
   if job is not None:
     epoxy.item(job)
+  else:
+    return epoxy.throw_error(error='a job is already running', code='BUSY').json()
+
   return epoxy.json()
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def corpus_documents(request, corpus_pk):
   epoxy = Epoxy(request)
   
@@ -104,7 +191,7 @@ def corpus_documents(request, corpus_pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def documents(request):
   epoxy = Epoxy(request)
   epoxy.queryset(Document.objects.filter(corpus__owners=request.user))
@@ -112,7 +199,7 @@ def documents(request):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document(request, pk):
   epoxy = Epoxy(request)
 
@@ -131,7 +218,7 @@ def document(request, pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document_segments(request, pk):
   epoxy = Epoxy(request)
   try:
@@ -167,7 +254,7 @@ def document_segments(request, pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document_upload(request, corpus_pk):
   epoxy = Epoxy(request)
   try:
@@ -215,7 +302,7 @@ def document_upload(request, corpus_pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document_text_version_download(request, pk):
   '''
   A special page to handle uploading of txt files
@@ -229,7 +316,7 @@ def document_text_version_download(request, pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document_text_version_upload(request, pk):
   '''
   A special page to handle uploading of txt files
@@ -255,7 +342,7 @@ def document_text_version_upload(request, pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def tags(request):
   epoxy = Epoxy(request)
 
@@ -264,7 +351,7 @@ def tags(request):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def document_tags(request, pk):
   epoxy = Epoxy(request)
   try:
@@ -282,7 +369,7 @@ def document_tags(request, pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def corpora(request):
   epoxy = Epoxy(request)
 
@@ -303,23 +390,23 @@ def corpora(request):
 
 
 def corpus(request, pk):
-  result = Epoxy(request)
+  epoxy = Epoxy(request)
 
   try:
     corpus = Corpus.objects.get(pk=pk)
   except Corpus.DoesNotExist, e:
-    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  if result.is_DELETE():
+  if epoxy.is_DELETE():
     corpus.delete()
   else:
-    result.item(corpus, deep=True)
+    epoxy.item(corpus, deep=True)
+    
+  return epoxy.json()
 
-  return result.json()
 
 
-
-@login_required
+@login_required(login_url='/api/login')
 def corpus_segments(request, corpus_pk):
   '''
   Return the list of segments in a specific corpus (given by pk)
@@ -370,7 +457,7 @@ def corpus_segments(request, corpus_pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def corpus_segment(request, corpus_pk, segment_pk):
   '''
   Edit/view a segment in a specific corpus (given by pk)
@@ -481,7 +568,7 @@ def export_corpus_segments(request, corpus_pk):
   
   return response
 
-@login_required
+@login_required(login_url='/api/login')
 def profile(request, pk=None):
   '''
   return authenticated user's profile.
@@ -516,7 +603,7 @@ def profile(request, pk=None):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def corpus_filters(request, corpus_pk):
   '''
   return corpus documents timeline, tags distribution etc...
@@ -585,13 +672,13 @@ def corpus_filters(request, corpus_pk):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def download(request, corpus_pk):
   pass
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def jobs(request):
   epoxy = Epoxy(request)
   epoxy.queryset(Job.objects.filter(corpus__owners=request.user))
@@ -599,7 +686,7 @@ def jobs(request):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def job(request, corpus_pk, cmd):
   epoxy = Epoxy(request)
   epoxy.queryset(Job.objects.filter(corpus__owners=request.user))
@@ -607,7 +694,7 @@ def job(request, corpus_pk, cmd):
 
 
 
-@login_required
+@login_required(login_url='/api/login')
 def d3_timeline(request):
   '''
   Format (filtered) document to be displayed with d3 datas.

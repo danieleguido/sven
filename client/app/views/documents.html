@@ -1,0 +1,53 @@
+<div class="btn-toolbar" role="toolbar">
+    <div class="btn-group" style="margin: 20px 0; text-align: right" dropdown is-open="orderBy.isopen">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        {{orderBy.choice.label}} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="choice in orderBy.choices">
+          <a ng-click="switchOrderBy(choice)">{{choice.label}}</a>
+        </li>
+      </ul>
+    </div>
+      
+  
+    <pagination class="btn-group" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()"></pagination>
+
+</div>
+
+<div ng-repeat="doc in items" >
+  <div class="item">
+    <div style="width:36px;float:left"><span class="language">{{doc.language}}</span></div>
+    <div style="margin-left:36px">
+      <span class="tag" ng-repeat="tag in doc.tags.actor">{{tag.name}} </span>
+      <h3><a href="#/document/{{doc.id}}">{{doc.name}}</a></h3>
+      <div class="abstract">
+      {{doc.abstract}}
+      </div>
+    </div>
+  </div>
+</div>
+      <!--
+        <div class="pure-g">
+          <div class="pure-u-1-4">
+            <span class="action" tooltip="remove file" ng-click="tag(doc)"><i class="fa fa-tags"></i></span>
+          </div>
+          <div class="pure-u-1-4">
+            <a ng-if="doc.media" tooltip="download original file" class="action" ng-href="{{doc.media}}" download="{{doc.slug}}"><i class="fa fa-download"></i></a>
+          </div>
+          <div class="pure-u-1-4">
+            <a tooltip="download text version" ng-if="doc.media_txt" class="action" ng-href="{{doc.media_txt}}" download="{{doc.slug}}"><i class="fa fa-file-text"></i></a>
+          </div>
+          <div class="pure-u-1-4">
+            <span class="action" tooltip="remove file" ng-click="remove(doc)"><i class="fa fa-trash"></i></span>
+          </div>
+        </div>
+        
+      </div>
+      <div style="margin-left:36px;margin-right:108px;display:block">
+        <a ng-href="#/document/{{doc.id}}">{{doc.name}}</a>
+        <span ng-if="doc.abstract" class="abstract">- {{doc.abstract}}</span>
+      </div>
+    </div>
+  </div>
+-->
