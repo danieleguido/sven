@@ -46,7 +46,23 @@ angular.module('svenClientApp')
         // if corpusID choose the corpus matching corpusId, if any. @todo
         var candidate = data.objects.pop();
         
-        $scope.corpus = candidate;
+        for(var i in candidate) {
+          if(!$scope.corpus[i]) {
+            $scope.corpus[i] = candidate[i];
+          } else  if(typeof candidate[i]=='object') {
+            for(var j in candidate[i]) {
+              if(candidate[i][j] != $scope.corpus[i][j]) {
+                $scope.corpus[i][j] = candidate[i][j];
+                console.log('changed', i, j);
+              }
+            }
+          } else if( candidate[i] != $scope.corpus[i]){
+            console.log('changed', i);
+            $scope.corpus[i] = candidate[i];
+          }
+        };
+        
+        //$scope.corpus = candidate;
         
         $timeout(tick, 4617);
         

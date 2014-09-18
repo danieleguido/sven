@@ -20,6 +20,7 @@ angular.module('svenClientApp')
   .controller('CorpusDocumentsCtrl', function ($scope, $log, $location, $routeParams, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
     
+
     DocumentsFactory.query({id:$routeParams.id}, function(data){
       $log.info('loading documents', data);
       $scope.items = data.objects;
