@@ -21,8 +21,9 @@
   <div class="item">
     <div style="width:36px;float:left"><span class="language">{{doc.language}}</span></div>
     <div style="margin-left:36px">
-      <span class="tag" ng-repeat="tag in doc.tags.actor">{{tag.name}} </span>
       <h3><a href="#/document/{{doc.id}}">{{doc.name}}</a></h3>
+      
+      <span class="tag" ng-repeat="tag in doc.tags.actor">{{tag.name}} </span>
       <div class="abstract">
       {{doc.abstract}}
       </div>
