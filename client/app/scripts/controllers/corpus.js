@@ -9,13 +9,23 @@
  */
 angular.module('svenClientApp')
   .controller('CorpusCtrl', function ($scope, $log, $routeParams, CorpusFactory) {
-    $log.debug('CorpusCtrl ready');
+    $log.debug('CorpusCtrl ready ca');
     
+    $scope.localCorpus = {};
+
     CorpusFactory.query({id: $routeParams.id}, function(data) {
       console.log(data)
-      $scope.localCorpus = data.object;
+      $scope.$parent.diffclone($scope.localCorpus, data.object);
     })
     
+    $scope.$watch('corpora', function(){// pseudo react diff. looking for the local corpus among different corpora
+      for(var i=0; i<$scope.$parent.corpora.length; i++) {
+        if($scope.$parent.corpora[i].id == $routeParams.id) {
+          $scope.$parent.diffclone($scope.localCorpus, $scope.$parent.corpora[i])
+        }
+      }
+    });
+
   })
   .controller('CorpusDocumentsCtrl', function ($scope, $log, $location, $routeParams, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
@@ -44,4 +54,7 @@ angular.module('svenClientApp')
         data.object && $location.path('/document/' + data.object.id);
       });
     };
+
+    
+
   });

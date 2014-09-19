@@ -3,21 +3,27 @@
   {{localCorpus.name}}
   
 </h2>
-{{localCorpus.count.documents}} documents 
-<div class="btn-group">
-  <a class="btn btn-default" ng-click="executeCommand('test', localCorpus)">echo test</a>
-  <a class="btn btn-default" ng-click="executeCommand('alchemy', localCorpus)">enrich</a>
-  <a class="btn btn-default" ng-click="executeCommand('harvest', localCorpus)">start analysis</a>
-  
-</div>
+<p>{{localCorpus.count.documents || 0}} documents</p>
+<p>{{localCorpus.count.clusters || 0}} clusters</p>
 
+<div class="btn-toolbar" role="toolbar">
+  <div class="btn-group">
+    
+    <a class="btn btn-default" ng-click="executeCommand('alchemy', localCorpus)">assign auto tag</a>
+    <a class="btn btn-default" ng-click="executeCommand('test', localCorpus)">echo test</a>
+
+  </div>
+  <div class="btn-group">
+  
+    <a class="btn btn-default" ng-click="executeCommand('harvest', localCorpus)">start TF analysis</a>
+    <a class="btn btn-default" ng-click="executeCommand('tfidf', localCorpus)">start TF/TFIDF analysis</a>
+    <a class="btn btn-default" ng-click="executeCommand('clear', localCorpus)">reset results</a>
+  </div>
+</div>
 <row>
 
   <venn data="localCorpus.venn"><div class="viewer"></div></venn>
 
 </row>
 
-<h3>actions</h3>
-{{jobs}}
-<a class="btn" ng-click="executeCommand('test', localCorpus)">test</a>
 

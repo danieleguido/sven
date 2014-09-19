@@ -57,6 +57,10 @@ angular
         templateUrl: '/static/app/views/corpus.html',
         controller: 'CorpusCtrl'
       })
+      .when('/corpus/:id/concepts', {
+        templateUrl: '/static/app/views/concepts.html',
+        controller: 'ConceptsCtrl'
+      })
       .when('/corpus/:id/documents', {
         templateUrl: '/static/app/views/documents.html',
         controller: 'CorpusDocumentsCtrl'
@@ -75,8 +79,10 @@ angular
 
         return function(promise) {
           return promise.then(function(response) {
-            response.data.extra = 'intercepted';
-            
+            // response.data.extra = 'intercepted';
+            if(response.data.status == 'error') {
+              toast(response.data.error,{stayTime:1200202});
+            }
             if(response.data.meta && response.data.meta.warnings){ // form error from server!
               // if(response.data.meta.warnings.invalid && response.data.meta.warnings.limit):
               // exceute, but send a message

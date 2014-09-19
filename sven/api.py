@@ -425,7 +425,7 @@ def corpus_segments(request, corpus_pk):
   cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment")
 
   row = cursor.fetchone()
-  epoxy.meta('total_count', row[0])
+  epoxy.meta('total_count', row[0]) # luster pagination
   segments = Segment.objects.raw("""
     SELECT 
       s.`id`, s.`content`,s.`language`, 
@@ -435,23 +435,72 @@ def corpus_segments(request, corpus_pk):
       COUNT(DISTINCT ds.document_id) AS `distribution` 
     FROM sven_segment s
       JOIN sven_document_segment ds ON s.id = ds.segment_id 
-      JOIN sven_document d ON ds.document_id = d.id
-      JOIN sven_corpus c ON d.corpus_id = c.id
+      JOIN sven_document d          ON ds.document_id = d.id
+      JOIN sven_corpus c            ON d.corpus_id = c.id
     WHERE c.id = %s
     GROUP BY s.cluster
-    ORDER BY distribution DESC, max_tf DESC
+    ORDER BY max_tf DESC, distribution DESC
     LIMIT %s, %s
     """,[c.id,  epoxy.offset, epoxy.limit]
   )
 
-  epoxy.add('objects', [{
+
+  # for each segments, tf e tfidf value for each actor...
+  clusters = [{
     'id': s.id,
     'tf': s.max_tf,
+    'tf_idf': s.max_tfidf,
     'status': s.status,
     'cluster': s.cluster,
     'distribution': s.distribution,
-    'content': s.content
-  } for s in segments])
+    'content': s.content,
+    'tags': []
+  } for s in segments];
+
+  epoxy.add('query', """
+    SELECT 
+        t.`id`, t.name, t.slug, s.cluster,
+        AVG(ds.`tfidf`) as tf_idf,
+        AVG(ds.`tf`) as tf
+    FROM sven_tag t
+      JOIN sven_document_tags dt on dt.tag_id = t.id
+      JOIN sven_document_segment ds on ds.document_id = dt.document_id
+        JOIN   sven_segment s on ds.segment_id = s.id
+    where s.cluster IN ("%s")
+    group by t.id, s.cluster
+    """ % ('","'.join([c['cluster'] for c in clusters])))
+
+  tags = Tag.objects.raw("""
+    SELECT 
+        t.`id`, t.name, t.slug, s.cluster,
+        AVG(ds.`tfidf`) as tf_idf,
+        AVG(ds.`tf`) as tf
+    FROM sven_tag t
+      JOIN sven_document_tags dt on dt.tag_id = t.id
+      JOIN sven_document_segment ds on ds.document_id = dt.document_id
+        JOIN   sven_segment s on ds.segment_id = s.id
+    where s.cluster IN ("%s")
+    group by t.id, s.cluster
+    """ % ('","'.join([c['cluster'] for c in clusters])))
+
+
+  tags_per_clusters = [{
+    'id': t.id,
+    'name': t.name,
+    'tf': t.tf,
+    'tf_idf': t.tf_idf,
+    'cluster': t.cluster
+  } for t in tags];
+
+  for c in clusters:
+    for t in tags_per_clusters:
+      if t['cluster'] == c['cluster']:
+        c['tags'].append(t)
+
+
+  epoxy.add('objects', clusters)
+
+
 
   return epoxy.json()
 
@@ -488,6 +537,8 @@ def corpus_segment(request, corpus_pk, segment_pk):
 
   if not epoxy.order_by:
     epoxy.order_by = ['ds.`tf` DESC', 'ds.document_id DESC']
+
+  # filter documents
 
   segments = Segment.objects.raw("""
     SELECT 

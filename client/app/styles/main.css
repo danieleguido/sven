@@ -254,6 +254,60 @@ padding-bottom: 20px;
 }
 
 
+
+/* #Toastmessage JQUERYPlugin css
+================================================== */
+
+.toast-container{z-index:9999;}
+* html .toast-container{position:absolute;}
+.toast-item{
+  height:auto;
+  background:#181818;
+  opacity:.9;
+  border-radius: 2px;
+  -moz-border-radius:2px;
+  -webkit-border-radius:2px;
+  color:white;
+  padding: 8px 12px;
+  display:block;
+  position:relative;
+  margin:0 0 12px 0;
+}
+.toast-item h1{
+  font-size: 16px;
+  font-weight: normal;
+  text-transform: lowercase;
+  color: white;
+  text-align: center;
+  margin: 0;
+  line-height: 24px;
+}
+.toast-item p{
+  text-align:left;margin:0px;
+  font-size:1.2rem;
+}
+.toast-item-image{display:none}
+.toast-type-notice{color:white;}
+.toast-type-success{color:white;}
+.toast-type-warning{color:white;border-color:#FCBD57;}
+.toast-type-error{color:white;border-color:#B32B2B;}
+.toast-position-bottom-right{position:fixed;bottom:36px;right:18px;}
+.toast-position-bottom-center {
+  position: fixed;
+  left: 50%;
+  margin-left: -140px;
+  bottom:36px;
+  width: 280px;
+}
+
+.toast-position-middle-center {
+    position: fixed;
+    left: 50%;
+    margin-left: -140px;
+    margin-top: -40px;
+    top: 50%;
+}
+
 .spinner {
   width: 12px;
   height: 12px;

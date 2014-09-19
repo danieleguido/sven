@@ -1,5 +1,28 @@
 'use strict';
 
+function toast(message, title, options){
+  if(!options){
+    options={}
+  };
+  if(typeof title=="object"){
+    options=title;
+    title=undefined;
+  }
+
+  if(options.cleanup!=undefined)
+    $().toastmessage("cleanToast");
+  var settings=$.extend({
+    text: "<div>"+(!title?"<h1>"+message+"</h1>":"<h1>"+title+"</h1><p>"+message+"</p>")+"</div>",
+    type: "notice",
+    position: "bottom-center",
+    inEffectDuration: 200,
+    outEffectDuration: 200,
+    stayTime: 1900
+  },options);
+
+  $().toastmessage("showToast", settings);
+};
+
 /**
  * @ngdoc function
  * @name svenClientApp.controller:CoreCtrl
@@ -27,14 +50,25 @@ angular.module('svenClientApp')
     // repeating
     var corpusId = $cookies.corpusId;
 
+    /*
+      Clone source in target by changing only the different fields
+    */
+    $scope.diffclone = function(target, source) {
+      for(var i in source) {
+        if(typeof target[i]=='object') {
+          $scope.diffclone(target[i], source[i]);
+        } else if(!target[i] || target[i] != source[i]) {//console.log('updtargetted', i);
+          target[i] = source[i];
+        }
+      }
+    };
+
+
+
     function tick() {
       NotificationFactory.query({},function(data){
         //todo jobs diff
-        if(data.status != "ok" && data.code=='Unauthorized') {
-          $scope.status = 'Unauthorized';
-        } else {
-          $scope.status = 'RUNNING';
-        };
+        
         
         if(data.meta.profile.date_last_modified != $scope.profile.date_last_modified)
           $scope.profile = data.meta.profile;
@@ -44,24 +78,16 @@ angular.module('svenClientApp')
         $scope.corpora = data.objects;
         $scope.jobs = data.jobs;
         // if corpusID choose the corpus matching corpusId, if any. @todo
-        var candidate = data.objects.pop();
+        var candidate = data.objects[data.objects.length-1];
+        $scope.diffclone($scope.corpus, candidate);
         
-        for(var i in candidate) {
-          if(!$scope.corpus[i]) {
-            $scope.corpus[i] = candidate[i];
-          } else  if(typeof candidate[i]=='object') {
-            for(var j in candidate[i]) {
-              if(candidate[i][j] != $scope.corpus[i][j]) {
-                $scope.corpus[i][j] = candidate[i][j];
-                console.log('changed', i, j);
-              }
-            }
-          } else if( candidate[i] != $scope.corpus[i]){
-            console.log('changed', i);
-            $scope.corpus[i] = candidate[i];
-          }
+        // update status and do things
+        
+        if(data.status != "ok" && data.code=='Unauthorized') {
+          $scope.status = 'Unauthorized';
+        } else {
+          $scope.status = 'RUNNING';
         };
-        
         //$scope.corpus = candidate;
         
         $timeout(tick, 4617);
