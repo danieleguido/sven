@@ -24,7 +24,7 @@
     left: 250px;
     width: 0;
     height: 100%;
-    margin-left: -249px;
+    margin-left: -500px;
     overflow-y: auto;
     overflow-x: hidden;
     background: #fff;
@@ -33,6 +33,10 @@
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
+}
+
+#sidebar-wrapper.RUNNING{
+  margin-left: -249px;
 }
 
 #wrapper.toggled #sidebar-wrapper {

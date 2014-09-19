@@ -19,6 +19,11 @@
     <!-- endbuild -->
   </head>
   <body ng-app="svenClientApp">
+    <style>
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+      display: none !important;
+    }
+    </style>
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -26,19 +31,23 @@
     <!-- Add your site or application content here -->
     {% block page%}
     {% verbatim %}
-    <div id="wrapper" ng-controller="CoreCtrl">
+    <div id="wrapper" ng-cloak ng-controller="CoreCtrl">
         <!-- header -->
-        <div id="header-wrapper">
+        <div id="header-wrapper" class="{{status}}">
           <div id="header">
             <div id="menu-toggle" class="fa fa-bars"></div>
             <h1>SVEN</h1>
           </div>
         </div>
 
+        <div id="loader-wrapper" class="{{status}}">
+                    <h4>loading ...</h4>
+                    <div style="margin-top: 20px;" class="loader"></div>
+                </div>
         <!-- Sidebar -->
 
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav" ng-if="status=='RUNNING'">
+        <div id="sidebar-wrapper" class="{{status}}">
+            <ul class="sidebar-nav">
                 <li class="profile">
                   <div class="circle"><img ng-src="{{profile.picture}}"></div>
 
@@ -109,9 +118,7 @@
                     <a href="#">Contact</a>
                 </li>
             </ul>
-            <div class="sidebar-nav" ng-if="status=='Unauthorized'">
-                
-            </div>
+            
         </div>
         <!-- /#sidebar-wrapper -->
 
@@ -124,9 +131,7 @@
                         
                     </div>
                 </div>
-                <div class="row" ng-if="status=='Unauthorized'">
-                    please login...
-                </div>
+
             </div>
         </div>
         <!-- /#page-content-wrapper -->

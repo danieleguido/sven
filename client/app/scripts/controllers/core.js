@@ -34,6 +34,7 @@ angular.module('svenClientApp')
   .controller('CoreCtrl', function ($scope, $log, $upload, $cookies, $timeout, LoginFactory, CommandFactory, NotificationFactory) {
     $log.debug('CoreCtrl ready');
     $scope.status = 'LOADING';
+
     
     // current corpus
     $scope.corpus = {};
@@ -54,11 +55,15 @@ angular.module('svenClientApp')
       Clone source in target by changing only the different fields
     */
     $scope.diffclone = function(target, source) {
-      for(var i in source) {
-        if(typeof target[i]=='object') {
-          $scope.diffclone(target[i], source[i]);
-        } else if(!target[i] || target[i] != source[i]) {//console.log('updtargetted', i);
-          target[i] = source[i];
+      if(!target) {
+        target = source;
+      } else {
+        for(var i in source) {
+          if(typeof target[i]=='object') {
+            $scope.diffclone(target[i], source[i]);
+          } else if(!target[i] || target[i] != source[i]) {//console.log('updtargetted', i);
+            target[i] = source[i];
+          }
         }
       }
     };
@@ -100,7 +105,7 @@ angular.module('svenClientApp')
       }); /// todo HANDLE correctly connection refused
     };
     
-    tick(); 
+    $timeout(tick, 1517);
 
     /*
       handle file upload at upper level
