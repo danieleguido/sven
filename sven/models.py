@@ -456,7 +456,7 @@ class Document(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
   date_last_modified = models.DateTimeField(auto_now=True)
   
-  url = models.URLField(blank=True, null=True) # external url to be boilerplated
+  url = models.URLField(blank=True, null=True, max_length=255) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
   tags = models.ManyToManyField(Tag, blank=True, null=True)

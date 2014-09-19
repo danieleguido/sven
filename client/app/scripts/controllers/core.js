@@ -105,7 +105,7 @@ angular.module('svenClientApp')
       }); /// todo HANDLE correctly connection refused
     };
     
-    $timeout(tick, 1517);
+    $timeout(tick, 517);
 
     /*
       handle file upload at upper level

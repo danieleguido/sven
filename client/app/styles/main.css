@@ -260,7 +260,18 @@ padding-bottom: 20px;
   color: #777;
 }
 
-
+.tag{
+  color: #777;
+  cursor: pointer;
+  background: #fafafa;
+  margin: 0px 6px;
+}
+.tag:hover{
+  color: black;
+}
+.tags{
+  padding: 12px;
+}
 
 /* #Toastmessage JQUERYPlugin css
 ================================================== */
