@@ -453,11 +453,12 @@ padding-bottom: 20px;
   text-align: center;
   margin-left:-90px;
   margin-top: -50px;
-  transition: top .5s ease-in-out;
+  display: none;
 }
 
 #loader-wrapper.LOADING{
   top: 50%;
+  display: block
 }
 
 .loader {
