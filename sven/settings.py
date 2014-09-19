@@ -44,8 +44,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'sven',
     'glue',
-    'twit',
-    'corsheaders'
+    'twit'
 )
 
 MIDDLEWARE_CLASSES = (
