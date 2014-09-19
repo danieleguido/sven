@@ -27,17 +27,17 @@ angular.module('svenClientApp')
     Waiting for an angular version.
   */
   .factory('LoginFactory', function($resource) {
-    return $resource('http://localhost:8000/api/login', {}, {
+    return $resource('/api/login', {}, {
         query: {method: 'GET' },
     });
   })
   .factory('NotificationFactory', function($resource) {
-    return $resource('http://localhost:8000/api/notification', {}, {
+    return $resource('/api/notification', {}, {
         query: {method: 'GET', isArray: false },
     });
   })
    .factory('CommandFactory', function($resource) {
-    return $resource('http://localhost:8000/api/corpus/:id/start/:cmd', {}, {
+    return $resource('/api/corpus/:id/start/:cmd', {}, {
         launch: {method: 'POST', isArray: false, params: {cmd: '@cmd', id:'@id'}}
     });
   })
