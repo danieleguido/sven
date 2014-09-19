@@ -61,7 +61,10 @@ class Command(BaseCommand):
     for doc in docs:
       c += 1
       with transaction.atomic():
-        doc.autotag()
+        try:
+          doc.autotag()
+        except Exception,e:
+          logger.exception(e)
         job.completion = c/number_of_documents
         job.save()
 
