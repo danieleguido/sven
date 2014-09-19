@@ -202,6 +202,8 @@ class Corpus(models.Model):
     d['count']['clusters'] = cursor.fetchone()[0]
 
     if deep:
+      # loading tags for venn diagram
+      # t.documents.values() Tag.objects.filter(document__corpus=self)]
       d.update({
         'owners': [helper_user_to_dict(u) for u in self.owners.all()],
 
@@ -774,7 +776,7 @@ class Job(models.Model):
     # creating corpus related job
     job, created = Job.objects.get_or_create(corpus=corpus)
     job.status = Job.RUNNING
-    
+    job.completion = 0
     # set as default
     logger.debug('init start "%s"' % command) 
     popen_args = [

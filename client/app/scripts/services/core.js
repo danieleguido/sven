@@ -38,7 +38,7 @@ angular.module('svenClientApp')
   })
    .factory('CommandFactory', function($resource) {
     return $resource('/api/corpus/:id/start/:cmd', {}, {
-        launch: {method: 'POST', isArray: false, params: {cmd: '@cmd', id:'@id'}}
+        launch: {method: 'POST', params: {cmd: '@cmd', id:'@id'}}
     });
   })
   .factory('ProfileFactory', function($resource) {

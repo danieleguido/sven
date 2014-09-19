@@ -1,10 +1,12 @@
 
 <h2>
   {{localCorpus.name}}
-  
+
 </h2>
-<p>{{localCorpus.count.documents || 0}} documents</p>
-<p>{{localCorpus.count.clusters || 0}} clusters</p>
+<p><strong>{{localCorpus.count.documents || 0}}</strong> documents, <strong>{{localCorpus.count.clusters || 0}}</strong> concepts</p>
+<p ng-if="localCorpus.jobs.length">
+    <span class="percentage {{localCorpus.jobs[0].status}}">running <strong>{{localCorpus.jobs[0].cmd|cmd}}</strong>, {{localCorpus.jobs[0].completion|percentage}} completed</span>
+  </p>
 
 <div class="btn-toolbar" role="toolbar">
   <div class="btn-group">

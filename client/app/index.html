@@ -102,8 +102,8 @@
                       </a>
                     </div>
                     <div class="col-lg-5">
-                      <div style="margin-right: 10px; text-indent: 0; text-align:right">
-                        active <i class="fa fa-camera"></i>
+                      <div ng-click="activate(cor)" style="margin-right: 10px; text-indent: 0; text-align:right">
+                        activate
                       </div>
                     </div>
                   </div>
@@ -195,7 +195,6 @@
         <script src="{{STATIC_URL}}/app/scripts/d3/d3.snark.matrix.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/directives/venn.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/directives/d3.js"></script>
-        <script src="{{STATIC_URL}}/app/scripts/controllers/clusters.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/filters/tag.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/services/concepts.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/directives/concepts.js"></script>

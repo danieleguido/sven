@@ -80,10 +80,14 @@ angular.module('svenClientApp')
 
         //$scope.profile.documents = data.objects.reduce(function(a,b){ return a.count.documents + b.count.documents })
         // check if differences
-        $scope.corpora = data.objects;
+        $scope.diffclone($scope.corpora, data.objects);
         $scope.jobs = data.jobs;
         // if corpusID choose the corpus matching corpusId, if any. @todo
         var candidate = data.objects[data.objects.length-1];
+        for(var i=0; i<data.objects.length;i++) {
+          if($cookies.corpusId == data.objects[i].id)
+            candidate = data.objects[i];
+        }
         $scope.diffclone($scope.corpus, candidate);
         
         // update status and do things
@@ -121,6 +125,7 @@ angular.module('svenClientApp')
           $scope.uploadingQueue[index].completion = 100;
           console.log(res);
           $log.info('completed', res);
+          toast('uploading completed', $scope.uploadingQueue[index].name);
         }, function(response) {
           $log.error(response);
           //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
@@ -134,7 +139,8 @@ angular.module('svenClientApp')
       $log.debug('onFileSelect', $files);
       $scope.uploadingQueue = [];
       uploaders = {};
-
+      toast('uploading ' + $files.length + ' files...');
+      
       for ( var i = 0; i < $files.length; i++) {
         var $file = $files[i];
         $scope.uploadingQueue.push({
@@ -153,13 +159,19 @@ angular.module('svenClientApp')
       @param a valid cmd command to be passed to api/start. Cfr api.py
     */
     $scope.executeCommand = function(cmd, corpus) {
-      CommandFactory.query({
+      CommandFactory.launch({
         id: corpus.id,
         cmd: cmd
-      }, function() {
-        console.log(arguments);
+      }, function(res) {
+        if(res.status=="ok")
+          toast('command started');
       })
     };
+
+    $scope.activate = function(corpus) {
+      $cookies.corpusId = corpus.id;
+      toast('activating corpus ...');
+    }
 
 
     /*

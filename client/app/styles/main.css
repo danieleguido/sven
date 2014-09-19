@@ -242,10 +242,37 @@ li.spacer{
   width:0;
 }
 
+.percentage{
+  visibility: hidden;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.percentage.RUN{
+  visibility: visible;
+}
+
 .item{
-border-bottom: 1px solid #ddd;
-margin-bottom: 20px;
-padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.item .action {
+  opacity: 0.17;
+  pointer-events: none;
+}
+
+.item:hover .action{
+  opacity: .5;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.item .action:hover{
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .item h3 {
