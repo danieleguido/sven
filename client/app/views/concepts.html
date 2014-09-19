@@ -1,1 +1,10 @@
-<p>This is the concepts view.</p>
+<h2>
+  {{localCorpus.name}}
+  
+</h2>
+<p>{{localCorpus.count.documents || 0}} documents</p>
+<p>{{localCorpus.count.clusters || 0}} clusters</p>
+
+
+<concepts data="clusters"><div class="viewer"></div></concepts>
+concepts
