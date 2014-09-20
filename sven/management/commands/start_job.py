@@ -77,6 +77,11 @@ class Command(BaseCommand):
     number_of_documents = job.corpus.documents.count()
     number_of_segments  = job.corpus.segments.count()
 
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment")
+    row = cursor.fetchone()
+    number_of_clusters = row[0] # clusters in corpus
+
     print number_of_documents
 
     print number_of_segments
@@ -133,6 +138,9 @@ class Command(BaseCommand):
             ds.wfidf = ds.wf * math.log(1/df)
             print i, cluster['cluster'], df, ds.tf, ds.tfidf
             ds.save()
+
+          job.completion = 1.0*step/number_of_clusters
+          job.save()
 
     
 
