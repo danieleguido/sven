@@ -13,4 +13,4 @@ angular.module('svenClientApp')
       query: {method: 'GET', isArray: false, params: {id: '@id'} },
       remove: {method: 'DELETE', params: {id: '@id'} }
     });
-  })
+  });

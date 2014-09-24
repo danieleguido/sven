@@ -5,6 +5,18 @@
 <p>{{localCorpus.count.documents || 0}} documents</p>
 <p>{{localCorpus.count.clusters || 0}} clusters</p>
 
+<div class="btn-group">
+  <button class="btn btn-default" ng-click="downloadConcepts()" tooltip="download concept list as csv file">download <i class="fa fa-download"></i></button>
+</div>
 
-<concepts data="clusters"><div class="viewer"></div></concepts>
+<div class="btn-group">
+  <label class="btn btn-default" ng-model="measure" btn-radio="'tf'" uncheckable>frequency</label>
+  <label class="btn btn-default" ng-model="measure" btn-radio="'tf_idf'" uncheckable>specificity</label>
+</div>
+<div class="btn-group">
+  <label class="btn btn-default" ng-model="measure" btn-radio="'tf'" uncheckable>show all</label>
+  <label class="btn btn-default" ng-model="measure" btn-radio="'tf_idf'" uncheckable>show IN only</label>
+</div>
+<span ng-click="measure=='tf'?'tf_idf':'tf'"></span>
+<concepts data="clusters" groups="groups" measure="measure"><div class="viewer"></div></concepts>
 concepts

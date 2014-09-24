@@ -94,6 +94,18 @@ class CorpusTest(TestCase):
     self.assertEqual(0, Corpus.objects.count())
 
 
+  def test_create_stopword(self):
+    '''
+    Create empty stopwords file. (small text files)
+    '''
+    stopwords = self.corpus.get_stopwords() # empty string
+    self.corpus.set_stopwords(contents=[u'Hey', u'Alleluya'])
+    self.corpus.set_stopwords(contents=[u'English Hey', u'English Alleluya'], language='en')
+    stopwords = self.corpus.get_stopwords()
+    print stopwords
+    en_stopwords = self.corpus.get_stopwords(language='en')
+
+
 
 class DocumentTest(TestCase):
   def setUp(self):
@@ -114,7 +126,6 @@ class DocumentTest(TestCase):
       response = sven.api.document_upload(request, corpus_pk=self.corpus.pk)
       jresponse = json.loads(response.content)
       print jresponse
-
 
 
   def test_create_whoosh(self):

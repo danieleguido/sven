@@ -12,6 +12,9 @@ angular.module('svenClientApp')
     $log.debug('ConceptsCtrl ready ca');
     $scope.localCorpus = {};
 
+    $scope.measure = 'tf'; // tf | tf_idf
+
+
     $scope.$watch('corpora', function(){// pseudo react diff. looking for the local corpus among different corpora
       for(var i=0; i<$scope.$parent.corpora.length; i++) {
         if($scope.$parent.corpora[i].id == $routeParams.id) {
@@ -21,8 +24,13 @@ angular.module('svenClientApp')
 
     });
 
+    $scope.downloadConcepts = function() {
+      window.open('/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
+    };
+
     $routeParams.id && ConceptsFactory.query({id: $routeParams.id}, function(data){
       console.log(data); // pagination needed
       $scope.clusters = data.objects;
+      $scope.groups = data.groups;
     });
   });

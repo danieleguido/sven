@@ -407,13 +407,26 @@ def corpus(request, pk):
 
 
 @login_required(login_url='/api/login')
+def corpus_stopwords(request, corpus_pk):
+  epoxy = Epoxy(request)
+  try:
+    corpus = Corpus.objects.get(pk=corpus_pk)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  epoxy.add('objects', corpus.get_stopwords())
+  return epoxy.json()
+
+
+
+@login_required(login_url='/api/login')
 def corpus_segments(request, corpus_pk):
   '''
   Return the list of segments in a specific corpus (given by pk)
   '''
   epoxy = Epoxy(request)
   try:
-    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
@@ -441,7 +454,7 @@ def corpus_segments(request, corpus_pk):
     GROUP BY s.cluster
     ORDER BY max_tf DESC, distribution DESC
     LIMIT %s, %s
-    """,[c.id,  epoxy.offset, epoxy.limit]
+    """,[cor.id,  epoxy.offset, epoxy.limit]
   )
 
 
@@ -457,19 +470,7 @@ def corpus_segments(request, corpus_pk):
     'tags': []
   } for s in segments];
 
-  epoxy.add('query', """
-    SELECT 
-        t.`id`, t.name, t.slug, s.cluster,
-        AVG(ds.`tfidf`) as tf_idf,
-        AVG(ds.`tf`) as tf
-    FROM sven_tag t
-      JOIN sven_document_tags dt on dt.tag_id = t.id
-      JOIN sven_document_segment ds on ds.document_id = dt.document_id
-        JOIN   sven_segment s on ds.segment_id = s.id
-    where s.cluster IN ("%s")
-    group by t.id, s.cluster
-    """ % ('","'.join([c['cluster'] for c in clusters])))
-
+  
   tags = Tag.objects.raw("""
     SELECT 
         t.`id`, t.name, t.slug, s.cluster,
@@ -479,9 +480,10 @@ def corpus_segments(request, corpus_pk):
       JOIN sven_document_tags dt on dt.tag_id = t.id
       JOIN sven_document_segment ds on ds.document_id = dt.document_id
         JOIN   sven_segment s on ds.segment_id = s.id
-    where s.cluster IN ("%s")
+    where s.corpus_id=%s AND s.cluster IN ("%s")
     group by t.id, s.cluster
-    """ % ('","'.join([c['cluster'] for c in clusters])))
+    """ % (cor.id, '","'.join([c['cluster'] for c in clusters])))
+
 
 
   tags_per_clusters = [{
@@ -499,7 +501,7 @@ def corpus_segments(request, corpus_pk):
 
 
   epoxy.add('objects', clusters)
-
+  epoxy.add('groups', [t.json() for t in Tag.objects.filter(document__corpus=cor).all()])
 
 
   return epoxy.json()
@@ -597,6 +599,7 @@ def export_corpus_segments(request, corpus_pk):
       JOIN sven_document d ON ds.document_id = d.id
     WHERE d.corpus_id = %s
     GROUP BY s.cluster
+    ORDER BY max_tf DESC, distro DESC
     """,[corpus_pk]
   )
   

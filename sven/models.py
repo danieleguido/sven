@@ -161,6 +161,39 @@ class Corpus(models.Model):
     return os.path.join(settings.MEDIA_ROOT, self.slug)
 
 
+  def get_stopwords_path(self, language=None):
+    stopwords_path = os.path.join(settings.STOPWORDS_PATH, self.slug)
+    if not os.path.exists(stopwords_path):
+       os.makedirs(stopwords_path)
+
+    return os.path.join(stopwords_path, "%s.txt" % language if language else "all.txt")
+    
+
+  def get_stopwords(self, language=None):
+    '''
+    from the stopword path, add one stopwords per languages
+    @param language if None, a generic stopword file will be associated.
+    '''
+    stopwords_filepath = self.get_stopwords_path(language)
+    try:
+      with open (stopwords_filepath, 'r+') as stopwords:
+        data = stopwords.read().split('\n')
+    except IOError, e:
+      with open (stopwords_filepath, 'w+') as stopwords:
+        data = ''
+    return data
+
+
+  def set_stopwords(self, contents=[], language=None):
+    '''
+    write stopword list file
+    @param contents is a list of **unicode** string [u'ciao', u'mamma']
+    '''
+    stopwords_filepath = self.get_stopwords_path(language)
+    with codecs.open(stopwords_filepath, encoding='utf-8', mode='w') as f:
+      f.write("\n".join(contents))
+
+
   def save(self, **kwargs):
     self.slug = helper_uuslug(model=Corpus, instance=self, value=self.name)
     path = self.get_path()

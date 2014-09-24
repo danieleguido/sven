@@ -31,7 +31,6 @@
         _svg, // the svg container
         
         _key = function(d){
-          console.log(d.cluster);
           return d.cluster
         };
 
@@ -42,6 +41,7 @@
       _svg = container
           .append("svg")
           .attr("height", height)
+          .attr("width", width)
 
       _svg
         .append("text")
@@ -62,48 +62,112 @@
     /*
       enable update enter exit pattern
     */
-    matrix.update = function(){
+    matrix.update = function(options){
       if(!_data.length)
         throw "timeline.init does not have data associated";
       // calculate local max and min
+      var options = options || {
+            measure: 'tf'
+          },
 
-      var elements = _svg
+          local_min = d3.min(_data, function(d) {return d[options.measure]}),
+          local_max = d3.max(_data,function(d) {return d[options.measure]}),
+          
+          elements = _svg
             .selectAll(".block")
             .data(_data, _key);
-
-      matrix.draw(elements);
+      
+      
+      matrix.draw(elements, {
+        min: local_min,
+        max: local_max,
+        measure: options.measure
+      });
     };
 
-    matrix.draw = function(elements) {
-      var enter_selection = elements.enter()
-        .append("g")
-        .attr("class", "block");
-
+    /*
+      options.min and options.max
+    */
+    matrix.draw = function(elements, options) {
+      console.log(options);
       
+      var size = d3.scale.linear()
+        .domain([options.min, options.max])
+        .range([2,18]),
+
+        update_selection = elements,
+        enter_selection = elements.enter()
+          .append("g")
+          .attr("class", "block")
+        
+      // update row elements
+
+
 
       enter_selection
-        enter_selection
         .append("text")
         .text(function(d) {
           return d.content || '...'
         })
         .attr("y", function(d,i) {
-          console.log(d,i);
           return i*26 + 26*2;
         })
         .style("fill", "#333333");
+      
+
+      update_selection
+        .selectAll("circle.global")
+        .transition()
+          .duration(750)
+          .attr("r", function(d){ return size(d[options.measure])})
+          .style("fill", function(d){ return d[options.measure]==options.max?"rgb(25,158,154)":"#333333"})
+      
+
 
       // draw circle (globals)
       enter_selection
         .append("circle")
+        .attr("class", "global")
         .style("fill", "#333333")
-        .attr("fill-opacity", .2)
-        .attr("r", 10)
+        .attr("fill-opacity", .3)
+        .attr("r", function(d){return size(d[options.measure])})
         .attr("class", "circle")
         .attr("cx", 250)
         .attr("cy", function(d, i) {
           return i*26 + 26*2;
         })
+
+
+      // for each actor. calculate actor max et actor min
+      for(var i=0; i< _data[0].tags.length; i++) {
+
+        console.log('hello', i, _data[0].tags[i])
+        update_selection
+          .selectAll("circle.tag")
+          .transition()
+          .duration(750)
+          .attr("r", function(d){ return d.tags[i]?
+            size(d.tags[i][options.measure]):
+            1
+          })
+
+        enter_selection
+          .append("circle")
+          .attr("class", "tag "+_data[0].tags[i].id)
+          .style("fill", "#333333")
+          .attr("fill-opacity", .4)
+          .attr("r", function(d){ return d.tags[i]?
+            size(d.tags[i][options.measure]):
+            1
+          })
+          .attr("cx", 280 + (i+1)*60)
+          .attr("cy", function(d, i) {
+            return i*26 + 26*2;
+          })
+        //_data[0].tags[i][options.measure]
+      }
+      
+
     };
 
     return matrix;

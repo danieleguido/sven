@@ -12,24 +12,32 @@ angular.module('svenClientApp')
       template: '<div class="viewer"></div>',
       restrict: 'E',
       scope: {
-        data: '='
+        data: '=',
+        measure: '=',
+        groups: '='
       },
       link: function postLink(scope, element, attrs) {
         var matrix = snark
             .matrix()
             .init(d3.select(".viewer"));
         
-        var render = function(data) {
+
+
+        var render = function() {
           // get positions for each set
-          console.log('rendering', data)
+        
+          if(scope.data)
+            matrix
+              .data(scope.data)
+              .update({ measure:scope.measure||'tf'})
+          
         }
 
-        scope.$watch('data', function(data) {
-          if(data)
-            matrix
-              .data(data)
-              .update()
-        }, true);
+
+
+        scope.$watch('data', render, true);
+
+        scope.$watch('measure', render, true);
       }
     };
   });

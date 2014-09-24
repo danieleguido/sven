@@ -166,4 +166,5 @@ TWITTER_ACCESS_TOKEN_SECRET = local_settings.TWITTER_ACCESS_TOKEN_SECRET
 
 
 WHOOSH_PATH  = os.path.join(BASE_DIR, 'contents/whoosh')
+STOPWORDS_PATH  = os.path.join(BASE_DIR, 'contents/stopwords')
 STANDALONE_COMMANDS = ['harvest', 'whoosher', 'freebase'] # standalone management commands.
