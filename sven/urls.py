@@ -48,6 +48,7 @@ apipatterns = patterns('sven.api',
   url(r'^export/corpus/(?P<corpus_pk>\d+)/segments$', 'export_corpus_segments', name='sven_api_export_corpus_segments'),  # execute a job like management/start.py
   
   url(r'^d3/timeline$', 'd3_timeline', name='sven_api_d3_timeline'), # all user corpus timeline. restrict via filters
+  url(r'^graph/corpus/(?P<corpus_pk>\d+)/tags$', 'graph_corpus_tags', name='sven_api_graph_corpus_tags'),
 
   url(r'^login', 'require_login', name='sven_api_require_login'),
   url(r'^.*$', 'not_found', name='sven_api_not_found'),

@@ -566,7 +566,7 @@ class Document(models.Model):
 
 
   @staticmethod
-  def indexed_search(query, epoxy):
+  def indexed_search(query, epoxy, queryset):
     '''
     test: http://localhost:8000/api/corpus/1/document?search=king&indent
     '''
@@ -576,7 +576,7 @@ class Document(models.Model):
     parser = QueryParser("content", ix.schema)
     q = parser.parse(query)
 
-    qs = Document.objects.filter(**epoxy.filters)
+    qs = queryset.filter(**epoxy.filters)
     ids = [u'%s' % d.id for d in qs]
 
     print qs.count()

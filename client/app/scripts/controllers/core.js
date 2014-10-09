@@ -31,7 +31,7 @@ function toast(message, title, options){
  * Controller of the svenClientApp
  */
 angular.module('svenClientApp')
-  .controller('CoreCtrl', function ($scope, $log, $upload, $cookies, $timeout, LoginFactory, CommandFactory, NotificationFactory) {
+  .controller('CoreCtrl', function ($scope, $log, $upload, $sce, $cookies, $timeout, LoginFactory, CommandFactory, NotificationFactory) {
     $log.debug('CoreCtrl ready');
     $scope.status = 'LOADING';
 
@@ -68,6 +68,10 @@ angular.module('svenClientApp')
       }
     };
 
+
+    $scope.html = function(html_code) {
+      return $sce.trustAsHtml(html_code);
+    }
 
 
     function tick() {

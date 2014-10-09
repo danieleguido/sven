@@ -1,0 +1,21 @@
+
+<h2>
+  search results
+</h2>
+<h3>{{query}}</h3>
+<p>This is the search view.</p>
+
+<div ng-repeat="doc in items" >
+  <div class="item">
+    <div style="width:36px;float:left"><span class="language">{{doc.language}}</span><br/>
+      <span class="action" tooltip="remove this document" ng-click="remove(doc)"><i class="fa fa-trash"></i>
+    </div>
+    <div style="margin-left:36px">
+      <h4><a href="#/document/{{doc.id}}">{{doc.name}}</a></h4>
+      
+      <span class="tag" ng-repeat="tag in doc.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+      
+      <div ng-bind-html="html(doc.match)"></div>
+    </div>
+  </div>
+</div>

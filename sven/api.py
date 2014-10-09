@@ -783,6 +783,38 @@ def d3_timeline(request):
 
 
 
+@login_required(login_url='/api/login')
+def graph_corpus_tags(request, corpus_pk):
+  '''
+  corpus tags as nodes-edges value
+  '''
+  epoxy = Epoxy(request)
+  epoxy.add('nodes', [t.json() for t in Tag.objects.filter(document__corpus__pk=corpus_pk).distinct()])
+  
+  cursor = connection.cursor()
+  # NODES
+  cursor.execute("""
+    SELECT t.id, t.name, t.slug, COUNT(*) as distribution
+      FROM sven_tag t
+    JOIN sven_document_tags dt
+      ON t.id=dt.tag_id
+    WHERE dt.document_id IN (
+      SELECT d.id FROM sven_document as d WHERE d.corpus_id=%(corpus_pk)s
+    ) GROUP BY t.id 
+    """ % {
+    'corpus_pk': corpus_pk
+  })
+  epoxy.add('nodes', [{
+    'id':'d%s' % r[0],
+    'label': r[1],
+    'size': r[3]
+  } for i,r in enumerate(cursor.fetchall())])
+
+  return epoxy.json()
+
+
+
+
 def helper_get_available_documents(request, corpus=None):
   '''
   Return a queryset according to user auth level and document status

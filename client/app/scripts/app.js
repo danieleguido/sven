@@ -73,6 +73,10 @@ angular
         templateUrl: '/static/app/views/stopwords.html',
         controller: 'StopwordsCtrl'
       })
+      .when('/corpus/:id/search/:query', {
+        templateUrl: '/static/app/views/search.html',
+        controller: 'SearchCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

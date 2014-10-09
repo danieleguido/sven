@@ -178,7 +178,7 @@ class Command(BaseCommand):
         stopwords = EN_STOPWORDS
 
       segments = distill(content, language=language, stopwords=stopwords)
-      print segments
+      #print segments
 
       with transaction.atomic():
         for i,(match, lemmata, tf, wf) in enumerate(segments):
@@ -193,14 +193,40 @@ class Command(BaseCommand):
           dos.tf=tf
           dos.wf=wf
           dos.save()
-      job.document = doc
-      job.completion = int(score*10000*step/total)/100.0
-      job.save()
+      
+        job.document = doc
+        job.completion = 1.0*step/total
+        job.save()
       logger.debug('tf executed language "%s" %s%%' % (language, job.completion))
 
     logger.debug('tf completed')
 
+  
+
+  def _whoosher(self, job): 
+    self.stdout.write("\n------------------------------------------\n\n    welcome to sven Whoosh indexer\n    ==================================\n\n\n\n")
+
+    # staring index if needed    
+    ix = Document.get_whoosh()
+    logger.debug('index started')
+    # creating writer
+    writer = ix.writer() # multi thread cfr. from whoosh.writing import AsyncWriter
+
+    total = job.corpus.documents.count()
+    for step, doc in enumerate(job.corpus.documents.all()):
+      writer.add_document(
+        title=doc.name,
+        path = u"%s"%doc.id,
+        content=doc.text())
+
+      job.document = doc
+      job.completion = 1.0 * step/total
+      job.save()
+
+    writer.commit()
     
+    logger.debug('index compiled successfully')
+
 
 
   def handle(self, *args, **options):
