@@ -69,16 +69,7 @@
     line-height: 40px;
 }
 
-.sidebar-nav li a {
-    display: block;
-    text-decoration: none;
-    color: #999999;
-}
 
-.sidebar-nav li a:hover {
-    text-decoration: none;
-    background: rgba(0,0,0,0.08);
-}
 
 .sidebar-nav li a:active,
 .sidebar-nav li a:focus {
@@ -91,16 +82,6 @@
     border-bottom: 1px solid #ddd;
 }
 
-.sidebar-nav > .sidebar-brand a {
-    display: inline-block;
-    color: #000;
-    padding-left:0px;
-}
-
-.sidebar-nav > .sidebar-brand a:hover {
-    background: none;
-
-}
 
 @media(min-width:768px) {
     #wrapper {
