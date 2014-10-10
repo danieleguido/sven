@@ -78,7 +78,9 @@ class Command(BaseCommand):
     number_of_segments  = job.corpus.segments.count()
 
     cursor = connection.cursor()
-    cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment")
+    cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment s WHERE s.corpus_id = %(corpus)s" %{
+      'corpus': job.corpus.id
+    })
     row = cursor.fetchone()
     number_of_clusters = row[0] # clusters in corpus
 
@@ -140,7 +142,9 @@ class Command(BaseCommand):
 
           job.completion = 1.0*step/number_of_clusters
           job.save()
-        logger.info("completion %s" % job.completion)
+
+        if job.completion*100 % 4 == 0:  # every 2.5%
+          logger.info("completion %s" % job.completion)
       logger.info("terminating (loop completed)...")
 
 
@@ -251,7 +255,8 @@ class Command(BaseCommand):
     else:
       job.completion = 1.0
       logger.debug('job completed')
-      job.stop()
+    
+    job.stop()
 
 
   
