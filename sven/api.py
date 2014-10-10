@@ -207,7 +207,7 @@ def documents(request):
 @login_required(login_url='/api/login')
 def document(request, pk):
   epoxy = Epoxy(request)
-  logger.log("document")
+  
   try:
     d = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
