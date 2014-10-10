@@ -186,7 +186,12 @@ def corpus_documents(request, corpus_pk):
     else:
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
-  epoxy.queryset(Document.objects.filter(corpus=c))
+  logger.info("corpus document")
+  try:
+    epoxy.queryset(Document.objects.filter(corpus=c))
+  except Exception, e:
+    logger.exception(e)
+    
   return epoxy.json()
 
 

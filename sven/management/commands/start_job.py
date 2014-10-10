@@ -218,6 +218,7 @@ class Command(BaseCommand):
     writer = ix.writer() # multi thread cfr. from whoosh.writing import AsyncWriter
 
     total = job.corpus.documents.count()
+    
     for step, doc in enumerate(job.corpus.documents.all()):
       writer.add_document(
         title=doc.name,
