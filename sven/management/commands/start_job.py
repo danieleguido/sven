@@ -82,9 +82,7 @@ class Command(BaseCommand):
     row = cursor.fetchone()
     number_of_clusters = row[0] # clusters in corpus
 
-    print number_of_documents
-
-    print number_of_segments
+    
     if number_of_documents == 0:
       raise Exception('not enough "documents" in corpus to perform tfidf')# @todo
 
@@ -94,7 +92,9 @@ class Command(BaseCommand):
     # 2. get all languages in corpus
     number_of_languages = job.corpus.segments.values('language').distinct()
     
-    print "number_of_languages", number_of_languages
+    logger.info("number_of_documents %s" % number_of_documents)
+    logger.info("number_of_segments %s" % number_of_segments)
+    logger.info("number_of_languages %s" % number_of_languages)
     # 3. start querying per language stats
     cursor = connection.cursor()
 
@@ -126,7 +126,6 @@ class Command(BaseCommand):
       
       for i, cluster in enumerate(dictfetchall(cursor)):
         step = step+1
-        print step
         
         with transaction.atomic():  
           # for each cluster, calculate df value inside the overall corpus.
@@ -136,13 +135,15 @@ class Command(BaseCommand):
           for ds in Document_Segment.objects.filter(segment__cluster=cluster['cluster'], segment__language=language):
             ds.tfidf = ds.tf * math.log(1/df) 
             ds.wfidf = ds.wf * math.log(1/df)
-            print i, cluster['cluster'], df, ds.tf, ds.tfidf
+            #print i, cluster['cluster'], df, ds.tf, ds.tfidf
             ds.save()
 
           job.completion = 1.0*step/number_of_clusters
           job.save()
+        logger.info("completion %s" % job.completion)
+      logger.info("terminating (loop completed)...")
 
-    
+
 
   def _harvest(self, job):
     from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS
@@ -241,13 +242,16 @@ class Command(BaseCommand):
       logger.exception(e)
       raise CommandError("\n    ouch. Try again, job pk=%s does not exist!" % options['job_pk'])
     
+    try:
+      cmd = '_%s' % options['cmd']
 
-    cmd = '_%s' % options['cmd']
+      getattr(self, cmd)(job=job) # no job will be charged!
+    except Exception, e:
+      logger.exception(e)
+    else:
+      job.completion = 1.0
+      logger.debug('job completed')
+      job.stop()
 
-    getattr(self, cmd)(job=job) # no job will be charged!
-    
-    job.completion = 1.0
-    logger.debug('job completed')
-    job.stop()
 
   

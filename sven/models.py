@@ -823,6 +823,7 @@ class Job(models.Model):
     
     s = subprocess.Popen(popen_args, stdout=None, stderr=None, close_fds=True)
     job.cmd = ' '.join(popen_args)
+    logger.debug('cmd "%s"' % job.cmd) 
     job.pid = s.pid
     job.save()
 
