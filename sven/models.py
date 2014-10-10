@@ -530,10 +530,15 @@ class Document(models.Model):
       d['media_txt'] = os.path.join(settings.MEDIA_URL, self.corpus.slug, self.slug) + '.txt'
     
     if deep:
-      d.update({
-        'text': self.text()[:2500],
-        'corpus': self.corpus.json()
-      })
+      d['corpus'] = self.corpus.json()
+      try:
+        d.update({
+          'text': self.text()[:2500]
+        })
+      except Exception, e:
+        d.update({
+          'text': 'can\'t get the text version of this document'
+        })
 
    
     return d
