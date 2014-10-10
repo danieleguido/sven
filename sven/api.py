@@ -213,11 +213,14 @@ def document(request, pk):
   except Document.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
-  if epoxy.is_DELETE():
-    d.delete()
-    epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
-  else:
-    epoxy.item(d, deep=True)
+  try:
+    if epoxy.is_DELETE():
+      d.delete()
+      epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
+    else:
+      epoxy.item(d, deep=True)
+  except Exception,e:
+    logger.exception(e)
 
   return epoxy.json()
 
