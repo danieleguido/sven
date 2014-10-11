@@ -39,7 +39,8 @@ class ProfileInline(admin.StackedInline):
 
 
 class UserAdmin(UserAdmin):
-  inlines = (ProfileInline, )
+  pass
+  #inlines = (ProfileInline, )
 
 
 

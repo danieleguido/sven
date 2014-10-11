@@ -52,7 +52,7 @@
                   <div class="circle"><img ng-src="{{profile.picture}}"></div>
 
                   <div class="user">
-                    <a href="#/profile" class="username">{{profile.firstname}} {{profile.lastname}}</a>
+                    <a href="#/profile" class="username">{{profile.firstname? profile.firstname + ' ' +profile.lastname: profile.username}}</a>
                     <div class="logout"><a href="/logout">logout {{profile.username}}</a></div>
 
                   </div>
