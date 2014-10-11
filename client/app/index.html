@@ -94,10 +94,17 @@
                 </li>
                 <!-- other (not selected) user's corpora -->
                 <li class="corpus" ng-repeat="cor in corpora" ng-if="cor.id != corpus.id">
-                  <a ng-href="#/corpus/{{cor.id}}">
-                      {{cor.name}}
-                  </a>
                   <div class="row">
+                    <div class="col-lg-6 col-xs-6">
+                      <a ng-click="activate(cor)"><!--ng-href="#/corpus/{{cor.id}}"-->
+                          {{cor.name}} <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}"> {{cor.jobs[0].completion|percentage}}</span>
+                      </a>
+                    </div>
+                    <!-- div class="col-lg-6 col-xs-6" style="text-align: right">
+                      {{cor.count.documents || 0}} documents 
+                    </div -->
+                  </div>
+                  <!-- div class="row">
                     <div class="col-lg-7">
                       <a href="#/corpus/{{cor.id}}/documents" style="text-indent: 0">
                        <strong>{{cor.count.documents || 0}}</strong> documents 
@@ -108,7 +115,7 @@
                         activate
                       </div>
                     </div>
-                  </div>
+                  </div -->
                   <div ng-show="cor.jobs.length" class="bar {{cor.jobs[0].status}}">
                     <div class="completion" style="width:{{cor.jobs[0].completion*100}}%"></div>
                   </div>
