@@ -196,6 +196,19 @@ angular.module('svenClientApp')
       $scope.$broadcast(API_PARAMS_CHANGED);
     };
 
+
+    $scope.changeFilter = function(key, filter) {
+      $scope.filters[key] = filter;
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    };
+
+    $scope.removeFilter = function(key, filter) {
+      if($scope.filters[key] == filter) {
+        delete $scope.filters[key];
+      };
+      
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    };
     /*
       Orderby set
     */
@@ -216,6 +229,7 @@ angular.module('svenClientApp')
       var params = angular.extend({
         offset: $scope.limit * ($scope.page - 1),
         limit: $scope.limit,
+        filters: JSON.stringify(angular.copy($scope.filters)),
         order_by: JSON.stringify($scope.orderBy.choice.value.split('|'))
       }, params);
       return params;
