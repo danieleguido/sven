@@ -535,7 +535,12 @@ class Document(models.Model):
         d.update({
           'text': self.text()[:2500]
         })
+      except UnicodeDecodeError, e:
+        d.update({
+          'text': 'can\'t get the text version of this document: %s' % e
+        })
       except Exception, e:
+        logger.exception(e)
         d.update({
           'text': 'can\'t get the text version of this document'
         })

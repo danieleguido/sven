@@ -48,7 +48,22 @@ angular.module('svenClientApp')
     // current jobs
     $scope.jobs = [];
 
-    // repeating
+    // current documents filters (tags, language, date)
+    $scope.filters = {};
+
+    // current documents orderby(s). Watch for $scope.$watch('orderBy.choice') 
+    $scope.orderBy = {
+      choices: [
+        {label:'by date added', value:'-date_created'},
+        {label:'by date', value:'date'},
+        {label:'by name', value:'name'}
+      ],
+      choice: {label:'by date added', value:'-date_created'},
+      isopen: false,
+      direction: true // a-z or false z-a
+    };
+
+    // getting the corpus id via cookie
     var corpusId = $cookies.corpusId;
 
     /*
@@ -159,8 +174,32 @@ angular.module('svenClientApp')
       }
     };
 
+
     /*
-      @param a valid cmd command to be passed to api/start. Cfr api.py
+      Orderby switch
+    */
+    $scope.switchOrderBy = function(choice) {
+      $log.info('switchOrderBy', choice)
+      $scope.orderBy.choice = choice;
+      $scope.orderBy.isopen = false;
+    };
+
+    /*
+      return a dict object that can be used to call api.
+      Format filters, orderby and searchquery stuff.
+    */
+    $scope.getParams = function(params) {
+      var params = angular.extend({
+        order_by: JSON.stringify($scope.orderBy.choice.value.split('|'))
+      }, params);
+      return params;
+    }
+
+    /*
+      Call the right api to execute the desired command.
+      For a list of all available cmd please cfr. ~/sven/management/start_job.py
+      @param cmd - a valid cmd command to be passed to api/start. Cfr api.py
+      @param corpus - <Corpus> as command target
     */
     $scope.executeCommand = function(cmd, corpus) {
       CommandFactory.launch({
@@ -172,14 +211,18 @@ angular.module('svenClientApp')
       })
     };
 
+    /*
+      change the main corpus, enabling upload on it.
+    */
     $scope.activate = function(corpus) {
       $cookies.corpusId = corpus.id;
       toast('activating corpus ...');
     }
 
 
+
     /*
-       handle corpus management
+      handle corpus management
     */
     $scope.$watch('corpus', function(){
       if(!$scope.corpus.id || corpusId == $scope.corpus.id)

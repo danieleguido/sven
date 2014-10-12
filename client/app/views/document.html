@@ -12,8 +12,8 @@
     </p>
 
     <p>
-      <a href="{{document.media_txt}}" download>download plain text </a> or
-      <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a>
+      <a href="{{document.media_txt}}" download>download plain text </a><span ng-if="document.url">or
+      <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span>
     </p>
     <div class="content">
     {{document.text}}

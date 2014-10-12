@@ -14,16 +14,11 @@ angular.module('svenClientApp')
 
     $log.debug('DocumentsCtrl ready on corpus:', $scope.$parent.corpus.name||'not set');
     
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-
+    
     if($scope.$parent.corpus.id) {
       // wait for corpus...
-      DocumentsFactory.query({id:1}, function(data){
-        $log.info('loading documents', data);
+      DocumentsFactory.query({id:1},{order_by: $scope.$parent.choice.value}, function(data){
+        $log.info('DocumentsCtrl loading documents', data);
         $scope.items = data.objects;
       }, function(){
 
@@ -31,12 +26,12 @@ angular.module('svenClientApp')
     }
 
 
-    console.log($scope.$parent.corpus.name);
-
+    
     $scope.saveUrl = function() {
       $log.info('saveUrl: ', $scope.document.url);
       DocumentsFactory.save({
         id: $scope.$parent.corpus.id
+
       },{
         mimetype: 'text/html',
         name: $scope.document.url
@@ -51,34 +46,6 @@ angular.module('svenClientApp')
       });
     };
 
-
-
-
-    /* order by dropdown */
-    $scope.orderBy = {
-      choices: [
-        {label:'by date added', value:'id'},
-        {label:'by date', value:'date'},
-        {label:'by name', value:'name'}
-      ],
-      choice: {label:'by date added', value:'id'},
-      label: 'by date added',
-      isopen: false,
-      direction: true // a-z or false z-a
-    };
-
-    $scope.switchOrderBy = function(choice) {
-      $log.info('switchOrderBy', choice)
-      $scope.orderBy.choice = choice;
-      $scope.orderBy.isopen = false;
-    };
-
-    
-
-
-    $scope.status = {
-      isopen: false
-    };
 
 
   $scope.totalItems = 64;

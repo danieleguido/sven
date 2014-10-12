@@ -35,23 +35,20 @@ angular.module('svenClientApp')
   .controller('CorpusDocumentsCtrl', function ($scope, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
     
-    $scope.orderBy = {
-      choices: [
-        {label:'by date added', value:'id'},
-        {label:'by date', value:'date'},
-        {label:'by name', value:'name'}
-      ],
-      choice: {label:'by date added', value:'id'},
-      label: 'by date added',
-      isopen: false,
-      direction: true // a-z or false z-a
-    };
+    
 
-    DocumentsFactory.query({id:$routeParams.id}, function(data){
-      $log.info('loading documents', data);
-      $scope.items = data.objects;
-      }, function(){
-    });
+    $scope.sync = function() {
+      DocumentsFactory.query(
+        $scope.getParams({
+          id:$routeParams.id
+        }),
+        function(data) {
+          $log.info('loading documents', data);
+          $scope.items = data.objects;
+        },
+        function(){}
+      );
+    };
 
     $scope.remove = function(doc) {
       if(confirm('Do you really want to remove the document "'+doc.name+'"?')) {
@@ -60,6 +57,7 @@ angular.module('svenClientApp')
           if(res.status == 'ok') {
             toast('document "' + doc.name +'" removed correctly');
           }
+          $scope.sync();
         });
       } // end if
     };
@@ -82,6 +80,7 @@ angular.module('svenClientApp')
       });
     };
 
-    
-
+    $scope.$watch('orderBy.choice', function(){
+      $scope.sync();
+    });
   })
