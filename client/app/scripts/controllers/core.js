@@ -1,5 +1,8 @@
 'use strict';
 
+var API_PARAMS_CHANGED = 'api_params_changed';
+
+
 function toast(message, title, options){
   if(!options){
     options={}
@@ -47,6 +50,18 @@ angular.module('svenClientApp')
 
     // current jobs
     $scope.jobs = [];
+
+    // current pagination page
+    $scope.page = 0;
+
+    // limit result per page
+    $scope.limit = 20;
+
+    // offset result per page, internal use
+    $scope.offset = 0;
+
+    // number of items for pagination purpose
+    $scope.totalItems = 0;
 
     // current documents filters (tags, language, date)
     $scope.filters = {};
@@ -174,26 +189,37 @@ angular.module('svenClientApp')
       }
     };
 
-
-    /*
-      Orderby switch
-    */
-    $scope.switchOrderBy = function(choice) {
-      $log.info('switchOrderBy', choice)
-      $scope.orderBy.choice = choice;
-      $scope.orderBy.isopen = false;
+    
+    $scope.changePage = function(page){
+      $log.info('changePage', page);
+      $scope.page = page;
+      $scope.$broadcast(API_PARAMS_CHANGED);
     };
 
     /*
-      return a dict object that can be used to call api.
-      Format filters, orderby and searchquery stuff.
+      Orderby set
+    */
+    $scope.changeOrderBy = function(choice) {
+      $log.info('changeOrderBy', choice);
+      $scope.page = 1;
+      $scope.orderBy.choice = choice;
+      $scope.orderBy.isopen = false;
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    };
+
+    /*
+      return a dict object that can be used to call 'glue' api.
+      it handles: filters, order_by, search, limit and offset
+      according to pagination.
     */
     $scope.getParams = function(params) {
       var params = angular.extend({
+        offset: $scope.limit * ($scope.page - 1),
+        limit: $scope.limit,
         order_by: JSON.stringify($scope.orderBy.choice.value.split('|'))
       }, params);
       return params;
-    }
+    };
 
     /*
       Call the right api to execute the desired command.

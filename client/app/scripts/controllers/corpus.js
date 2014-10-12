@@ -44,6 +44,7 @@ angular.module('svenClientApp')
         }),
         function(data) {
           $log.info('loading documents', data);
+          $scope.totalItems = data.meta.total_count;
           $scope.items = data.objects;
         },
         function(){}
@@ -80,7 +81,11 @@ angular.module('svenClientApp')
       });
     };
 
-    $scope.$watch('orderBy.choice', function(){
+    $scope.$on(API_PARAMS_CHANGED, function(){
+      $log.debug('CorpusDocumentsCtrl @API_PARAMS_CHANGED');
       $scope.sync();
     });
+
+    // start
+    $scope.sync();
   })

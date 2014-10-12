@@ -7,13 +7,14 @@
       </button>
       <ul class="dropdown-menu" role="menu">
         <li ng-repeat="choice in orderBy.choices">
-          <a ng-click="switchOrderBy(choice)">{{choice.label}}</a>
+          <a ng-click="changeOrderBy(choice)">{{choice.label}}</a>
         </li>
       </ul>
     </div>
       
   
-    <pagination class="btn-group" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()"></pagination>
+    <pagination class="btn-group" max-size="5" items-per-page="limit" boundary-links="true" total-items="totalItems" ng-model="$parent.$parent.page" ng-change="changePage($parent.$parent.page)"></pagination>
+    <!-- pagination behaviour create a specific controller. that's why parent.parent, in order to match page model in coreController ... aje-->
 
 </div>
 
