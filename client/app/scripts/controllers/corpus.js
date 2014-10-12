@@ -32,10 +32,12 @@ angular.module('svenClientApp')
     url corpus/<corpus_id>/documents
 
   */
-  .controller('CorpusDocumentsCtrl', function ($scope, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
+  .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
     
-    
+    $scope.document = {
+      date: new Date()
+    };  
 
     $scope.sync = function() {
       DocumentsFactory.query(
@@ -69,6 +71,7 @@ angular.module('svenClientApp')
         id: $routeParams.id
       },{
         mimetype: 'text/html',
+        date: $filter('date')($scope.document.date, 'dd/MM/yyyy'),//$scope.document.date,
         name: $scope.document.url
           .replace(/http:\/\/w+/g,'')
           .replace(/[^\w]/g, ' ')
@@ -79,6 +82,12 @@ angular.module('svenClientApp')
         console.log(data);
         data.object && $location.path('/document/' + data.object.id);
       });
+    };
+
+    $scope.openDatePicker = function($event) {
+      $event.preventDefault();
+      $event.stopPropagation();
+      $scope.opened = true;
     };
 
     $scope.$on(API_PARAMS_CHANGED, function(){

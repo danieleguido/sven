@@ -1,8 +1,8 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
 <h4>documents</h4>
 <div>
-  <span ng-repeat="(key, filter) in filters">
-    {{filter}} <i class="fa fa-remove" ng-click="removeFilter(key, filter)"></i>
+  <span ng-repeat="(key, item) in filtersItems">
+    {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
   </span>
 </div>
 <div class="btn-toolbar" role="toolbar">
@@ -29,9 +29,9 @@
       <span class="action" tooltip="remove this document" ng-click="remove(doc)"><i class="fa fa-trash"></i>
     </div>
     <div style="margin-left:36px">
-      <h4><a href="#/document/{{doc.id}}">{{doc.name}}</a></h4>
+      <h4><span>{{doc.date|date:'dd MMM yyyy'}}</span> <a href="#/document/{{doc.id}}">{{doc.name}}</a></h4>
       
-      <span class="tag" ng-repeat="tag in doc.tags.actor" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+      <span class="tag" ng-repeat="tag in doc.tags.actor" ng-click="changeFilter('tags__slug', tag.slug, tag)" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
       <div class="abstract">
       {{doc.abstract}}
       </div>

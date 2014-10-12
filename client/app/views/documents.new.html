@@ -10,8 +10,20 @@
         <input type="url" autofocus required ng-model="document.url" class="form-control">
           
       </div>
+      <div>
+        <label>date</label>
+      </div>
+      <div>
+          <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup='dd-MMMM-yyyy' ng-model="document.date" is-open="opened" min-date="'1900-06-22'" max-date="'2015-06-22'" ng-required="true" close-text="Close" />
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="openDatePicker($event)"><i class="fa fa-calendar"></i></button>
+            </span>
+          </p>
+      </div>
+
       <div class="form-group">
-        <button class="btn btn-default btn-block">add document</button>
+        <button class="btn btn-primary btn-block">add document</button>
       </div>
 
     </form>

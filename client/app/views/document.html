@@ -3,10 +3,10 @@
   <div class="col-lg-6" >
 
     <h2>{{document.name}}</h2>
-    <p>
-      {{document.date_created | date:'yyyy MMM dd'}}
-    </p>
-
+    <h3>
+      {{document.date| date:'dd MMM yyyy'||'no date specified'}}
+    </h3>
+    <p>uploaded on {{document.date_created | date:'yyyy MMM dd'}}</p>
     <p class="tags">
       <span class="tag" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
     </p>

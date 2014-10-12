@@ -9,7 +9,9 @@
  */
 angular.module('svenClientApp')
   .controller('DocumentsCtrl', function ($scope, $log, $location, DocumentsFactory) {
-    $scope.document = {}// new document
+    $scope.document = {
+      date: new Date()
+    }// new document
     $scope.items = []; // current list of items
 
     $log.debug('DocumentsCtrl ready on corpus:', $scope.$parent.corpus.name||'not set');

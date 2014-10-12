@@ -65,6 +65,9 @@ angular.module('svenClientApp')
 
     // current documents filters (tags, language, date)
     $scope.filters = {};
+    $scope.filtersItems = {}; // the collection of actual emlement in order not to reload every time filters vars
+
+    $scope.now = new Date(); // today datetime
 
     // current documents orderby(s). Watch for $scope.$watch('orderBy.choice') 
     $scope.orderBy = {
@@ -197,16 +200,20 @@ angular.module('svenClientApp')
     };
 
 
-    $scope.changeFilter = function(key, filter) {
+    $scope.changeFilter = function(key, filter, item) {
       $scope.filters[key] = filter;
+      $scope.filtersItems[key] = angular.extend({
+        filter: filter
+      }, item);
       $scope.$broadcast(API_PARAMS_CHANGED);
     };
 
     $scope.removeFilter = function(key, filter) {
       if($scope.filters[key] == filter) {
         delete $scope.filters[key];
+        delete $scope.filtersItems[key];
       };
-      
+
       $scope.$broadcast(API_PARAMS_CHANGED);
     };
     /*
@@ -235,6 +242,7 @@ angular.module('svenClientApp')
       return params;
     };
 
+
     /*
       Call the right api to execute the desired command.
       For a list of all available cmd please cfr. ~/sven/management/start_job.py
@@ -251,14 +259,14 @@ angular.module('svenClientApp')
       })
     };
 
+
     /*
-      change the main corpus, enabling upload on it.
+      change the main corpus cookie, enabling upload on it.
     */
     $scope.activate = function(corpus) {
       $cookies.corpusId = corpus.id;
       toast('activating corpus ...');
     }
-
 
 
     /*
