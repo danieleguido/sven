@@ -14,6 +14,19 @@ angular.module('svenClientApp')
 
     $scope.measure = 'tf'; // tf | tf_idf
 
+    $scope.$parent.page = 2; // reset page
+    $scope.$parent.limit = 50;
+
+    $scope.$parent.orderBy.choices = [
+        {label:'tf', value:'tf DESC'},
+        {label: 'tfidf', value:'tfidf DESC'},
+        {label:'by name a-z', value:'cluster ASC'},
+        {label:'by name z-a', value:'cluster DESC'}
+      ];
+    $scope.$parent.orderBy.choice = {label:'tf', value:'tf DESC'};
+    
+    
+
 
     $scope.$watch('corpora', function(){// pseudo react diff. looking for the local corpus among different corpora
       for(var i=0; i<$scope.$parent.corpora.length; i++) {
@@ -28,9 +41,23 @@ angular.module('svenClientApp')
       window.open('/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
     };
 
-    $routeParams.id && ConceptsFactory.query({id: $routeParams.id}, function(data){
-      console.log(data); // pagination needed
-      $scope.clusters = data.objects;
-      $scope.groups = data.groups;
+    $scope.sync = function() {
+      $routeParams.id && ConceptsFactory.query(
+        $scope.getParams({
+          id:$routeParams.id
+        }), function(data){
+          console.log(data); // pagination needed
+          $scope.totalItems = data.meta.total_count;
+          
+          $scope.clusters = data.objects;
+          $scope.groups = data.groups;
+      });
+    };
+
+    $scope.$on(API_PARAMS_CHANGED, function(){
+      $log.debug('ConceptsCtrl @API_PARAMS_CHANGED');
+      $scope.sync();
     });
+
+    $scope.sync();
   });

@@ -9,7 +9,7 @@
 angular.module('svenClientApp')
   .directive('concepts', function () {
     return {
-      template: '<div class="viewer"></div>',
+      template: '<div class="mouse tooltip">...</div><div class="viewer"></div>',
       restrict: 'E',
       scope: {
         data: '=',
@@ -17,18 +17,38 @@ angular.module('svenClientApp')
         groups: '='
       },
       link: function postLink(scope, element, attrs) {
-        var matrix = snark
-            .matrix()
-            .init(d3.select(".viewer"));
+        var tooltip = d3.select("div.tooltip.mouse"),
+            matrix   = snark
+              .matrix()
+              .init(d3.select(".viewer"));
         
-
+        $('.viewer').on('scroll', function(e){
+          matrix.onscroll({
+            left: $(this).scrollLeft()
+          });
+        }).on("mouseenter", "circle", function() {
+          if(!scope.data) return;
+          tooltip
+            .style("opacity", 1)
+            .text('ciao');
+          
+        }).on("mousemove", "circle", function(event) {
+          tooltip
+            .style("opacity", 1)
+            .style("left", Math.max(0, event.offsetX) +  "px")
+            .style("top", (event.pageY - 10) + "px");
+        }).on("mouseleave",  "circle", function() {
+          tooltip
+            .style("opacity", 0)
+          });
 
         var render = function() {
           // get positions for each set
         
           if(scope.data)
             matrix
-              .data(scope.data)
+              .headers(scope.groups)
+              .data(scope.data, function(d) {return d.cluster;})
               .update({ measure:scope.measure||'tf'})
           
         }

@@ -52,7 +52,7 @@ angular.module('svenClientApp')
     $scope.jobs = [];
 
     // current pagination page
-    $scope.page = 0;
+    $scope.page = 1;
 
     // limit result per page
     $scope.limit = 20;

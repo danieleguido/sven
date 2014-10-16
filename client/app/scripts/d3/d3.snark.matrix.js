@@ -28,6 +28,7 @@
         margin = {top: 12, right: 12, bottom: 12, left: 12},
 
         _data = [],
+        _headers = [],
         _svg, // the svg container
         
         _key = function(d){
@@ -35,7 +36,7 @@
         };
 
 
-        
+    
 
     matrix.init = function(container){
       _svg = container
@@ -59,12 +60,27 @@
       return matrix;
     };
 
+    matrix.headers = function(v) {
+      if (!arguments.length) return _headers;
+      _headers = v;
+      return matrix;
+    };
+
+
+    matrix.onscroll = function(offset) {
+      _svg
+        .selectAll(".block text")
+        .attr('transform', function(d,i) {
+          return 'matrix(' + [1, 0, 0, 1, offset.left, 0].join(' ') + ')';
+        });
+    };
+
     /*
       enable update enter exit pattern
     */
     matrix.update = function(options){
       if(!_data.length)
-        throw "timeline.init does not have data associated";
+        throw "matrix.update error. There aren't any data associated";
       // calculate local max and min
       var options = options || {
             measure: 'tf'
@@ -77,7 +93,7 @@
             .selectAll(".block")
             .data(_data, _key);
       
-      
+      // cfr http://bost.ocks.org/mike/nest/
       matrix.draw(elements, {
         min: local_min,
         max: local_max,
@@ -91,18 +107,79 @@
     matrix.draw = function(elements, options) {
       console.log(options);
       
-      var size = d3.scale.linear()
+      var size = d3.scale.log()
+    .base(Math.E)
         .domain([options.min, options.max])
         .range([2,18]),
 
         update_selection = elements,
         enter_selection = elements.enter()
-          .append("g")
-          .attr("class", "block")
+          .append('g')
+          .attr('class', 'block')
+
+        // set basic transform for each row
+        enter_selection
+          .attr('transform', function(d,i) {
+            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
+          });
+
+        // write text labels (they won't change)
+        enter_selection
+          .append('text')
+            .text(function(d) {
+              return d.cluster || '...'
+            });
+
+        // adding columns based on headers
+        enter_selection
+          .selectAll('rect')
+            .data(function(d,i) {
+              return _headers.map(function(o) { // put this function outside
+                for(var j=0; j<d.tags.length;j++)
+                  if(d.tags[j].id==o.id) {
+                    //o.tf = d.tags[j].tf;
+                    //o.tfidf = d.tags[j].tfidf;
+                    return {
+                      tf: d.tags[j].tf,
+                      tfidf: d.tags[j].tfidf
+                    };
+                  }
+                return o;
+              });
+            })
+            .enter()
+              .append('circle')
+
+              .attr('r', function(d){
+                return d[options.measure]? Math.max(1, size(d[options.measure])):1;
+              })
+              .attr('cx', function(d,i) {
+                return i*7 + 100;
+              });
+
+
+        update_selection
+          .transition(500)
+          .attr('transform', function(d,i) {
+            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
+          });
+
+        update_selection
+          .exit()
+          .remove()
+          
+
+      return;
+
+
         
       // update row elements
 
-
+      update_selection
+        .selectAll(".block")
+        .attr("y", function(d,i) {
+          return i*26 + 26*2;
+        });
 
       enter_selection
         .append("text")
@@ -119,8 +196,13 @@
         .selectAll("circle.global")
         .transition()
           .duration(750)
-          .attr("r", function(d){ return size(d[options.measure])})
-          .style("fill", function(d){ return d[options.measure]==options.max?"rgb(25,158,154)":"#333333"})
+          .attr("r", function(d){ return Math.max(1, size(d[options.measure]))})
+          .attr("cx", 250)
+          .attr("cy", function(d, i) {
+            console.log('changing', i)
+            return i*26 + 26*2;
+          })
+          //.style("fill", function(d){ return d[options.measure]==options.max?"rgb(25,158,154)":"#333333"})
       
 
 
@@ -128,43 +210,56 @@
       enter_selection
         .append("circle")
         .attr("class", "global")
-        .style("fill", "#333333")
         .attr("fill-opacity", .3)
-        .attr("r", function(d){return size(d[options.measure])})
+        .attr("r", function(d){return Math.max(1, size(d[options.measure]))})
         .attr("class", "circle")
         .attr("cx", 250)
         .attr("cy", function(d, i) {
           return i*26 + 26*2;
         })
 
+      update_selection
+        .exit()
+        .remove()
+
 
       // for each actor. calculate actor max et actor min
-      for(var i=0; i< _data[0].tags.length; i++) {
-
-        console.log('hello', i, _data[0].tags[i])
-        update_selection
+      for(var i=0; i< Math.min(_headers.length, 50); i++) {
+        var column_id = _headers[i].id,
+            radius = function(d){ 
+          var match = d.tags.filter(function(j){
+            return j.id == column_id
+          });
+          try{
+            //if(match.length)
+              //console.log(match, options.measure , match[0][options.measure])
+            return match.length? Math.max(2, size(match[0][options.measure])): 1
+          } catch(err) {
+            console.log(d, 'has error', err)
+            return 1;
+          }
+        };
+        
+        /*update_selection
           .selectAll("circle.tag")
           .transition()
           .duration(750)
-          .attr("r", function(d){ return d.tags[i]?
-            size(d.tags[i][options.measure]):
-            1
-          })
-
+          .attr("r", radius)
+          */
+        
         enter_selection
           .append("circle")
-          .attr("class", "tag "+_data[0].tags[i].id)
-          .style("fill", "#333333")
+          .attr("class", "tag  "+ column_id)
+          //.style("fill", "#333333")
           .attr("fill-opacity", .4)
-          .attr("r", function(d){ return d.tags[i]?
-            size(d.tags[i][options.measure]):
-            1
-          })
-          .attr("cx", 280 + (i+1)*60)
-          .attr("cy", function(d, i) {
-            return i*26 + 26*2;
+          .attr("r", radius)
+          
+          .attr("cx", 280 + (i+1)*20)
+          .attr("cy", function(d, j) {
+            return j*26 + 26*2;
           })
         //_data[0].tags[i][options.measure]
+        
       }
       
 
