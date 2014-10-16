@@ -72,6 +72,7 @@ class Command(BaseCommand):
 
   def _tfidf(self, job):
     import math
+    from django.db.models import F
     from sven.distiller import dictfetchall
 
     number_of_documents = job.corpus.documents.count()
@@ -132,13 +133,19 @@ class Command(BaseCommand):
         with transaction.atomic():  
           # for each cluster, calculate df value inside the overall corpus.
           df = float(cluster['distribution'])/number_of_documents
-          
+          ## UPDATE sven_document_segment SET tfidf = tf*2 WHERE document_id = 218 
+          #
+          Document_Segment.objects.filter(
+            segment__cluster=cluster['cluster'],
+            segment__language=language
+          ).update(tfidf=F('tf') * math.log(1/df))
+          # .update
           # group by cluster and update value for the document_segment table. TFIDF is specific for each couple.
-          for ds in Document_Segment.objects.filter(segment__cluster=cluster['cluster'], segment__language=language):
-            ds.tfidf = ds.tf * math.log(1/df) 
-            ds.wfidf = ds.wf * math.log(1/df)
-            #print i, cluster['cluster'], df, ds.tf, ds.tfidf
-            ds.save()
+          #for ds in Document_Segment.objects.filter(segment__cluster=cluster['cluster'], segment__language=language):
+          #  ds.tfidf = ds.tf * math.log(1/df) 
+          #  ds.wfidf = ds.wf * math.log(1/df)
+          #  #print i, cluster['cluster'], df, ds.tf, ds.tfidf
+          #  ds.save()
 
           job.completion = 1.0*step/number_of_clusters
           job.save()

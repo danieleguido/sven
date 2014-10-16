@@ -439,11 +439,21 @@ def corpus_segments(request, corpus_pk):
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
   if not epoxy.order_by:
-    epoxy.order_by = ['max_tf DESC']
+    epoxy.order_by = ['tf DESC', 'distribution DESC']
+
+  # translate orderby -tf, tf or -tfidf, tfidf
+
 
   # total count
   cursor = connection.cursor()
-  cursor.execute("SELECT COUNT(distinct cluster) FROM sven_segment")
+  cursor.execute("""
+    SELECT
+      COUNT(distinct cluster)
+    FROM sven_segment
+      WHERE corpus_id = %(corpus_id)s
+    """ % {
+    'corpus_id': cor.id
+  })
 
   row = cursor.fetchone()
   epoxy.meta('total_count', row[0]) # luster pagination
@@ -451,56 +461,74 @@ def corpus_segments(request, corpus_pk):
     SELECT 
       s.`id`, s.`content`,s.`language`, 
       s.`cluster`, s.`status`, 
-      MAX( ds.`tfidf`) AS `max_tfidf`,
-      MAX( ds.`tf`) AS `max_tf`,
+      MAX( ds.`tfidf`) AS `tfidf`,
+      MAX( ds.`tf`) AS `tf`,
       COUNT(DISTINCT ds.document_id) AS `distribution` 
     FROM sven_segment s
       JOIN sven_document_segment ds ON s.id = ds.segment_id 
       JOIN sven_document d          ON ds.document_id = d.id
       JOIN sven_corpus c            ON d.corpus_id = c.id
-    WHERE c.id = %s
+    WHERE c.id = %(corpus_id)s
     GROUP BY s.cluster
-    ORDER BY max_tf DESC, distribution DESC
-    LIMIT %s, %s
-    """,[cor.id,  epoxy.offset, epoxy.limit]
-  )
+    ORDER BY %(order_by)s
+    LIMIT %(offset)s, %(limit)s
+    """ % {
+    'corpus_id': cor.id,
+    'order_by': ','.join(epoxy.order_by + ['distribution DESC']),
+    'offset': epoxy.offset,
+    'limit': epoxy.limit
+  })
 
 
   # for each segments, tf e tfidf value for each actor...
   clusters = [{
     'id': s.id,
-    'tf': s.max_tf,
-    'tf_idf': s.max_tfidf,
+    'tf': s.tf,
+    'tf_idf': s.tfidf,
     'status': s.status,
     'cluster': s.cluster,
     'distribution': s.distribution,
     'content': s.content,
     'tags': []
-  } for s in segments];
+  } for s in segments]
 
-  
-  tags = Tag.objects.raw("""
+  # computate group limit and group offset
+  g_offset = 0
+  g_limit = 150
+
+  # if goruping on TAG: get the grouping, with limit and offsets as well
+  tags = Tag.objects.filter(document__corpus=cor)[g_offset:g_offset+g_limit]
+  groups = [ '%s' % g.id for g in tags]
+
+  epoxy.meta('ids', groups)
+
+  segments_tags = Segment.objects.raw("""
     SELECT 
-        t.`id`, t.name, t.slug, s.cluster,
-        AVG(ds.`tfidf`) as tf_idf,
-        AVG(ds.`tf`) as tf
-    FROM sven_tag t
-      JOIN sven_document_tags dt on dt.tag_id = t.id
-      JOIN sven_document_segment ds on ds.document_id = dt.document_id
-        JOIN   sven_segment s on ds.segment_id = s.id
-    where s.corpus_id=%s AND s.cluster IN ("%s")
-    group by t.id, s.cluster
-    """ % (cor.id, '","'.join([c['cluster'] for c in clusters])))
+      s.`id`, s.cluster, dt.tag_id,
+      MAX(ds.tf) as tf,
+      MAX(ds.tfidf) as tf_idf
+    FROM sven_segment s 
+      JOIN sven_document_segment ds ON ds.segment_id = s.id
+      JOIN sven_document_tags dt ON dt.document_id = ds.document_id
+    WHERE s.corpus_id = %(corpus_id)s
+      AND dt.tag_id IN ("%(tag_ids)s")
+      AND s.cluster IN ("%(clusters_ids)s")
+    GROUP BY dt.tag_id, s.cluster
+
+    """ % {
+      'corpus_id': cor.id,
+      'tag_ids': '","'.join(groups),
+      'clusters_ids': '","'.join([c['cluster'] for c in clusters])
+    })
 
 
 
   tags_per_clusters = [{
-    'id': t.id,
-    'name': t.name,
+    'id': t.tag_id,
     'tf': t.tf,
     'tf_idf': t.tf_idf,
     'cluster': t.cluster
-  } for t in tags];
+  } for t in segments_tags];
 
   for c in clusters:
     for t in tags_per_clusters:
@@ -509,7 +537,7 @@ def corpus_segments(request, corpus_pk):
 
 
   epoxy.add('objects', clusters)
-  epoxy.add('groups', [t.json() for t in Tag.objects.filter(document__corpus=cor).all()])
+  epoxy.add('groups', [t.json() for t in tags])
 
 
   return epoxy.json()
