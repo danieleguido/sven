@@ -222,6 +222,15 @@ def document(request, pk):
   except Exception,e:
     logger.exception(e)
 
+  if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
+    form = edit_object(instance=d, Form=DocumentForm, epoxy=epoxy)
+    if not form.is_valid():
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+    
+    d.save()
+    epoxy.item(d, deep=False)
+    
+
   return epoxy.json()
 
 

@@ -21,8 +21,11 @@ class CorpusForm(forms.ModelForm):
 
 
 class DocumentForm(forms.ModelForm):
+  date = forms.DateTimeField(input_formats=['%Y-%m-%d'])
+  
   class Meta:
     model = Document
+
     exclude = ['corpus', 'slug', 'language']
 
 

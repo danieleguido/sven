@@ -333,6 +333,21 @@ li.spacer{
 
 
 /*~~~~~~~~//////~~~~~~~~*/
+.btn-link {
+  font-weight: normal;
+  color: #666;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+  border-bottom: 1px solid #666;
+}
+
+.btn-link:hover{
+  text-decoration: none;
+  color: #181818;
+  border-bottom: 1px solid #181818;
+}
+
 .tooltip {
   pointer-events:none; /*let mouse events pass through*/
   opacity:0;

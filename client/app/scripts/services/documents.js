@@ -17,6 +17,7 @@ angular.module('svenClientApp')
   .factory('DocumentFactory', function($resource) {
     return $resource('/api/document/:id', {}, {
       query: {method: 'GET', isArray: false, params: {id: '@id'} },
+      save: {method: 'POST', isArray: false, params: {id: '@id'} },
       remove: {method: 'DELETE', params: {id: '@id'} }
     });
   })
