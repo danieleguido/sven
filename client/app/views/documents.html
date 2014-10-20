@@ -1,5 +1,5 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
-<h4>documents</h4>
+<h4>{{totalItems}} documents</h4>
 <div>
   <span ng-repeat="(key, item) in filtersItems">
     {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>

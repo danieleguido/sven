@@ -103,7 +103,7 @@ body {
   top:0;
   left: 0;
   z-index: 1001;
-  border-bottom: 1px solid #ddd;
+  /*border-bottom: 1px solid #ddd;*/
   background: #fff;
   font: 1em/40px sans-serif;
   top: -100px;
@@ -181,7 +181,7 @@ li.spacer{
 
 .sidebar-nav li.profile{
   padding: 20px;
-  border-bottom: 1px solid #ddd;
+  /*border-bottom: 1px solid #ddd;*/
 }
 
 .sidebar-nav li.a {
@@ -337,11 +337,20 @@ li.spacer{
   pointer-events:none; /*let mouse events pass through*/
   opacity:0;
   text-align: center;
-  background: #383838;
+  /* background: #383838; */
   color: white;
   transition: opacity .3s;
   padding: 4px 7px;
   border-radius:2px;
+}
+
+.tooltip .tooltip-inner{
+  background: #383838;
+  padding: 7px 11px;
+}
+
+.tooltip .tooltip-arrow{
+  display: none;
 }
 
 

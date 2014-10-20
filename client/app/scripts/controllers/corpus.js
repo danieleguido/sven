@@ -34,7 +34,15 @@ angular.module('svenClientApp')
   */
   .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
+    // reset orderby
+    $scope.$parent.orderBy.choices = [
+        {label:'by date added', value:'-date_created'},
+        {label:'by date', value:'date'},
+        {label:'by name', value:'name'}
+      ];
+    $scope.$parent.orderBy.choice = $scope.$parent.orderBy.choices[0];
     
+
     $scope.document = {
       date: new Date()
     };  

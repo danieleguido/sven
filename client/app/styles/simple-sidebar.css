@@ -28,11 +28,11 @@
     overflow-y: auto;
     overflow-x: hidden;
     background: #fff;
-    border-right: 1px solid #ddd;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+    /*border-right: 1px solid #ddd;*/
+    -webkit-transition: all 0.38s ease-in-out;
+    -moz-transition: all 0.38s ease-in-out;
+    -o-transition: all 0.38s ease-in-out;
+    transition: all 0.38s ease-in-out;
 }
 
 #sidebar-wrapper.RUNNING{
@@ -40,7 +40,7 @@
 }
 
 #wrapper.toggled #sidebar-wrapper {
-    width: 250px;
+    left: 0;
 }
 
 #page-content-wrapper {
@@ -79,7 +79,7 @@
 .sidebar-nav > .sidebar-brand {
     color: #666;
     display: block;
-    border-bottom: 1px solid #ddd;
+    /*border-bottom: 1px solid #ddd;*/
 }
 
 

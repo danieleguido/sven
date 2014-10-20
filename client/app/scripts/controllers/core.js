@@ -55,7 +55,7 @@ angular.module('svenClientApp')
     $scope.page = 1;
 
     // limit result per page
-    $scope.limit = 20;
+    $scope.limit = 50;
 
     // offset result per page, internal use
     $scope.offset = 0;
