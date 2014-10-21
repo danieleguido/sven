@@ -79,7 +79,7 @@ angular.module('svenClientApp')
         id: $routeParams.id
       },{
         mimetype: 'text/html',
-        date: $filter('date')($scope.document.date, 'dd/MM/yyyy'),//$scope.document.date,
+        date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),//$scope.document.date,
         name: $scope.document.url
           .replace(/http:\/\/w+/g,'')
           .replace(/[^\w]/g, ' ')

@@ -1,5 +1,15 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
 <h4>{{totalItems}} documents</h4>
+
+<div class="nav">
+  <a class="left" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
+                        <span>add url</span> <i class="fa fa-plus"></i>
+                      </a> 
+  <div class="uploader btn-link" ng-file-select="onFileSelect($files)" data-multiple="true">
+                        <span>upload</span> <i class="fa fa-upload"></i>
+                      </div>
+</div>
+
 <div>
   <span ng-repeat="(key, item) in filtersItems">
     {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>

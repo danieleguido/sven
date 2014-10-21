@@ -264,6 +264,7 @@ angular.module('svenClientApp')
       change the main corpus cookie, enabling upload on it.
     */
     $scope.activate = function(corpus) {
+      if($cookies.corpusId == corpus.id) return;
       $cookies.corpusId = corpus.id;
       toast('activating corpus ...');
     }

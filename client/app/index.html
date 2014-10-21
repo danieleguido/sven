@@ -57,16 +57,20 @@
 
                   </div>
 
-                </li> 
-                <li class="corpus sidebar-brand">
+                </li>
+
+
+                
+                <li class="spacer"></li>
+                <!-- li class="corpus sidebar-brand">
           
                   <a ng-href="#/corpus/{{corpus.id}}">
                     <h4>{{corpus.name}}
                       <div ng-show="corpus.jobs.length" class="percentage {{corpus.jobs[0].status}}"> {{corpus.jobs[0].completion|percentage}}</div>
                     </h4>
-                  </a>
+                  </a -->
 
-                  <a href="#/corpus/{{corpus.id}}/documents" style="text-indent: 0;">
+                  <!-- a href="#/corpus/{{corpus.id}}/documents" style="text-indent: 0;">
                     <strong>{{corpus.count.documents}}</strong> documents</a>,
                   <a href="#/corpus/{{corpus.id}}/concepts" style="text-indent: 0;">
                     <strong>{{corpus.count.clusters}}</strong> concepts</a>
@@ -82,50 +86,34 @@
                         <span>upload</span> <i class="fa fa-upload"></i>
                       </div>
                     </div>
-                  </div>
-                  <div ng-show="corpus.jobs.length" class="bar {{corpus.jobs[0].status}}">
-                    <div class="completion" style="width:{{corpus.jobs[0].completion*100}}%"></div>
+                  </div -->
+                  <!-- div ng-show="corpus.jobs.length" class="bar {{corpus.jobs[0].status}}">
+                    <div class="completion" style="width:{{corpus.jobs[0].completion*100}}%"></div -->
 
                     <!-- div class="spinner" ng-show="corpus.jobs[0].status=='RUN'" style="left:{{corpus.jobs[0].completion*100}}%">
                         <div class="double-bounce1"></div>
                         <div class="double-bounce2"></div>
                       </div-->
-                  </div>
-                </li>
+                  <!-- /div>
+                </li -->
                 <!-- other (not selected) user's corpora -->
-                <li class="corpus" ng-repeat="cor in corpora" ng-if="cor.id != corpus.id">
-                  <div class="row">
-                    <div class="col-lg-6 col-xs-6">
-                      <a ng-click="activate(cor)"><!--ng-href="#/corpus/{{cor.id}}"-->
-                          {{cor.name}} <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}"> {{cor.jobs[0].completion|percentage}}</span>
-                      </a>
+                <li class="corpus {{corpus.id == cor.id? 'selected': ''}}" ng-repeat="cor in corpora">
+                  <a ng-click="activate(cor)" ng-href="#/corpus/{{cor.id}}/documents">
+                    {{cor.name}}
+                    <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}">
+                        {{cor.jobs[0].completion|percentage}}
+                    </span>
+                    <div ng-show="cor.jobs.length" class="bar {{cor.jobs[0].status}}">
+                      <div class="completion" style="width:{{cor.jobs[0].completion*100}}%"></div>
                     </div>
-                    <!-- div class="col-lg-6 col-xs-6" style="text-align: right">
-                      {{cor.count.documents || 0}} documents 
-                    </div -->
-                  </div>
-                  <!-- div class="row">
-                    <div class="col-lg-7">
-                      <a href="#/corpus/{{cor.id}}/documents" style="text-indent: 0">
-                       <strong>{{cor.count.documents || 0}}</strong> documents 
-                      </a>
-                    </div>
-                    <div class="col-lg-5">
-                      <div ng-click="activate(cor)" style="margin-right: 10px; text-indent: 0; text-align:right">
-                        activate
-                      </div>
-                    </div>
-                  </div -->
-                  <div ng-show="cor.jobs.length" class="bar {{cor.jobs[0].status}}">
-                    <div class="completion" style="width:{{cor.jobs[0].completion*100}}%"></div>
-                  </div>
+                  </a>
                 </li>
 
-                <li class="spacer"></li>
                 
-                <li>
+                
+                <!-- li>
                     <a href="#">Contact</a>
-                </li>
+                </li -->
             </ul>
             
         </div>
@@ -214,6 +202,7 @@
         <script src="{{STATIC_URL}}/app/scripts/directives/concepts.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/controllers/stopwords.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/controllers/search.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/directives/vimeo.js"></script>
         <!-- endbuild -->
 
     <script>

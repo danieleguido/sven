@@ -433,11 +433,17 @@ class Tag(models.Model):
   OEMBED_PROVIDER_NAME = 'OP' #tag specify an oembed field...
   OEMBED_TITLE = 'OT' #tag specify an oembed field...
   OEMBED_THUMBNAIL_URL = 'OH'
+  OEMBED_VIDEO_ID = 'OI'
+  OEMBED_HEIGHT = 'Oh'
+  OEMBED_WIDTH = 'Ow'
 
   TYPE_OEMBED_CHOICES = (
     (OEMBED_PROVIDER_NAME, 'oembed_provider_name'),
     (OEMBED_TITLE, 'oembed_title'),
     (OEMBED_THUMBNAIL_URL, 'oembed_thumbnail_url'),
+    (OEMBED_VIDEO_ID, 'oembed_video_id'),
+    (OEMBED_HEIGHT, 'oembed_height'),
+    (OEMBED_WIDTH, 'oembed_width'),
   )
 
   name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
@@ -515,8 +521,12 @@ class Document(models.Model):
 
     for t in self.tags.all():
       k = t.get_type_display()
+      if t.type in [Tag.OEMBED_PROVIDER_NAME, Tag.OEMBED_VIDEO_ID]:
+        d['tags'][k] = t.json()
+        continue
       if k not in d['tags']:
         d['tags'][k] = []
+
       d['tags'][k].append(t.json())
 
     if self.raw:
@@ -714,13 +724,27 @@ class Document(models.Model):
       except micawber.exceptions.ProviderNotFoundException, e:
         pass
       else: # store as oembed tags
-        t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=oem['provider_name'])
-        t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=oem['title'])
-        t3, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=oem['thumbnail_url'])
-        
-        self.tags.add(t1)
-        self.tags.add(t2)
-        self.tags.add(t3)
+        if not self.id:
+          """
+          oem is something link 
+          {u'is_plus': u'0', u'provider_url': u'https://vimeo.com/', u'description': u'McTAVISH - Dedicated to the Craft Series\n\nDirected, Filmed & Edited:\nStefan Jos\xe9\nwww.stefanjosefilms.com\n@stefanjosefilms\n\nCompelled to spend his entire life riding waves Bob McTavish started building surfboards in 1962. Today, over 50 years later, his vision is alive and well at the McTavish Factory in Byron Bay, Australia.\nThis collection of portraits gives a glimpse into the people and moments that are ... dedicated to the craft.\n\nEpisode Two:\nSurfer: Christian Barker\nMusic: MT Warning\n\nmctavish.com.au\n@mctavishsurf', u'uri': u'/videos/105104354', u'title': u"MCTAVISH - 'Dedicated to the Craft Series'  Episode two:  Christian Barker", 'url': u'http://vimeo.com/105104354', u'video_id': 105104354, u'html': u'<iframe src="//player.vimeo.com/video/105104354" width="1280" height="546" frameborder="0" title="MCTAVISH - &#039;Dedicated to the Craft Series&#039;  Episode two:  Christian Barker" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>', u'author_name': u'Stefan Jos\xe9 Films', u'height': 546, u'thumbnail_width': 1280, u'width': 1280, u'version': u'1.0', u'author_url': u'http://vimeo.com/stefanjosefilms', u'duration': 367, u'provider_name': u'Vimeo', u'thumbnail_url': u'http://i.vimeocdn.com/video/487826345_1280.jpg', u'type': u'video', u'thumbnail_height': 546}
+          """
+          self.name = oem['title']
+          super(Document, self).save()
+        with transaction.atomic():
+          t1, created = Tag.objects.get_or_create(type=Tag.OEMBED_PROVIDER_NAME, name=oem['provider_name'])
+          t2, created = Tag.objects.get_or_create(type=Tag.OEMBED_TITLE, name=oem['title'])
+          t3, created = Tag.objects.get_or_create(type=Tag.OEMBED_THUMBNAIL_URL, name=oem['thumbnail_url'])
+          t4, created = Tag.objects.get_or_create(type=Tag.OEMBED_VIDEO_ID, name=u'%s'%oem['video_id'])
+          t5, created = Tag.objects.get_or_create(type=Tag.OEMBED_HEIGHT, name=u'%s'%oem['height'])
+          t6, created = Tag.objects.get_or_create(type=Tag.OEMBED_WIDTH, name=u'%s'%oem['width'])
+          
+          self.tags.add(t1)
+          self.tags.add(t2)
+          self.tags.add(t3)
+          self.tags.add(t4)
+          self.tags.add(t5)
+          self.tags.add(t6)
     #except Exception, e:
     #  logger.exception(e)
 
