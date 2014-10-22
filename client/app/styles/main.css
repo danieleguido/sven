@@ -346,16 +346,32 @@ li.spacer{
   background: #fafafa;
   margin: 0px 6px;
 }
+
 .tag:hover{
   color: black;
 }
+
 .tags{
   padding: 12px;
 }
 
+/*
+  ~~~~~~~~////////////////~~~~~~~~
+          SINGLE PAGE ITEM
+  ~~~~~~~~////////////////~~~~~~~~
+*/
+.big-item{
+  margin-top: 40px;
+  position: relative;
+}
 
 
-/*~~~~~~~~//////~~~~~~~~*/
+
+/*
+  ~~~~~~~~~//////////////~~~~~~~~~
+           BOOTSTRAP MODS
+  ~~~~~~~~~//////////////~~~~~~~~~
+*/
 .btn-link {
   font-weight: normal;
   color: #666;

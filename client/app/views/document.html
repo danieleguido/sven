@@ -1,36 +1,35 @@
 <div class="row">
   <div class="loader" ng-if="!document.id"></div>
-  <div class="col-lg-6" >
-
-    <h2>{{document.name}}</h2>
-    <h3>
-      {{document.date| date:'dd MMM yyyy'}}
-    </h3>
-    <p>uploaded on {{document.date_created | date:'yyyy MMM dd'}}</p>
-    <p class="tags">
-      <span class="tag" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
-    </p>
-    {{document.tags.oembed_video_id}}
-    <div ng-if="document.tags.oembed_provider_name">
-      <div ng-switch="document.tags.oembed_provider_name.name">
-        <div ng-swith-when="vimeo">
-          <vimeo videoid="document.tags.oembed_video_id"></vimeo>
-          
+  <div class="col-sm-6" >
+    <!-- big document -->
+    <div class="big-item document">
+      <h2>{{document.name}}</h2>
+      <h3>
+        {{document.date| date:'dd MMM yyyy'}}
+      </h3>
+      <p>uploaded on {{document.date_created | date:'yyyy MMM dd'}}</p>
+      <p class="tags">
+        <span class="tag" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+      </p>
+      
+      <div ng-if="document.tags.oembed_provider_name">
+        <div ng-switch="document.tags.oembed_provider_name.name">
+          <div ng-swith-when="vimeo">
+            <vimeo width="100%" height="280" videoid="document.tags.oembed_video_id.name"></vimeo>
+            
+          </div>
         </div>
       </div>
+      <p>
+        <a ng-href="#/document/{{document.id}}/edit" class="btn btn-link" download>edit metadata <i class="fa fa-pencil"></i></a> | 
+        <a href="{{document.media_txt}}" class="btn btn-link" download>download plain text <i class="fa fa-download"></i></a><span ng-if="document.url">or
+        <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span>
+      </p>
+      <div class="content">
+      {{document.text}}
+      </div>
     </div>
-    <p>
-      <a ng-href="#/document/{{document.id}}/edit" class="btn btn-link" download>edit metadata <i class="fa fa-pencil"></i></a> | 
-      <a href="{{document.media_txt}}" class="btn btn-link" download>download plain text <i class="fa fa-download"></i></a><span ng-if="document.url">or
-      <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span>
-    </p>
-    <div class="content">
-
-    {{document.text}}
-
+    <!-- endof:big document -->
   </div>
-  </div>
-  <div class="col-lg-6">
-
-  <div class="col-lg-6">
+  <div class="col-sm-6"></div>
 </div>
