@@ -420,12 +420,15 @@ class Tag(models.Model):
   FREE = '' # i.e, no special category at all
   ACTOR = 'ac'
   INSTITUTION = 'in'
+  TYPE_OF_MEDIA = 'tm'
+
   ALCHEMY = {
     'City':'Ci'
   }
   
   TYPE_CHOICES = (
     (FREE, 'no category'),
+    (TYPE_OF_MEDIA, 'media, simple, complex'),
     (ACTOR, 'actor'),
     (INSTITUTION, 'Institution'),
   )

@@ -22,7 +22,8 @@ class CorpusForm(forms.ModelForm):
 
 class DocumentForm(forms.ModelForm):
   date = forms.DateTimeField(input_formats=['%Y-%m-%d'])
-  
+  tags = forms.CharField(required=False)
+
   class Meta:
     model = Document
 

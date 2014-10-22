@@ -1,35 +1,47 @@
+<div class="big-item">
 <h2>{{corpus.name}}</h2>
 <h4>Add document from url</h4>
 <div class="row">
   <div class="col-lg-6">
     
-    <form class="form-inline" role="form" ng-submit="saveUrl()">
-      <div><label>url address</label></div>  
-        
+    <form class="form" role="form" ng-submit="saveUrl()">
       <div class="form-group">
+        
+        <label>url address</label>
         <input type="url" autofocus required ng-model="document.url" class="form-control">
           
       </div>
-      <div>
-        <label>date</label>
+      <div class="form-group">
+        <label>url type (optional){{document.__url_type}}</label>
+        <select class="form-control" ng-model="document.__url_type">
+          <option selected value=""></option>
+          <option value="primary media">primary media</option>
+          <option value="secondary media">secondary media</option>
+        </select>
+          
       </div>
-      <div>
-          <p class="input-group">
+      <div  class="form-group">
+        
+        <label>date</label>
+        <p class="input-group">
             <input type="text" class="form-control" datepicker-popup='dd-MMMM-yyyy' ng-model="document.date" is-open="opened" min-date="'1900-06-22'" max-date="'2015-06-22'" ng-required="true" close-text="Close" />
             <span class="input-group-btn">
               <button type="button" class="btn btn-default" ng-click="openDatePicker($event)"><i class="fa fa-calendar"></i></button>
             </span>
-          </p>
-      </div>
+        </p>
 
+      </div>
       <div class="form-group">
-        <button class="btn btn-primary btn-block">add document</button>
-      </div>
 
+        <button class="btn btn-primary">add document</button>
+      
+      </div>
     </form>
+
     <p style="margin-top: 20px">
     The text of the document will be extracted from this link.
-          It could also be an image, Youtube video or Vimeo video: in this case, you have to add the corresponding text directly
+          It could also be an image, Youtube video or Vimeo video: in this case, please check the corresponding text.
     </p>
   </div>
+</div>
 </div>

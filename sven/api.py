@@ -1,4 +1,4 @@
-import subprocess, logging, math, langid
+import subprocess, logging, math, langid, json
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
@@ -169,6 +169,10 @@ def start(request, corpus_pk, cmd):
 
 @login_required(login_url='/api/login')
 def corpus_documents(request, corpus_pk):
+  '''
+  sample request you can test with on localhost:
+  http://localhost:8000/api/corpus/4/document?method=POST&tags=[{"type":"tm","tags":["primary media","secondary media"]}]&name=Test&indent&mimetype=text/plain&date=2014-09-24
+  '''
   epoxy = Epoxy(request)
   
   try:
@@ -177,14 +181,43 @@ def corpus_documents(request, corpus_pk):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
+    
+    if 'tags' in epoxy.data:
+      try:
+        candidates_tags = json.loads(epoxy.data['tags'])
+      except ValueError, e:
+        return epoxy.throw_error(error='json ValueError for tags param. %s'%e, code=API_EXCEPTION_FORMERRORS).json()
+      except TypeError, e:
+        candidates_tags = epoxy.data['tags']
+        
+      for t in candidates_tags:
+        print t
+        tagsform = TagsForm({'type':t['type'], 'tags': ' '.join(t['tags'])})
+      #tagsform = TagsForm()
+        if not tagsform.is_valid():
+          return epoxy.throw_error(error=tagsform.errors, code=API_EXCEPTION_FORMERRORS).json()
+        epoxy.meta('tags', candidates_tags)
+
     form = DocumentForm(epoxy.data)
-    if form.is_valid():
-      d = form.save(commit=False)
-      d.corpus = c
-      d.save()
-      epoxy.item(d, deep=False)
-    else:
-      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+
+    with transaction.atomic():
+      if form.is_valid():
+        # save tags
+        tags = []
+        for candidate_type in candidates_tags:
+          for tag in candidate_type['tags']:
+            t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
+            tags.append(t)
+        #save documents and attach tags
+        d = form.save(commit=False)
+        d.corpus = c
+        d.save()
+
+        d.tags.add(*tags)
+        d.save()
+        epoxy.item(d, deep=False)
+      else:
+        return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
   logger.info("corpus document")
   try:

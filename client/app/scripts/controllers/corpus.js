@@ -75,9 +75,7 @@ angular.module('svenClientApp')
 
     $scope.saveUrl = function() {
       $log.info('saveUrl: ', $scope.document.url);
-      DocumentsFactory.save({
-        id: $routeParams.id
-      },{
+      var doc = {
         mimetype: 'text/html',
         date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),//$scope.document.date,
         name: $scope.document.url
@@ -86,7 +84,22 @@ angular.module('svenClientApp')
           .replace(/\s+/g,' ')
           .trim().substring(0,64),
         url:$scope.document.url
-      }, function(data) {
+      }
+
+      if($scope.document.__url_type && $scope.document.__url_type.length) {
+        doc.tags = [
+          {
+            type: 'tm',
+            tags:[
+              $scope.document.__url_type
+            ]
+          }
+        ];
+      }
+
+      DocumentsFactory.save({
+        id: $routeParams.id
+      },doc, function(data) {
         console.log(data);
         data.object && $location.path('/document/' + data.object.id);
       });
