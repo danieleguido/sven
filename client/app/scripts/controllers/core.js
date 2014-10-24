@@ -167,6 +167,7 @@ angular.module('svenClientApp')
           console.log(res);
           $log.info('completed', res);
           toast('uploading completed', $scope.uploadingQueue[index].name);
+          $scope.$broadcast(API_PARAMS_CHANGED)
         }, function(response) {
           $log.error(response);
           //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;

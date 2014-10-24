@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import subprocess, logging, math, langid, json
 from datetime import datetime
 from django.conf import settings
@@ -678,10 +680,35 @@ def export_corpus_documents(request, corpus_pk):
   else:
     response = HttpResponse(mimetype='text/plain; charset=utf-8')
   
-  writer = unicodecsv.writer(response, encoding='utf-8')
-  # headers  
-  writer.writerow(['key', 'name', 'date',  'type_of_media', 'actor', 'free tags'])
+  dd = Document.objects.raw("""
+    SELECT
+      d.id, d.name as document_name, d.abstract, d.language, d.date, 
+      t.name as tag_name, t.type as tag_type
+    FROM sven_document d
+    LEFT OUTER JOIN sven_document_tags dt ON dt.document_id = d.id
+    LEFT OUTER JOIN sven_tag t ON dt.tag_id = t.id AND t.type IN ('ac')
+    WHERE d.corpus_id=%(corpus_id)s 
+    ORDER BY d.id, t.type
+  """ % {
+    'corpus_id': c.id
+  })
 
+  writer = unicodecsv.writer(response, encoding='utf-8')
+  # headers
+  writer.writerow(['key', 'name', 'date', 'abstract', 'language', 'type_of_media', 'actor', 'free tags'])
+
+  last_document_id = 0
+  for d in dd:
+    if last_document_id != d.id:
+      last_document_id = d.id
+
+
+
+      writer.writerow([  d.id, d.document_name, d.date, d.abstract, d.language])
+
+  
+
+  return response
 
 
 
