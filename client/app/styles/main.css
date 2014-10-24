@@ -192,6 +192,10 @@ li.corpus .percentage{
   display: none;
 }
 
+li.corpus .percentage.RUN{
+  display: inline-block;
+}
+
 li.corpus h4 .percentage.RUN{
   display: inline;
   font-size: 13px;
@@ -294,9 +298,7 @@ li.spacer{
 }
 
 .percentage{
-  visibility: hidden;
   font-size: 14px;
-  background-color: #dee2e1;
   padding: 0px 2px;
   color: #199e9a;
 }

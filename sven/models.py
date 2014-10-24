@@ -839,7 +839,7 @@ class Job(models.Model):
     #if Job.is_busy():
     #  logger.debug('job is busy %s , you need to wait for your turn...' % command)
     #  return None
-    running_jobs = Job.objects.filter(corpus=corpus, status__in=[Job.RUNNING, Job.STARTED])
+    running_jobs = Job.objects.filter(status__in=[Job.RUNNING, Job.STARTED])
     if running_jobs.count() > 0:
       logger.debug('ouch, your corpus is busy in doing something else ...')
       return None

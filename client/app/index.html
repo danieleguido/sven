@@ -35,7 +35,7 @@
         <!-- header -->
         <div id="header-wrapper" class="{{status}}">
           <div id="header">
-            <div id="menu-toggle" class="fa fa-bars"></div>
+            <div id="menu-toggle" class="fa fa-bars">&nbsp;</div>
             <h1>SVEN</h1>
           </div>
         </div>
@@ -99,7 +99,7 @@
                 <!-- other (not selected) user's corpora -->
                 <li class="corpus {{corpus.id == cor.id? 'selected': ''}}" ng-repeat="cor in corpora">
                   <a ng-click="activate(cor)" ng-href="#/corpus/{{cor.id}}/documents">
-                    {{cor.name}}
+                    {{cor.name}} {{cor.id}}
                     <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}">
                         {{cor.jobs[0].completion|percentage}}
                     </span>

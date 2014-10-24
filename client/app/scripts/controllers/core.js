@@ -48,6 +48,9 @@ angular.module('svenClientApp')
     // available corpora
     $scope.corpora = [];
 
+    // if it is true, inside tick function a total replacement of corpus item will be done
+    $scope.reload_corpora = true;
+
     // current jobs
     $scope.jobs = [];
 
@@ -109,15 +112,16 @@ angular.module('svenClientApp')
 
     function tick() {
       NotificationFactory.query({},function(data){
-        //todo jobs diff
-        
-        
         if(data.meta.profile.date_last_modified != $scope.profile.date_last_modified)
           $scope.profile = data.meta.profile;
 
-        //$scope.profile.documents = data.objects.reduce(function(a,b){ return a.count.documents + b.count.documents })
-        // check if differences
-        $scope.diffclone($scope.corpora, data.objects);
+        if($scope.reload_corpora) {
+          $scope.corpora = data.objects;
+          $scope.reload_corpora = false;
+        } else {
+          $scope.diffclone($scope.corpora, data.objects);
+        }
+
         $scope.jobs = data.jobs;
         // if corpusID choose the corpus matching corpusId, if any. @todo
         var candidate = data.objects[data.objects.length-1];
@@ -255,7 +259,7 @@ angular.module('svenClientApp')
         cmd: cmd
       }, function(res) {
         if(res.status=="ok")
-          toast('command started');
+          toast('command started on corpus', corpus.id);
       })
     };
 
@@ -266,6 +270,7 @@ angular.module('svenClientApp')
     $scope.activate = function(corpus) {
       if($cookies.corpusId == corpus.id) return;
       $cookies.corpusId = corpus.id;
+      $scope.reload_corpora = true;
       toast('activating corpus ...');
     }
 

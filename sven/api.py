@@ -655,6 +655,36 @@ def corpus_segment(request, corpus_pk, segment_pk):
   return epoxy.json()
 
 
+
+def export_corpus_documents(request, corpus_pk):
+  '''
+  Export corpus document metadata in a csv file
+  Each column is a tag category and different tags are separed by a comma.
+  '''
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  import unicodecsv
+  from django.http import HttpResponse
+
+  if 'plain-text' not in request.REQUEST:
+    response = HttpResponse(mimetype='text/csv; charset=utf-8')
+    response['Content-Description'] = "File Transfer";
+    response['Content-Disposition'] = "attachment; filename=%s.documents.csv" % c.name 
+  
+  else:
+    response = HttpResponse(mimetype='text/plain; charset=utf-8')
+  
+  writer = unicodecsv.writer(response, encoding='utf-8')
+  # headers  
+  writer.writerow(['key', 'name', 'date',  'type_of_media', 'actor', 'free tags'])
+
+
+
+
 def export_corpus_segments(request, corpus_pk):
   epoxy = Epoxy(request)
   try:

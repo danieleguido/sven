@@ -1,13 +1,32 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
-<h4>{{totalItems}} documents</h4>
+  <div class="btn-toolbar" role="toolbar">
+    <a class="btn btn-link" ng-href="#/corpus/{{corpus.id}}/documents">
+        {{corpus.count.documents}} documents
+      </a>
+      <a class="btn btn-link" ng-href="#/corpus/{{corpus.id}}/concepts">
+        {{corpus.count.clusters}} concepts
+      </a>
+    
+  </div>
 
-<div class="nav">
-  <a class="left" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
-                        <span>add url</span> <i class="fa fa-plus"></i>
-                      </a> 
-  <div class="uploader btn-link" ng-file-select="onFileSelect($files)" data-multiple="true">
-                        <span>upload</span> <i class="fa fa-upload"></i>
-                      </div>
+<div class="btn-toolbar" role="toolbar">
+  <div class="btn-group">
+  
+    <a class="btn btn-default" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
+      <span>add url</span> <i class="fa fa-plus"></i>
+    </a>
+   
+    <div class="uploader btn btn-default" ng-file-select="onFileSelect($files)" data-multiple="true">
+      <span>upload</span> <i class="fa fa-upload"></i>
+    </div>
+  
+  </div class="btn-group">
+  <div class="btn-group">
+    
+    <a class="btn btn-default" ng-click="executeCommand('alchemy', corpus)">assign auto tag</a>
+    <a class="btn btn-default" ng-click="executeCommand('harvest', corpus)">start TF analysis</a>
+    <a class="btn btn-default" ng-click="executeCommand('tfidf', corpus)">start TF/TFIDF analysis</a>
+  </div>
 </div>
 
 <div>
@@ -48,27 +67,3 @@
     </div>
   </div>
 </div>
-      <!--
-        <div class="pure-g">
-          <div class="pure-u-1-4">
-            <span class="action" tooltip="remove file" ng-click="tag(doc)"><i class="fa fa-tags"></i></span>
-          </div>
-          <div class="pure-u-1-4">
-            <a ng-if="doc.media" tooltip="download original file" class="action" ng-href="{{doc.media}}" download="{{doc.slug}}"><i class="fa fa-download"></i></a>
-          </div>
-          <div class="pure-u-1-4">
-            <a tooltip="download text version" ng-if="doc.media_txt" class="action" ng-href="{{doc.media_txt}}" download="{{doc.slug}}"><i class="fa fa-file-text"></i></a>
-          </div>
-          <div class="pure-u-1-4">
-            <span class="action" tooltip="remove file" ng-click="remove(doc)"><i class="fa fa-trash"></i></span>
-          </div>
-        </div>
-        
-      </div>
-      <div style="margin-left:36px;margin-right:108px;display:block">
-        <a ng-href="#/document/{{doc.id}}">{{doc.name}}</a>
-        <span ng-if="doc.abstract" class="abstract">- {{doc.abstract}}</span>
-      </div>
-    </div>
-  </div>
--->
