@@ -706,7 +706,7 @@ class Document(models.Model):
   def save(self, **kwargs):
     # understanding datetime included in file title... YYYY MM DD
     date = re.search(r'_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_',self.name)
-    if date:
+    if not self.date and date:
       self.date = make_aware(datetime.strptime('%s-%s-%s' % (date.group('year'), date.group('month'), date.group('day')), '%Y-%m-%d'), utc)
 
     self.slug = helper_uuslug(model=Document, instance=self, value=self.name)
