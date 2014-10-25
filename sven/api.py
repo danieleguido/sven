@@ -538,7 +538,7 @@ def corpus_segments(request, corpus_pk):
 
   # computate group limit and group offset
   g_offset = 0
-  g_limit = 150
+  g_limit = 50
 
   # if goruping on TAG: get the grouping, with limit and offsets as well
   tags = Tag.objects.filter(document__corpus=cor)[g_offset:g_offset+g_limit]

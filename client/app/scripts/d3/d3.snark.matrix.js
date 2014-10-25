@@ -107,10 +107,12 @@
     matrix.draw = function(elements, options) {
       console.log(options);
       
-      var size = d3.scale.log()
-    .base(Math.E)
-        .domain([options.min, options.max])
-        .range([2,18]),
+      var offsetx = 200,
+
+          size = d3.scale.log()
+            .base(Math.E)
+            .domain([options.min, options.max])
+            .range([2,18]),
 
         update_selection = elements,
         enter_selection = elements.enter()
@@ -154,7 +156,7 @@
                 return d[options.measure]? Math.max(1, size(d[options.measure])):1;
               })
               .attr('cx', function(d,i) {
-                return i*7 + 100;
+                return i*7 + offsetx;
               });
 
 
@@ -197,7 +199,7 @@
         .transition()
           .duration(750)
           .attr("r", function(d){ return Math.max(1, size(d[options.measure]))})
-          .attr("cx", 250)
+          .attr("cx", 400)
           .attr("cy", function(d, i) {
             console.log('changing', i)
             return i*26 + 26*2;
@@ -213,7 +215,7 @@
         .attr("fill-opacity", .3)
         .attr("r", function(d){return Math.max(1, size(d[options.measure]))})
         .attr("class", "circle")
-        .attr("cx", 250)
+        .attr("cx", 400)
         .attr("cy", function(d, i) {
           return i*26 + 26*2;
         })
@@ -254,7 +256,7 @@
           .attr("fill-opacity", .4)
           .attr("r", radius)
           
-          .attr("cx", 280 + (i+1)*20)
+          .attr("cx", 400 + (i+1)*20)
           .attr("cy", function(d, j) {
             return j*26 + 26*2;
           })
