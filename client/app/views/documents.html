@@ -1,15 +1,17 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
-  <div class="btn-toolbar" role="toolbar">
-    <a class="btn btn-link" ng-href="#/corpus/{{corpus.id}}/documents">
-        {{corpus.count.documents}} documents
-      </a>
-      <a class="btn btn-link" ng-href="#/corpus/{{corpus.id}}/concepts">
-        {{corpus.count.clusters}} concepts
-      </a>
-    
-  </div>
+
 
 <div class="btn-toolbar" role="toolbar">
+  <div class="btn-group">
+  
+    <a class="btn btn-default" ng-href="#/corpus/{{corpus.id}}/documents">
+        {{corpus.count.documents}} documents
+    </a>
+    <a class="btn btn-default" ng-href="#/corpus/{{corpus.id}}/concepts">
+        {{corpus.count.clusters}} concepts
+    </a>
+
+  </div class="btn-group">
   <div class="btn-group">
   
     <a class="btn btn-default" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
@@ -19,13 +21,31 @@
     <div class="uploader btn btn-default" ng-file-select="onFileSelect($files)" data-multiple="true">
       <span>upload</span> <i class="fa fa-upload"></i>
     </div>
-  
+    
+    <a class="btn btn-default" ng-href="http://localhost:8000/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}">
+      <span>download metadata</span> <i class="fa fa-upload"></i>
+    </a>
+    
   </div class="btn-group">
   <div class="btn-group">
-    
-    <a class="btn btn-default" ng-click="executeCommand('alchemy', corpus)">assign auto tag</a>
-    <a class="btn btn-default" ng-click="executeCommand('harvest', corpus)">start TF analysis</a>
-    <a class="btn btn-default" ng-click="executeCommand('tfidf', corpus)">start TF/TFIDF analysis</a>
+
+    <div dropdown is-open="isopen">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        start analysis<span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a ng-click="executeCommand('alchemy', corpus)">assign auto tag</a>
+        </li>
+        <li>
+          <a ng-click="executeCommand('harvest', corpus)">start TF analysis</a>
+        </li>
+        <li>
+          <a ng-click="executeCommand('tfidf', corpus)">start TF/TFIDF analysis</a>
+        </li>
+      </ul>
+    </div>
+
   </div>
 </div>
 
@@ -35,7 +55,7 @@
   </span>
 </div>
 <div class="btn-toolbar" role="toolbar">
-    <div class="btn-group" style="margin: 20px 0; text-align: right" dropdown is-open="orderBy.isopen">
+    <div class="btn-group" style="margin: 20px 0 0 5px; text-align: right" dropdown is-open="orderBy.isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
         {{orderBy.choice.label}} <span class="caret"></span>
       </button>

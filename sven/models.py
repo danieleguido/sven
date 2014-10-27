@@ -427,10 +427,10 @@ class Tag(models.Model):
   }
   
   TYPE_CHOICES = (
-    (FREE, 'no category'),
+    (FREE, 'tags'),
     (TYPE_OF_MEDIA, 'type_of_media'),
     (ACTOR, 'actor'),
-    (INSTITUTION, 'Institution'),
+    (INSTITUTION, 'institution'),
   )
 
   OEMBED_PROVIDER_NAME = 'OP' #tag specify an oembed field...

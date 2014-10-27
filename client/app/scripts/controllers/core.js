@@ -264,6 +264,15 @@ angular.module('svenClientApp')
       })
     };
 
+    /*
+      Call the right api to execute the desired command.
+      For a list of all available cmd please cfr. ~/sven/management/start_job.py
+      @param cmd - a valid cmd command to be passed to api/start. Cfr api.py
+      @param corpus - <Corpus> as command target
+    */
+    $scope.getDownloadLink = function(corpus) {
+      return 'aa';
+    }
 
     /*
       change the main corpus cookie, enabling upload on it.
