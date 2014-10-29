@@ -401,6 +401,10 @@ li.spacer{
   border-radius:2px;
 }
 
+.tooltip.mouse{
+  background: #383838;
+}
+
 .tooltip .tooltip-inner{
   background: #383838;
   padding: 7px 11px;
@@ -670,7 +674,13 @@ circle:hover{
   fill: red;
 }
 
+text.OUT{
+  fill: #eee;
+}
 
+.switcher circle{
+  fill: #333;
+}
 
 
 

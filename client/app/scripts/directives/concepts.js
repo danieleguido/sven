@@ -11,10 +11,12 @@ angular.module('svenClientApp')
     return {
       template: '<div class="mouse tooltip">...</div><div class="viewer"></div>',
       restrict: 'E',
+      
       scope: {
         data: '=',
         measure: '=',
-        groups: '='
+        groups: '=',
+        toggle: '&'
       },
       link: function postLink(scope, element, attrs) {
         var tooltip = d3.select("div.tooltip.mouse"),
@@ -28,6 +30,7 @@ angular.module('svenClientApp')
           });
         }).on("mouseenter", "circle", function() {
           if(!scope.data) return;
+
           tooltip
             .style("opacity", 1)
             .text('ciao');
@@ -40,7 +43,10 @@ angular.module('svenClientApp')
         }).on("mouseleave",  "circle", function() {
           tooltip
             .style("opacity", 0)
-          });
+        }).on("click", "circle.toggler", function(){
+          var concept = $(this);
+          scope.toggle({concept_id: $(this).attr('cid')});
+        });
 
         var render = function() {
           // get positions for each set

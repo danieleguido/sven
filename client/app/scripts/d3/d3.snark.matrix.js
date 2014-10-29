@@ -117,9 +117,11 @@
         update_selection = elements,
         enter_selection = elements.enter()
           .append('g')
-          .attr('class', 'block')
+          .attr('class', function(d) {
+            return 'block ' + d.status;
+          })
 
-        // set basic transform for each row
+        // set basic transform for each row (y)
         enter_selection
           .attr('transform', function(d,i) {
             return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
@@ -128,9 +130,28 @@
         // write text labels (they won't change)
         enter_selection
           .append('text')
+            
+            
+            .attr('x', 40)
             .text(function(d) {
               return d.cluster || '...'
             });
+
+        // adding switchers
+        var switchers = enter_selection
+          .append('g')
+            .attr('class', 'switcher')
+
+        // append base rectangle
+        switchers
+          .append('circle')
+            .attr('class', 'toggler')
+            .attr('cid', function(d) {
+              return d.id;
+            })
+            .attr('r', 8)
+            .attr('cx', 10)
+            .attr('cy', 0)
 
         // adding columns based on headers
         enter_selection
@@ -164,7 +185,11 @@
           .transition(500)
           .attr('transform', function(d,i) {
             return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
-          });
+          })
+          .selectAll('g.block')
+            .attr('class', function(d) {
+              return 'block ' + d.status;
+            })
 
         update_selection
           .exit()

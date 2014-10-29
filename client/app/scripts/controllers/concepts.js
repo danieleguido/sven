@@ -25,6 +25,13 @@ angular.module('svenClientApp')
       ];
     $scope.$parent.orderBy.choice = {label:'tf', value:'tf DESC'};
     
+    $scope.toggleVisibility = function(concept_id) {
+      // send toggle visibility then update . this below is fake...
+      for( var i in $scope.clusters) {
+        if($scope.clusters[i].id == concept_id)
+          $scope.clusters[i].status = 'OUT';
+      }
+    }
     
 
 
