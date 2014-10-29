@@ -186,8 +186,7 @@
           .attr('transform', function(d,i) {
             return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
           })
-          .selectAll('g.block')
-            .attr('class', function(d) {
+          .attr('class', function(d) {
               return 'block ' + d.status;
             })
 

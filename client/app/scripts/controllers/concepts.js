@@ -27,6 +27,7 @@ angular.module('svenClientApp')
     
     $scope.toggleVisibility = function(concept_id) {
       // send toggle visibility then update . this below is fake...
+      $log.log('toggling visibility for', concept_id);
       for( var i in $scope.clusters) {
         if($scope.clusters[i].id == concept_id)
           $scope.clusters[i].status = 'OUT';

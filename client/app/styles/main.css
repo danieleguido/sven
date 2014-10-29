@@ -674,12 +674,21 @@ circle:hover{
   fill: red;
 }
 
-text.OUT{
-  fill: #eee;
+.OUT text{
+  fill: #ccc;
 }
 
+.OUT .switcher circle{
+  fill: #fff;
+  stroke: #333;
+  stroke-width:2;
+}
 .switcher circle{
   fill: #333;
+  cursor: pointer;
+}
+.switcher circle:hover{
+  fill:red;
 }
 
 
