@@ -183,6 +183,7 @@ def corpus_documents(request, corpus_pk):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
+    candidates_tags = None
     
     if 'tags' in epoxy.data:
       try:
@@ -206,10 +207,11 @@ def corpus_documents(request, corpus_pk):
       if form.is_valid():
         # save tags
         tags = []
-        for candidate_type in candidates_tags:
-          for tag in candidate_type['tags']:
-            t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
-            tags.append(t)
+        if candidates_tags:
+          for candidate_type in candidates_tags:
+            for tag in candidate_type['tags']:
+              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
+              tags.append(t)
         #save documents and attach tags
         d = form.save(commit=False)
         d.corpus = c
@@ -485,6 +487,8 @@ def corpus_segments(request, corpus_pk):
   if not epoxy.order_by:
     epoxy.order_by = ['tf DESC', 'distribution DESC']
 
+  # update when needed
+  
   # translate orderby -tf, tf or -tfidf, tfidf
 
 

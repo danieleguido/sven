@@ -119,7 +119,10 @@
           .append('g')
           .attr('class', function(d) {
             return 'block ' + d.status;
-          })
+          }),
+        switchers = enter_selection
+          .append('g')
+            .attr('class', 'switcher');
 
         // set basic transform for each row (y)
         enter_selection
@@ -127,21 +130,9 @@
             return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
           });
 
-        // write text labels (they won't change)
-        enter_selection
-          .append('text')
-            
-            
-            .attr('x', 40)
-            .text(function(d) {
-              return d.cluster || '...'
-            });
-
-        // adding switchers
-        var switchers = enter_selection
-          .append('g')
-            .attr('class', 'switcher')
-
+        //
+        // ADDING ELEMENTS LEFT TO RIGHT
+        //
         // append base rectangle
         switchers
           .append('circle')
@@ -153,6 +144,21 @@
             .attr('cx', 10)
             .attr('cy', 0)
 
+        
+
+        // write text labels (they won't change)
+        enter_selection
+          .append('text')
+            .attr('x', 40)
+            .text(function(d) {
+              return d.cluster || '...'
+            });
+
+        // adding switchers
+        
+
+        
+
         // adding columns based on headers
         enter_selection
           .selectAll('rect')
@@ -163,16 +169,19 @@
                     //o.tf = d.tags[j].tf;
                     //o.tfidf = d.tags[j].tfidf;
                     return {
+                      id: d.tags[j].id,
                       tf: d.tags[j].tf,
                       tfidf: d.tags[j].tfidf
                     };
                   }
                 return o;
               });
+            }, function(o){
+              return o.id
             })
             .enter()
               .append('circle')
-
+              .attr('class', 'measure')
               .attr('r', function(d){
                 return d[options.measure]? Math.max(1, size(d[options.measure])):1;
               })
@@ -189,6 +198,13 @@
           .attr('class', function(d) {
               return 'block ' + d.status;
             })
+          .selectAll('.measure')
+            .attr('r', function(d){
+                return d[options.measure]? Math.max(1, size(d[options.measure])):1;
+              })
+              .attr('cx', function(d,i) {
+                return i*7 + offsetx;
+              });
 
         update_selection
           .exit()
