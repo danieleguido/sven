@@ -22,9 +22,15 @@
       <span>upload</span> <i class="fa fa-upload"></i>
     </div>
     
+
+    
+
     <a class="btn btn-default" ng-href="http://localhost:8000/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}">
       <span>download metadata</span> <i class="fa fa-download"></i>
     </a>
+    <div class="uploader btn btn-default" ng-file-select="onMetadataSelect($files)" data-multiple="false">
+      <span>upload</span> <i class="fa fa-upload"></i>
+    </div>
     
   </div class="btn-group">
   <div class="btn-group">

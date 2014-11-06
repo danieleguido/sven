@@ -177,6 +177,26 @@ angular.module('svenClientApp')
         });
     };
 
+
+    $scope.onMetadataSelect = function($files) {
+      $log.debug('onMetadataSelect', $files);
+      toast('checking metadata file...');
+      
+      $upload.upload({
+          url: '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
+          file: $files[0]
+        }).then(function(res) {
+          $log.info('completed', res);
+          toast(res.config.file.name + ' uploaded...', {cleanToast:true});
+        }, function(response) {
+          $log.error(response);
+          //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
+        }, function(evt) {
+          // Math.min is to fix IE which reports 200% sometimes
+          console.log(evt);
+        });
+    }
+
     $scope.onFileSelect = function($files) {
       $log.debug('onFileSelect', $files);
       $scope.uploadingQueue = [];
