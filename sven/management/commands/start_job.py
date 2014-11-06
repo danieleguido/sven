@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, csv, time, codecs, shutil, urllib2, logging, langid
+import os, unicodecsv, time, codecs, shutil, urllib2, logging, langid
 from optparse import make_option
 from datetime import datetime
 
@@ -10,7 +10,7 @@ from django.db.utils import OperationalError
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
-from sven.models import Corpus, Document, Job, Document_Segment, Segment
+from sven.models import Corpus, Document, Tag, Job, Document_Segment, Segment
 
 
 
@@ -31,17 +31,23 @@ class Command(BaseCommand):
       action='store',
       dest='job_pk',
       default=False,
-      help='corpus primary key'),
+      help='job primary key related with a corpus'),
 
     make_option('--cmd',
         action='store',
         dest='cmd',
         default=False,
         help='manage.py command to be executed'),
+
+    make_option('--csv',
+        action='store',
+        dest='csv',
+        default=False,
+        help='csv file (used only in import tags or concepts)'),
   )
 
 
-  def _test(self, job):
+  def _test(self, job, options):
     job.completion = 0
     while job.completion < 1:
       job.completion = job.completion + 0.1
@@ -50,7 +56,7 @@ class Command(BaseCommand):
   
 
 
-  def _alchemy(self, job):
+  def _alchemy(self, job, options):
     '''
     Enrich document with alchemy top entities (max: 5)
     '''
@@ -70,7 +76,7 @@ class Command(BaseCommand):
 
 
 
-  def _tfidf(self, job):
+  def _tfidf(self, job, options):
     import math
     from django.db.models import F
     from sven.distiller import dictfetchall
@@ -156,7 +162,57 @@ class Command(BaseCommand):
 
 
 
-  def _harvest(self, job):
+  def _importtags(self, job, options):
+    '''
+    Import given tags for the given corpus from a csv file.
+    The csv file must have a 'key' field. Note that any changes is undouable. 
+    (todo) Anyway, a copy of the previous csv should be available to restore the system at a previous state.
+    '''
+    logger.debug('executing "import tags"...')
+    if not options['csv'] or not os.path.exists(options['csv']):
+      logger.debug('%s does not exist', options['csv'])
+      return
+
+    f = open(options['csv'], 'rb')
+    rows = unicodecsv.DictReader(f)
+    # get number of rows
+    for i,row in enumerate(rows):
+      name = row['name'] # change document title (it has to be a complete csv export !!!!)
+      abstract = row['abstract'][:160]
+      language = row['language'][:2]
+      date = datetime.strptime(row['date'], '%Y-%m-%d') if row['date'] else None
+
+      try:
+        doc = Document.objects.get(pk=row['key'], corpus=job.corpus)
+      except Document.DoesNotExist, e:
+        logger.debug('document %(id)s does not exists, or does not belong to corpus %(corpus)s',{
+          'id': row['key'],
+          'corpus': job.corpus.name
+        })
+        continue # skip and check next document
+
+      with transaction.atomic():
+        doc.name     = name
+        doc.abstract = abstract
+        doc.language = language
+        doc.date     = date
+
+        doc.tags.clear() # delete previous tags. filter.
+        
+        for tag_type,tag_label in Tag.TYPE_CHOICES: # restrict possible values
+          tags = filter(None, row[tag_label].split(','))
+          # create tag if needed
+          # remove old tag
+          
+          for t in tags:
+            tag, created = Tag.objects.get_or_create(name=t,type=tag_type)
+            doc.tags.add(tag)
+        
+        doc.save()
+
+
+
+  def _harvest(self, job, options):
     from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS
 
     logger.debug('executing "harvest"...')
@@ -215,7 +271,7 @@ class Command(BaseCommand):
 
   
 
-  def _whoosher(self, job): 
+  def _whoosher(self, job, options): 
     self.stdout.write("\n------------------------------------------\n\n    welcome to sven Whoosh indexer\n    ==================================\n\n\n\n")
 
     # staring index if needed    
@@ -257,7 +313,7 @@ class Command(BaseCommand):
     try:
       cmd = '_%s' % options['cmd']
 
-      getattr(self, cmd)(job=job) # no job will be charged!
+      getattr(self, cmd)(job=job, options=options) # no job will be charged!
     except Exception, e:
       logger.exception(e)
     else:
