@@ -707,7 +707,7 @@ def import_corpus_documents(request, corpus_pk):
   if epoxy.is_POST():
     form = UploadCSVForm(request.POST, request.FILES)
     if form.is_valid():
-      filepath = c.saveCSV(request.FILES['file'])
+      filepath = c.saveCSV(request.FILES['file'], prefix='metadata')
       # launch command
       job = Job.start(corpus=c, command='importtags', csv=filepath)
       if job is not None:

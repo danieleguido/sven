@@ -172,11 +172,11 @@ class Corpus(models.Model):
     return csv_path
 
 
-  def saveCSV(self, f):
+  def saveCSV(self, f, prefix=''):
     '''
     return the absolute path of the saved csv file to be associated with import command
     '''
-    filename = os.path.join(self.get_csv_path(), '%s.csv' % datetime.now())
+    filename = os.path.join(self.get_csv_path(), '%s.%s.csv' % (prefix,datetime.now()))
     with open(filename, 'wb+') as destination:
       for chunk in f.chunks():
         destination.write(chunk)
