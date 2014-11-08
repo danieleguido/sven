@@ -68,7 +68,6 @@ class CorpusTest(TestCase):
     user = self.user
 
     corpus = self.corpus
-    corpus.save()
     corpus.owners.add(user)
     corpus.save()
     
@@ -104,6 +103,27 @@ class CorpusTest(TestCase):
     stopwords = self.corpus.get_stopwords()
     print stopwords
     en_stopwords = self.corpus.get_stopwords(language='en')
+
+
+  def test_upload_metadata_csv(self):
+    '''
+    copy the csv file directly under the contents/csv dir (cfr sven.settings)
+    each file has its own timestamp.
+    This function also test the creation of corpus folder under the contents dir.
+    '''
+    self.factory = RequestFactory()
+    with open(os.path.join(settings.BASE_DIR, 'contents/test.metadata.csv')) as fp:
+      request = self.factory.post(reverse('sven_api_import_corpus_documents', args=[self.corpus.pk]), {'file': fp})
+      
+      # attach user to corpus
+      self.corpus.owners.add(self.user)
+      self.corpus.save()
+      request.user = self.user
+
+      response = sven.api.import_corpus_documents(request, corpus_pk=self.corpus.pk)
+      jresponse = json.loads(response.content)
+
+      self.assertEqual('object' in jresponse, True)
 
 
 

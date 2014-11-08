@@ -161,6 +161,28 @@ class Corpus(models.Model):
     return os.path.join(settings.MEDIA_ROOT, self.slug)
 
 
+  def get_csv_path(self, language=None):
+    '''
+    return the destination path to store imported csv files.
+    '''
+    csv_path = os.path.join(settings.CSV_PATH, self.slug)
+    if not os.path.exists(csv_path):
+      os.makedirs(csv_path)
+
+    return csv_path
+
+
+  def saveCSV(self, f):
+    '''
+    return the absolute path of the saved csv file to be associated with import command
+    '''
+    filename = os.path.join(self.get_csv_path(), '%s.csv' % datetime.now())
+    with open(filename, 'wb+') as destination:
+      for chunk in f.chunks():
+        destination.write(chunk)
+    return filename
+  
+
   def get_stopwords_path(self, language=None):
     stopwords_path = os.path.join(settings.STOPWORDS_PATH, self.slug)
     if not os.path.exists(stopwords_path):
@@ -815,7 +837,7 @@ class Job(models.Model):
 
 
   @staticmethod
-  def start(corpus, command='harvest', popen=True):
+  def start(corpus, command='harvest', csv='', popen=True):
     '''
     Check if there are jobs running, otherwise
     Ouptut None or the created job.
@@ -843,7 +865,8 @@ class Job(models.Model):
       os.path.join(settings.BASE_DIR, 'manage.py'), # local manage script
       'start_job', 
       '--cmd', command,
-      '--job', str(job.pk)
+      '--job', str(job.pk),
+      '--csv', str(csv)
     ]
 
     
