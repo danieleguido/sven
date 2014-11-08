@@ -8,9 +8,11 @@ class LoginForm(forms.Form):
   password = forms.CharField(max_length=64, label='Password', widget=forms.PasswordInput(render_value=False))
 
 
+
 class TagsForm(forms.Form):
   type = forms.ChoiceField(choices=Tag.TYPE_CHOICES)
   tags = forms.RegexField(regex=r'^[\=\.\?\:\/\s\w,\-\_\']*$',label='tags' )
+
 
 
 class CorpusForm(forms.ModelForm):
@@ -43,3 +45,11 @@ class ProfileForm(forms.ModelForm):
 class CorpusSegmentForm(forms.Form):
   cluster = forms.CharField(max_length=128)
   status = forms.ChoiceField(choices=Segment.STATUS_CHOICES)
+
+
+
+class UploadCSVForm(forms.Form):
+    '''
+    Handle CSV file upload
+    '''
+    file = forms.FileField()
