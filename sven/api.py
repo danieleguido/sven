@@ -13,7 +13,7 @@ from django.db import connection, transaction
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
 
-from sven.forms import LoginForm, CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm
+from sven.forms import LoginForm, CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm, UploadCSVForm
 
 from sven.models import helper_truncatesmart
 from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
@@ -310,6 +310,9 @@ def document_segments(request, pk):
 
 @login_required(login_url='/api/login')
 def document_upload(request, corpus_pk):
+  '''
+  Create a document on upload.
+  '''
   epoxy = Epoxy(request)
   try:
     corpus = Corpus.objects.get(pk=corpus_pk, owners=request.user)
@@ -328,30 +331,13 @@ def document_upload(request, corpus_pk):
   d = Document(corpus=corpus, raw=f, name=f.name, abstract="(document recently uploaded)")
   d.save()
   epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
-  
-  #try:
-     # textify please! but only if it hasn't been done yet ;-)
-    #content = d.text()
-    #d.abstract = helper_truncatesmart(content, 150)
-    #evaluate language
-    #language, probability = langid.classify(content[:255])
-    #d.language = language
-    
-    #d.save()
-
-  #except Exception, e:
-  #  epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_FORMERRORS).json()
-  #finally:
-  
   epoxy.item(d, deep=False)
-
 
   logger.info("%(user)s correctly uploaded %(filename)s" % {
     'user': request.user.username,
     'filename':  f.name
   })
 
-  
   return epoxy.json()
 
 
@@ -703,7 +689,36 @@ def export_corpus_documents(request, corpus_pk):
     writer.writerow(row)
 
   return response
-  
+
+
+
+def import_corpus_documents(request, corpus_pk):
+  '''
+  Given a valid csv, change docuemnt values accordingly.
+  This view call the job 'import tags'. Cfr. management/start_job.py script for further information.
+  '''
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s %s'%(corpus_pk, e), code=API_EXCEPTION_DOESNOTEXIST).json() # or you're not allowed to ...
+
+  # the uploaded file
+  if epoxy.is_POST():
+    form = UploadCSVForm(request.POST, request.FILES)
+    if form.is_valid():
+      filepath = c.saveCSV(request.FILES['file'])
+      # launch command
+      job = Job.start(corpus=c, command='importtags', csv=filepath)
+      if job is not None:
+        epoxy.item(job)
+      else:
+        return epoxy.throw_error(error='a job is already running', code='BUSY').json()
+    else:
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS)
+  else:
+    pass  
+  return epoxy.json()
 
 
 
@@ -751,6 +766,8 @@ def export_corpus_segments(request, corpus_pk):
     writer.writerow([  s.id, s.content, s.cluster, s.distro, s.status, s.max_tf, s.max_tfidf])
   
   return response
+
+
 
 @login_required(login_url='/api/login')
 def profile(request, pk=None):
