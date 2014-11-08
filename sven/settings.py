@@ -165,6 +165,8 @@ TWITTER_ACCESS_TOKEN = local_settings.TWITTER_ACCESS_TOKEN
 TWITTER_ACCESS_TOKEN_SECRET = local_settings.TWITTER_ACCESS_TOKEN_SECRET
 
 
-WHOOSH_PATH  = os.path.join(BASE_DIR, 'contents/whoosh')
-STOPWORDS_PATH  = os.path.join(BASE_DIR, 'contents/stopwords')
+WHOOSH_PATH     = os.path.join(BASE_DIR, 'contents/whoosh')
+STOPWORDS_PATH  = os.path.join(BASE_DIR, 'contents/stopwords') # Cfr models.Corpus.get_stopwords_path(). Path where txt stopwords files has to be stored.
+CSV_PATH        = os.path.join(BASE_DIR, 'contents/csv') # Cfr models.Corpus.get_csv_path(). Path where csv files has to be stored.
+
 STANDALONE_COMMANDS = ['harvest', 'whoosher', 'freebase'] # standalone management commands.
