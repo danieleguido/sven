@@ -99,7 +99,7 @@
                 <!-- other (not selected) user's corpora -->
                 <li class="corpus {{corpus.id == cor.id? 'selected': ''}}" ng-repeat="cor in corpora">
                   <a ng-click="activate(cor)" ng-href="#/corpus/{{cor.id}}/documents">
-                    {{cor.name}} {{cor.id}}
+                    {{cor.name}} ({{cor.count.documents}})
                     <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}">
                         {{cor.jobs[0].completion|percentage}}
                     </span>

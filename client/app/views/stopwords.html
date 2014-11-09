@@ -1,8 +1,24 @@
-<h2>
-  {{localCorpus.name}}
+<h2>{{localCorpus.name||corpus.name}}</h2>
 
-</h2>
-<p><strong>{{localCorpus.count.documents || 0}}</strong> documents, <strong>{{localCorpus.count.clusters || 0}}</strong> concepts</p>
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" >
+    
+    <a ng-href="#/corpus/{{corpus.id}}/documents">
+        {{corpus.count.documents}} documents
+    </a>
+  </li>
+  <li role="presentation">
+    <a ng-href="#/corpus/{{corpus.id}}/concepts">
+        {{corpus.count.clusters}} concepts
+    </a>
+  </li>
+  <li role="presentation"  class="active">
+    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
+      stopwords list
+    </a>
+  </li>
+</ul>
+
 <form role="form">
 <textarea class="form-control" ng-model="stopwords"></textarea>
 </form>
