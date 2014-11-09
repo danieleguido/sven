@@ -3,14 +3,17 @@ sven is a django app (1.6) which easily integrate text analysis with pattern wit
 
 installing sven
 ---
-Welcome to our three minutes install! All you need is a terminal, virtualenv, virtualenvwrapper and a good knowledge of a Django structure. That's it. For development purpose, node and grunt-cli should be installed - cfr _troubleshooting_ part below. 
+Welcome to our (twenty)three minutes install! All you need is a terminal, virtualenv, virtualenvwrapper and a good knowledge of a Django structure. That's it. For development purpose, node and grunt-cli should be installed - cfr _troubleshooting_ part below. 
 	
 	cd ~/path/to
 	git clone https://gitub.com/danieleguido/sven.git
 	cd ~/path/to/sven
 	cp sven/locale_settings.sample.py sven/locale_settings.py
 	
-modify it according to your __own__ configutation.
+modify it according to your __own__ configutation: provide your python interpreter absolute path for the sven virtualenv. This interpreter will be used by sven custom management command.
+  
+  PYTHON_INTERPRETER = '/Users/daniele/.virtualenvs/sven/bin/python'
+
 if you're going to use a _sqlite_ database (a light and fast alternative), you need to create a specific directory to hold the sqlite file. Then give adequate permissions access to both sqlite file and its parent directory.
 
 	cd ~/path/to/sven
@@ -19,29 +22,26 @@ if you're going to use a _sqlite_ database (a light and fast alternative), you n
 	workon sven
 		...
 
-install some pip dependence
-  (sven) pip install git+https://github.com/grangier/python-goose.git
+install all dependencies
+  (sven) pip install -r requirements.txt
+
+and then install submodules
+  (sven) git submodule init
+  (sven) git submodule update
+
+  
 
 then sync and test.
 
 	(sven) python manage.py syncdb
 	(sven) python manage.py test
 
-sven in production: some hints
----
+install the javascript client dependencies:
+  (sven) npm install -g bower
+  (sven) cd ~/path/to/sven
+  (sven) cd client
+  (sven) bower install
 
-todo
-=======
-git clone, activate submodules, activate a virtualenv, mkvirtualenv
-copy localsettingssample and modify it according to your own configuration
-
-Run in your terminal:
-
-  cd path/to/sven
-  workon sven
-  python manage.py collectstatic
-  python manage.py syncdb
-  python manage.py test
 
 If everything is ok you can start deploying the django server (for test purposes only!)
 
@@ -49,6 +49,19 @@ If everything is ok you can start deploying the django server (for test purposes
 
 Normally a development version of sven should be running under 
 [localhost:8000]
+
+<!-- sven in production: some hints
+---
+-->
+Production environment
+=======
+Note: sven hasn't been tested on a production environment.
+
+  cd path/to/sven
+  workon sven
+  python manage.py collectstatic
+
+
   
 
 troubleshooting
@@ -62,28 +75,8 @@ __(OSX)__ how to compile local .po file for localization
 	django-admin.py makemessages --locale=fr
 
 
-where 
-
-add the following folder from font-awesome if settings.OFFLINE is enabled.
-
-fonts
-	
-css
-
-requirements
+Note on sven structure
 ---
 
-Django==1.6.2
-Pattern==2.6
-wsgiref==0.1.2
-
-
-
-git submodule init
-git submodule update
-
-
-Structure
----
-
-`./src` contains all the js and stylesheet used by Sven.
+`./client` contains all the js and stylesheet used by Sven and it is the result of scaffolding with yo angular-generator.
+`./sven/management/commands/start_job.py` is the *unique* python script file responsible for the text analysis. All the other commands are testing playgrounds
