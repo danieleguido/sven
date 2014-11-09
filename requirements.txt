@@ -7,7 +7,7 @@ Whoosh==2.6.0
 cssselect==0.9.1
 django-cors-headers==0.13
 django-websocket-request==0.1.1
-goose-extractor==1.0.18
+goose-extractor==1.0.22
 ipython==1.2.1
 jieba==0.32
 langid==1.1.4dev
