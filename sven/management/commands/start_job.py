@@ -178,7 +178,7 @@ class Command(BaseCommand):
     #rows = unicodecsv.DictReader(f)
     # get number of rows
     total = sum(1 for row in rows)
-    logger.debug('%s lines in csv file', total)
+    logger.debug('%s lines in csv file, starting import', total)
     for step,row in enumerate(rows):
 
       name = row['name'] # change document title (it has to be a complete csv export !!!!)
@@ -187,6 +187,8 @@ class Command(BaseCommand):
       job.document = doc
       job.completion = 1.0*step/total
       job.save()
+
+      ogger.debug('step', step, 'of', total)
 
       form = DocumentMetadataForm(row)
       if not form.is_valid():
@@ -205,7 +207,7 @@ class Command(BaseCommand):
         })
         continue # skip and check next document
 
-      
+      logger.debug('saving tags', step, 'of', total)
 
       with transaction.atomic():
         doc.name     = name
@@ -213,7 +215,7 @@ class Command(BaseCommand):
         doc.date     = date
 
         doc.tags.clear() # delete previous tags. filter.
-        
+        logger.debug('docs tags', step, 'of', total)
         for tag_type,tag_label in Tag.TYPE_CHOICES: # restrict possible values
           tags = filter(None, row[tag_label].split(','))
           # create tag if needed

@@ -1,35 +1,44 @@
 <h2>{{localCorpus.name||corpus.name}}</h2>
 
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" class="active">
+    
+    <a ng-href="#/corpus/{{corpus.id}}/documents">
+        {{corpus.count.documents}} documents
+    </a>
+  </li>
+  <li role="presentation">
+    <a ng-href="#/corpus/{{corpus.id}}/concepts">
+        {{corpus.count.clusters}} concepts
+    </a>
+  </li>
+  <li role="presentation">
+    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
+      stopwords list
+    </a>
+  </li>
+</ul>
+
 
 <div class="btn-toolbar" role="toolbar">
   <div class="btn-group">
   
-    <a class="btn btn-default" ng-href="#/corpus/{{corpus.id}}/documents">
-        {{corpus.count.documents}} documents
+    
+   <a class="btn btn-default" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
+      <span>add document</span> <i class="fa fa-plus"></i>
     </a>
-    <a class="btn btn-default" ng-href="#/corpus/{{corpus.id}}/concepts">
-        {{corpus.count.clusters}} concepts
-    </a>
-
-  </div class="btn-group">
-  <div class="btn-group">
-  
-    <a class="btn btn-default" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
-      <span>add url</span> <i class="fa fa-plus"></i>
-    </a>
-   
     <div class="uploader btn btn-default" ng-file-select="onFileSelect($files)" data-multiple="true">
       <span>upload</span> <i class="fa fa-upload"></i>
     </div>
-    
+  
+  </div>
+  <div class="btn-group">
 
-    
-
-    <a class="btn btn-default" ng-href="http://localhost:8000/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}">
-      <span>download metadata</span> <i class="fa fa-download"></i>
+    <a class="btn btn-default"  ng-href="http://localhost:8000/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}">
+      <span>export</span> <i class="fa fa-download"></i>
     </a>
-    <div class="uploader btn btn-default" ng-file-select="onMetadataSelect($files)" data-multiple="false">
-      <span>upload</span> <i class="fa fa-upload"></i>
+    <div class="uploader btn btn-default"  ng-file-select="onMetadataSelect($files)" data-multiple="false">
+      <span>import</span> <i class="fa fa-upload"></i>
     </div>
     
   </div class="btn-group">
@@ -61,7 +70,7 @@
   </span>
 </div>
 <div class="btn-toolbar" role="toolbar">
-    <div class="btn-group" style="margin: 20px 0 0 5px; text-align: right" dropdown is-open="orderBy.isopen">
+    <div class="btn-group" dropdown is-open="orderBy.isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
         {{orderBy.choice.label}} <span class="caret"></span>
       </button>

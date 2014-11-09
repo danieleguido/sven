@@ -383,11 +383,22 @@ li.spacer{
   border-radius: 0;
   border-bottom: 1px solid #666;
 }
+.btn-default {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #eee;
+}
 
 .btn-link:hover{
   text-decoration: none;
   color: #181818;
   border-bottom: 1px solid #181818;
+}
+
+.btn-toolbar{
+  
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .tooltip {
@@ -414,6 +425,46 @@ li.spacer{
   display: none;
 }
 
+.nav{
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+  border: 1px solid transparent;
+  border-bottom: 2px solid #383838;
+  color: black;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.nav-tabs > li > a:hover {
+  border-color: transparent;
+  border-radius: 0;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-bottom: 2px solid #ea758c;
+  background-color: #f5f5f5;
+  border-radius: 0;
+}
+
+.pagination {
+  margin: 0;
+}
+
+.pagination > li > a, .pagination > li > span {
+  border: 0px solid transparent;
+  color: #888;
+}
+
+.pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus {
+  background-color: #888;
+  color: white;
+  
+}
 
 /* #Toastmessage JQUERYPlugin css
 ================================================== */

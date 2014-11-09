@@ -715,7 +715,7 @@ def import_corpus_documents(request, corpus_pk):
       else:
         return epoxy.throw_error(error='a job is already running', code='BUSY').json()
     else:
-      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS)
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
   else:
     pass  
   return epoxy.json()
