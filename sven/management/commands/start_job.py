@@ -172,10 +172,11 @@ class Command(BaseCommand):
     if not options['csv'] or not os.path.exists(options['csv']):
       logger.debug('%s does not exist', options['csv'])
       return
-
-    f = open(options['csv'], 'rb')
+    
+    f = codecs.open(options['csv'], 'rU', encoding='utf-8')
     rows = unicodecsv.DictReader(f)
     # get number of rows
+
     for i,row in enumerate(rows):
       name = row['name'] # change document title (it has to be a complete csv export !!!!)
       abstract = row['abstract'][:160]
