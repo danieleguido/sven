@@ -466,6 +466,16 @@ li.spacer{
   
 }
 
+.modal-header{
+  border-bottom: 0px solid transparent;
+  background: #f5f5f5;
+}
+
+.modal-content{
+  border: 1px solid #eee;
+  border-radius: 2px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, .15)
+}
 /* #Toastmessage JQUERYPlugin css
 ================================================== */
 

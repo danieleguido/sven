@@ -1,6 +1,7 @@
 'use strict';
 
-var API_PARAMS_CHANGED = 'api_params_changed';
+var API_PARAMS_CHANGED = 'api_params_changed',
+    OPEN_ATTACH_TAG    = 'OPEN_ATTACH_TAG';
 
 
 function toast(message, title, options){
@@ -283,6 +284,15 @@ angular.module('svenClientApp')
           toast('command started on corpus', corpus.id);
       })
     };
+
+
+    /*
+      
+      @param document - instance of <Documents> to attach tag
+    */
+    $scope.attachTag = function(doc) {
+      $scope.$broadcast(OPEN_ATTACH_TAG, doc);
+    }
 
     /*
       Call the right api to execute the desired command.

@@ -138,6 +138,29 @@
         </div>
         <!-- /#page-content-wrapper -->
 
+
+        <!-- #modal-attach tag -->
+        <div ng-controller="ModalTagCtrl">
+          <script type="text/ng-template" id="myModalContent.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">Attach tag to {{item.name}}</h3>
+              </div>
+              <div class="modal-body">
+                  <form role="form" ng-submit="save()">
+                    <div class="form-group">
+                      <input type="text" ng-model="candidate" class="form-control">
+                    </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
+
+
+
     </div>
     {% endverbatim %}
     {%endblock%}
@@ -201,6 +224,7 @@
         <script src="{{STATIC_URL}}/app/scripts/services/concepts.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/directives/concepts.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/controllers/stopwords.js"></script>
+        <script src="{{STATIC_URL}}/app/scripts/controllers/modals.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/controllers/search.js"></script>
         <script src="{{STATIC_URL}}/app/scripts/directives/vimeo.js"></script>
         <!-- endbuild -->

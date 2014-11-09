@@ -79,4 +79,12 @@ Note on sven structure
 ---
 
 `./client` contains all the js and stylesheet used by Sven and it is the result of scaffolding with yo angular-generator.
-`./sven/management/commands/start_job.py` is the *unique* python script file responsible for the text analysis. All the other commands are testing playgrounds
+`./sven/management/commands/start_job.py` is the *unique* python script file responsible for the text analysis. All the other commands are testing playgrounds['%Y-%m-%d %H:%M:%S',    # '2006-10-25 14:30:59'
+'%Y-%m-%d %H:%M',        # '2006-10-25 14:30'
+'%Y-%m-%d',              # '2006-10-25'
+'%m/%d/%Y %H:%M:%S',     # '10/25/2006 14:30:59'
+'%m/%d/%Y %H:%M',        # '10/25/2006 14:30'
+'%m/%d/%Y',              # '10/25/2006'
+'%m/%d/%y %H:%M:%S',     # '10/25/06 14:30:59'
+'%m/%d/%y %H:%M',        # '10/25/06 14:30'
+'%m/%d/%y'] 

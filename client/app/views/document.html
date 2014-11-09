@@ -13,6 +13,7 @@
         <span class="tag language" tooltip="language {{document.language}}">{{document.language}}</span>
         <span class="tag type_of_media" ng-repeat="tag in document.tags.type_of_media" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
         <span class="tag" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+
       </p>
       <div ng-if="document.tags.oembed_provider_name">
         <div ng-switch="document.tags.oembed_provider_name.slug">
@@ -28,7 +29,8 @@
       <p>
         <a ng-href="#/document/{{document.id}}/edit" class="btn btn-link" download>edit metadata <i class="fa fa-pencil"></i></a> | 
         <a href="{{document.media_txt}}" class="btn btn-link" download>download plain text <i class="fa fa-download"></i></a><span ng-if="document.url">or
-        <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span>
+        <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span> | 
+        <span ng-click="attachTag(document)">add tag</span>
       </p>
       <div class="content">
       {{document.text}}
