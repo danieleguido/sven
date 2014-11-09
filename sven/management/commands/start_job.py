@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
 from sven.models import Corpus, Document, Tag, Job, Document_Segment, Segment
-
+from sven.forms import DocumentMetadataForm
 
 
 logger = logging.getLogger("sven")
@@ -172,29 +172,43 @@ class Command(BaseCommand):
     if not options['csv'] or not os.path.exists(options['csv']):
       logger.debug('%s does not exist', options['csv'])
       return
-    
-    f = codecs.open(options['csv'], 'rU', encoding='utf-8')
-    rows = unicodecsv.DictReader(f)
-    # get number of rows
 
-    for i,row in enumerate(rows):
+    f = open(options['csv'], 'rU')
+    rows = unicodecsv.DictReader(f, encoding='utf-8')
+    #rows = unicodecsv.DictReader(f)
+    # get number of rows
+    total = sum(1 for row in rows)
+    logger.debug('%s lines in csv file', total)
+    for step,row in enumerate(rows):
+
       name = row['name'] # change document title (it has to be a complete csv export !!!!)
-      abstract = row['abstract'][:160]
       language = row['language'][:2]
-      date = datetime.strptime(row['date'], '%Y-%m-%d') if row['date'] else None
+
+      job.document = doc
+      job.completion = 1.0*step/total
+      job.save()
+
+      form = DocumentMetadataForm(row)
+      if not form.is_valid():
+        logger.error('validating csv fields... %s' % row['date'])
+        logger.error(form.errors)
+        continue
+
+      date = form.cleaned_data['date'] if row['date'] else None
 
       try:
         doc = Document.objects.get(pk=row['key'], corpus=job.corpus)
       except Document.DoesNotExist, e:
-        logger.debug('document %(id)s does not exists, or does not belong to corpus %(corpus)s',{
+        logger.debug('document %(id)s does not exists, or it does not belong to corpus %(corpus)s',{
           'id': row['key'],
           'corpus': job.corpus.name
         })
         continue # skip and check next document
 
+      
+
       with transaction.atomic():
         doc.name     = name
-        doc.abstract = abstract
         doc.language = language
         doc.date     = date
 
@@ -211,6 +225,7 @@ class Command(BaseCommand):
         
         doc.save()
 
+      
 
 
   def _harvest(self, job, options):
@@ -319,7 +334,7 @@ class Command(BaseCommand):
       logger.exception(e)
     else:
       job.completion = 1.0
-      logger.debug('job completed')
+      logger.debug('job %s completed' %options['cmd'])
     
     job.stop()
 

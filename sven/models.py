@@ -177,7 +177,7 @@ class Corpus(models.Model):
     return the absolute path of the saved csv file to be associated with import command
     '''
     filename = os.path.join(self.get_csv_path(), '%s.%s.csv' % (prefix,datetime.now().isoformat()))
-    with codecs.open(filename, 'wb+', encoding='utf-8') as destination:
+    with open(filename, 'wb+') as destination:
       for chunk in f.chunks():
         destination.write(chunk)
     return filename
@@ -907,12 +907,12 @@ class Job(models.Model):
   def stop(self):
     self.status=Job.COMPLETED
     self.save()
-    if self.pid != 0:
-      logger.debug('killing pid %s' % int(self.pid))
-      try:
-        os.kill(int(self.pid), signal.SIGKILL)
-      except OSError, e:
-        logger.exception(e)
+    #if self.pid != 0:
+    #  logger.debug('killing pid %s' % int(self.pid))
+    #  try:
+    #    os.kill(int(self.pid), signal.SIGKILL)
+    #  except OSError, e:
+    #    logger.exception(e)
     # everything below will not be executed, since the process id has benn killed.
 
 

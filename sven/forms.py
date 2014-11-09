@@ -53,3 +53,14 @@ class UploadCSVForm(forms.Form):
     Handle CSV file upload
     '''
     file = forms.FileField()
+
+
+class DocumentMetadataForm(forms.ModelForm):
+  '''
+  Cfr. sven/amnagement/command/start_job
+  '''
+  date = forms.DateTimeField(required=False)
+  class Meta:
+    model = Document
+    exclude = ['corpus', 'slug', 'mimetype', 'abstract']
+  

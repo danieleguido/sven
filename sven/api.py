@@ -673,19 +673,19 @@ def export_corpus_documents(request, corpus_pk):
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
   writer = unicodecsv.writer(response, encoding='utf-8')
   # write headers
-  writer.writerow([u'key', u'name', u'date', u'language'] + [u'%s' % label for t,label in Tag.TYPE_CHOICES] + ['abstract'])
-  tags = {u'%s' % tag_type:[] for tag_type,tag_label in Tag.TYPE_CHOICES}
+  writer.writerow([u'key', u'name', u'date', u'language'] + [u'%s' % label for t,label in Tag.TYPE_CHOICES] )
   
   for doc in docs:
+    tags = {u'%s' % tag_type:[] for tag_type,tag_label in Tag.TYPE_CHOICES}
+  
     for tag in doc.tags.all():
       if u'%s' % tag.type in tags:
         tags[u'%s' % tag.type].append(tag.name)
-    row = [doc.id, doc.name, doc.date, doc.language]
+    row = [doc.id, doc.name, doc.date.strftime('%Y-%m-%d') if doc.date is not None else None, doc.language]
 
     for tag_type,tag_label in Tag.TYPE_CHOICES:
       row.append(','.join(tags[tag_type])) # comma separated
 
-    row.append(u'%s'%doc.abstract)
     writer.writerow(row)
 
   return response
