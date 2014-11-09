@@ -5,6 +5,7 @@ Pillow==2.4.0
 PyYAML==3.11
 Whoosh==2.6.0
 cssselect==0.9.1
+django-cors-headers==0.13
 django-websocket-request==0.1.1
 goose-extractor==1.0.18
 ipython==1.2.1
