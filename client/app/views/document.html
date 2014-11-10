@@ -3,11 +3,11 @@
   <div class="col-sm-6" >
     <!-- big document -->
     <div class="big-item document">
-      <h2>{{document.name}}</h2>
+      <h2> {{document.name}}</h2>
       <h3>
         {{document.date| date:'dd MMM yyyy'}}
       </h3>
-      <p>uploaded on {{document.date_created | date:'yyyy MMM dd'}}</p>
+      <p class="minor date-created">uploaded on <b class="minor">{{document.corpus.name}}</b> at {{document.date_created | date:'yyyy MMM dd'}}</p>
       <p class="tags">
 
         <span class="tag language" tooltip="language {{document.language}}">{{document.language}}</span>
@@ -26,12 +26,24 @@
           </div>
         </div>
       </div>
-      <p>
-        <a ng-href="#/document/{{document.id}}/edit" class="btn btn-link" download>edit metadata <i class="fa fa-pencil"></i></a> | 
-        <a href="{{document.media_txt}}" class="btn btn-link" download>download plain text <i class="fa fa-download"></i></a><span ng-if="document.url">or
-        <a href="{{document.url}}" target="_blank">follow url <i class="fa fa-link"></i></a></span> | 
-        <span ng-click="attachTag(document)">add tag</span>
-      </p>
+      
+      <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group">
+
+          <a ng-href="#/document/{{document.id}}/edit" class="btn btn-default">edit metadata <i class="fa fa-pencil"></i></a>
+
+        </div>
+        <div class="btn-group">
+
+          <a href="{{document.media_txt}}" class="btn btn-default" download>plain text <i class="fa fa-download"></i></a>
+
+          <a ng-if="document.url" href="{{document.url}}" class="btn btn-default" target="_blank">follow url <i class="fa fa-link"></i></a>
+          
+
+        </div>
+      </div>
+      
+        <!-- span ng-click="attachTag(document)">add tag</span -->
       <div class="content">
       {{document.text}}
       </div>

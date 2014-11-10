@@ -17,7 +17,7 @@ angular.module('svenClientApp')
       },
       link: function postLink(scope, element, attrs) {
         var videoid = scope.url.match(/v=([\w]+)/).pop();
-
+        console.log('youtube embed', videoid)
         element.html('<iframe width="100%" height="' + scope.height + '" src="http://www.youtube.com/embed/' + videoid + '?feature=oembed" frameborder="0" allowfullscreen></iframe>');
       }
     };
