@@ -471,7 +471,7 @@ def corpus_segments(request, corpus_pk):
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
   if not epoxy.order_by:
-    epoxy.order_by = ['tf DESC', 'distribution DESC']
+    epoxy.order_by = ['tf DESC']
 
   # update when needed
   
@@ -508,11 +508,12 @@ def corpus_segments(request, corpus_pk):
     LIMIT %(offset)s, %(limit)s
     """ % {
     'corpus_id': cor.id,
-    'order_by': ','.join(epoxy.order_by + ['distribution DESC']),
+    'order_by': ','.join(epoxy.order_by),
     'offset': epoxy.offset,
     'limit': epoxy.limit
   })
 
+  epoxy.meta('query', '%s' %segments.query)
 
   # for each segments, tf e tfidf value for each actor...
   clusters = [{

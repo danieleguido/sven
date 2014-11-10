@@ -20,10 +20,10 @@ angular.module('svenClientApp')
     $scope.$parent.orderBy.choices = [
         {label:'tf', value:'tf DESC'},
         {label: 'tfidf', value:'tfidf DESC'},
-        {label:'by name a-z', value:'cluster ASC'},
-        {label:'by name z-a', value:'cluster DESC'}
+        {label: 'top shared TF', value:'distribution DESC|tf DESC'},
+        {label:'by name a-z', value:'cluster ASC'}
       ];
-    $scope.$parent.orderBy.choice = {label:'tf', value:'tf DESC'};
+    $scope.$parent.orderBy.choice = {label: 'top shared TF', value:'distribution DESC|tf DESC'};
     
     $scope.toggleVisibility = function(concept_id) {
       // send toggle visibility then update . this below is fake...

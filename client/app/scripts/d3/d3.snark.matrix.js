@@ -43,12 +43,35 @@
           .append("svg")
           .attr("height", height)
           .attr("width", width)
+      // appending labels
+      _svg
+        .append("text")
+        .text('concept example')
+        .attr({
+          x: 40,
+          y: 26,
+          'class': 'header'
+        })
 
       _svg
         .append("text")
-        .text('GTF')
-        .attr("x", 250)
-        .attr("y", 26)
+        .text('TF')
+        .attr({
+          x: 200,
+          y: 26,
+          'text-anchor': 'middle',
+          'class': 'header'
+        })
+
+      _svg
+        .append("text")
+        .text('TFIDF')
+        .attr({
+          x: 230,
+          y: 26,
+          'text-anchor': 'middle',
+          'class': 'header'
+        })
 
       return matrix;
     };
@@ -127,6 +150,9 @@
           .append('g')
           .attr('class', function(d) {
             return 'block ' + d.status;
+          })
+          .attr('cid', function(d) {
+            return d.id;
           }),
         switchers;
         
@@ -158,9 +184,12 @@
         // write text labels (they won't change)
         enter_selection
           .append('text')
-            .attr('x', 40)
+            .attr({
+              x: 40,
+              y: 4
+            })
             .text(function(d) {
-              return d.cluster || '...'
+              return d.content || '...'
             });
 
         // adding tfrs
@@ -168,7 +197,7 @@
           .append('circle')
             .attr({
               'class': 'tf',
-              cx: 160,
+              cx: offsetx,
               opacity: ".4",
               r: function(d) {
                 return tf_size(+d.tf);
@@ -178,9 +207,10 @@
 
         enter_selection
           .append('circle')
+            
             .attr({
               'class': 'tf_idf',
-              cx: 160,
+              cx: offsetx + 30,
               opacity: ".4",
               r: function(d) {
                 console.log(d);
@@ -219,7 +249,7 @@
                 return 2//return d[options.measure]? Math.max(1, size(d[options.measure])):1;
               })
               .attr('cx', function(d,i) {
-                return i*7 + offsetx;
+                return i*7 + offsetx + 60;
               });
 
 
@@ -236,7 +266,7 @@
                 return d[options.measure]? Math.max(1, size(d[options.measure])):1;
               })
               .attr('cx', function(d,i) {
-                return i*7 + offsetx;
+                return i*7 + offsetx + 60;
               });
 
         update_selection

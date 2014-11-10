@@ -420,6 +420,19 @@ li.spacer{
   background: #383838;
 }
 
+.tooltip.mouse h4{
+  text-align: left;
+  padding: 12px 12px 6px 12px;
+  margin: 0;
+}
+
+.tooltip.mouse .tooltip-measures{
+  background: #383838;
+  font-family: monospace;
+  padding: 6px 12px;
+  text-align: left;
+}
+
 .tooltip .tooltip-inner{
   background: #383838;
   padding: 7px 11px;
@@ -745,6 +758,10 @@ circle.tf:hover{
   fill: red;
 }
 
+text.header{
+  font-size: 12px;
+  font-weight: bold
+}
 .OUT text{
   fill: #ccc;
 }
