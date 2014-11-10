@@ -269,7 +269,10 @@
             })
           .selectAll('.measure')
             .attr('r', function(d){
-                return d[options.measure]? Math.max(1, size(d[options.measure])):1;
+                if(options.measure == 'tf')
+                  return tf_size(+d.tf);
+                else
+                  return tfidf_size(+d.tf_idf);
               })
               .attr('cx', function(d,i) {
                 return i*7 + offsetx + 60;
