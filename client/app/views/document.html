@@ -50,5 +50,28 @@
     </div>
     <!-- endof:big document -->
   </div>
-  <div class="col-sm-6"></div>
+  <div class="col-sm-6">
+    <!-- document segments table -->
+    <div class="btn-toolbar" role="toolbar">
+      
+      <div class="btn-group">
+
+        <div  dropdown is-open="orderBy.isopen">
+          <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+            {{orderBy.choice.label}} <span class="fa fa-angle-down"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li ng-repeat="choice in orderBy.choices">
+              <a ng-click="changeOrderBy(choice)">{{choice.label}}</a>
+            </li>
+              </ul>
+        </div>
+
+      </div>
+
+      <pagination class="btn-group" max-size="5" items-per-page="limit" boundary-links="true" total-items="totalItems" ng-model="$parent.$parent.page" ng-change="changePage($parent.$parent.page)"></pagination>
+    </div>
+
+    <concepts toggle="" data="clusters" groups="groups" measure="measure"><div class="viewer"></div></concepts>
+  </div>
 </div>

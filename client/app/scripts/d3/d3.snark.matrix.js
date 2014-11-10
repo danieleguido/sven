@@ -91,11 +91,12 @@
 
 
     matrix.onscroll = function(offset) {
-      _svg
+     /* _svg
         .selectAll(".block text")
         .attr('transform', function(d,i) {
           return 'matrix(' + [1, 0, 0, 1, offset.left, 0].join(' ') + ')';
         });
+      */
     };
 
     /*
@@ -119,6 +120,9 @@
             .selectAll(".block")
             .data(_data, _key);
       
+      // recalculate svg width according to the number of groups
+      _svg.attr("width", 260 + _headers.length * 30)
+
       // cfr http://bost.ocks.org/mike/nest/
       matrix.draw(elements, {
         tf_min: tf_min,
@@ -135,6 +139,8 @@
     matrix.draw = function(elements, options) {
       console.log(options);
       
+
+
       var offsetx = 200,
 
           tf_size = d3.scale.linear()

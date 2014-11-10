@@ -281,7 +281,7 @@ angular.module('svenClientApp')
         cmd: cmd
       }, function(res) {
         if(res.status=="ok")
-          toast('command started on corpus', corpus.id);
+          toast('command started, plase wait ...');
       })
     };
 

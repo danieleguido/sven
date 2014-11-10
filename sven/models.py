@@ -570,7 +570,7 @@ class Document(models.Model):
       d['corpus'] = self.corpus.json()
       try:
         d.update({
-          'text': self.text()[:2500],
+          'text': self.text()[:25000],
           'language': self.language
         })
       except UnicodeDecodeError, e:

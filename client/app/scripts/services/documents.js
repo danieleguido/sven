@@ -14,6 +14,11 @@ angular.module('svenClientApp')
       save: {method: 'POST', params: {id: '@id'} },
     });
   })
+  .factory('DocumentsConceptsFactory', function ($resource) {
+    return $resource('/api/document/:id/segments', {}, {
+      query: {method: 'GET', isArray: false,  params: {id: '@id'}  },
+    });
+  })
   .factory('DocumentFactory', function($resource) {
     return $resource('/api/document/:id', {}, {
       query: {method: 'GET', isArray: false, params: {id: '@id'} },
