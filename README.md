@@ -8,7 +8,7 @@ Welcome to our (twenty)three minutes install! All you need is a terminal, virtua
 	cd ~/path/to
 	git clone https://gitub.com/danieleguido/sven.git
 	cd ~/path/to/sven
-	cp sven/locale_settings.sample.py sven/locale_settings.py
+	cp sven/local_settings.sample.py sven/local_settings.py
 	
 modify it according to your __own__ configutation: provide your python interpreter absolute path for the sven virtualenv. This interpreter will be used by sven custom management command.
   
@@ -23,13 +23,14 @@ if you're going to use a _sqlite_ database (a light and fast alternative), you n
 		...
 
 install all dependencies
-  (sven) pip install -r requirements.txt
 
-and then install submodules
-  (sven) git submodule init
-  (sven) git submodule update
+	(sven) pip install -r requirements.txt
 
-  
+install submodules
+
+  	(sven) git submodule init
+  	(sven) git submodule update
+
 
 then sync and test.
 
