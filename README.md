@@ -38,11 +38,13 @@ then sync and test.
 	(sven) python manage.py test
 
 install the javascript client dependencies:
-  (sven) npm install -g bower
-  (sven) cd ~/path/to/sven
-  (sven) cd client
-  (sven) bower install
 
+  	(sven) npm install -g bower
+  	(sven) npm install -g grunt-cli
+  	(sven) cd ~/path/to/sven
+  	(sven) cd client
+  	(sven) npm install
+  	(sven) bower install
 
 If everything is ok you can start deploying the django server (for test purposes only!)
 
