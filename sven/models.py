@@ -657,9 +657,10 @@ class Document(models.Model):
     '''
     if self.mimetype is None:
       content = "" # not yet ready ... Empty string
-    elif self.mimetype == 'text/plain':
-      with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
-        content = f.read()
+    elif self.mimetype == 'text/plain' and self.raw and os.path.exists(self.raw.path):
+        with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
+          content = f.read()
+
     else: #document which need textification
       textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
       
