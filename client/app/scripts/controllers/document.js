@@ -41,7 +41,7 @@ angular.module('svenClientApp')
       };
       
 
-      $log.info('DocumentCtrl.save() -->', doc,  doc_copy.tags);
+      $log.info('DocumentCtrl.save() -->', doc.name,  doc_copy.tags);
 
       DocumentFactory.save(doc, function(res) {
         console.debug('DocumentCtrl saved',res);
@@ -49,6 +49,26 @@ angular.module('svenClientApp')
         if(res.status == 'ok') {
           toast('saved');
           // $location.path('/document/' + res.object.id);
+        }
+      });
+    };
+
+    /*
+      Available in edit text mode. Send abstract and text
+    */
+    $scope.saveText = function() {
+      // todo: lock textareas during saving ...
+      $log.info('DocumentCtrl.saveText() -->', $scope.document.name,  $scope.document.text.substring(0,45));
+      DocumentFactory.saveText({
+        id: $scope.document.id,
+        text: $scope.document.text,
+        abstract: $scope.document.abstract,
+      }, function(res) {
+        console.debug('DocumentCtrl.saveText() --> saved', res);
+        $scope.document = res.object;
+        if(res.status == 'ok') {
+          toast('text has been saved');
+          $location.path('/document/' + res.object.id);
         }
       });
     };

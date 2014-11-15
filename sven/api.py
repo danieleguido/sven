@@ -250,22 +250,30 @@ def document(request, pk):
   except Document.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   
-  try:
-    if epoxy.is_DELETE():
+  if epoxy.is_GET():
+    epoxy.item(d, deep=True)
+    return epoxy.json()
+  
+  if epoxy.is_DELETE():
+    try:
       d.delete()
       epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
-    else:
-      epoxy.item(d, deep=True)
-  except Exception,e:
-    logger.exception(e)
+    except Exception,e:
+      logger.exception(e)
+      return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_FORMERRORS).json()
+    return epoxy.json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
     form = edit_object(instance=d, Form=DocumentForm, epoxy=epoxy)
     if not form.is_valid():
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
     
-    d.save()
-    epoxy.item(d, deep=False)
+    # chec if there is a text param to save ...
+    if 'text' in epoxy.data:
+      d.set_text(epoxy.data['text'])
+      epoxy.item(d, deep=True)
+    else:
+      epoxy.item(d, deep=False)
     
   return epoxy.json()
 

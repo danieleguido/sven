@@ -46,6 +46,10 @@ angular
         templateUrl: 'static/app/views/document.edit.html',
         controller: 'DocumentCtrl'
       })
+      .when('/document/:id/text', { // document id
+        templateUrl: 'static/app/views/document.text.html',
+        controller: 'DocumentCtrl'
+      })
       .when('/concepts', {
         templateUrl: 'static/app/views/concepts.html',
         controller: 'ConceptsCtrl'
