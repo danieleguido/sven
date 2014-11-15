@@ -23,6 +23,7 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+LOGIN_URL = '/login/'
 
 PYTHON_INTERPRETER = '/home/daniele/.virtualenvs/sven/bin/python' # mine, given as exemple. Cfr virtualenv doc.
 
