@@ -676,7 +676,7 @@ class Document(models.Model):
           try:
             goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
           except urllib2.HTTPError,e:
-            logger.error('HTTPError received while goosing %s' % url)
+            logger.error('HTTPError received while goosing %s' % self.url)
             logger.exception(e)
             content = ''
           else:
