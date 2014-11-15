@@ -656,6 +656,7 @@ class Document(models.Model):
     Get utf8 text content of the file. If the document is of type text/html
     '''
     if self.mimetype is None:
+      self.mimetype == 'text/plain'
       content = "" # not yet ready ... Empty string
     elif self.mimetype == 'text/plain' and self.raw and os.path.exists(self.raw.path):
         with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
@@ -692,7 +693,7 @@ class Document(models.Model):
         if len(content):
           self.store(content)
 
-    if not self.language:
+    if not self.language :
       import langid
       self.abstract = helper_truncatesmart(content, 150)
       language, probability = langid.classify(content[:255])
