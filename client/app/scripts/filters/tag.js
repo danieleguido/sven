@@ -23,4 +23,10 @@ angular.module('svenClientApp')
     return function (input) {
       return input.match(/--cmd\s+([a-z]*) -/)[1];
     };
+  })
+  .filter('htmltext', function () {
+    return function (input) {
+      input = input || '';
+      return input.replace(/\n\n+/g,'\n\n').split('\n').join('<br/>');
+    };
   });

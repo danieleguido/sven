@@ -580,7 +580,7 @@ class Document(models.Model):
       except Exception, e:
         logger.exception(e)
         d.update({
-          'text': 'can\'t get the text version of this document'
+          'text': 'can\'t get the text version of this document %s' % e
         })
 
    
@@ -661,8 +661,8 @@ class Document(models.Model):
       with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
         content = f.read()
     else: #document which need textification
-
       textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+      
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
@@ -684,7 +684,6 @@ class Document(models.Model):
         
         # store whoosh, only if contents needs to be created. not that store update document content in index
         if len(content):
-          logger.info("storing content of file")
           self.store(content)
 
     if not self.language:
@@ -695,7 +694,13 @@ class Document(models.Model):
       self.save()
     
     content = dry(content)
+    return content
 
+
+  def set_text(self, content):
+    textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+    with codecs.open(textified, encoding='utf-8', mode='w') as f:
+      f.write(content)
     return content
 
 

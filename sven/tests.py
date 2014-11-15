@@ -127,6 +127,27 @@ class CorpusTest(TestCase):
 
 
 
+class DocumentTextTest(TestCase):
+  def setUp(self):
+    # Every test needs access to the request factory.
+    self.user = User.objects.create_user(
+      username='jacob', email='jacob@…', password='top_secret')
+    self.corpus, created = Corpus.objects.get_or_create(name=u'----test----')
+    self.corpus.owners.add(self.user) # adding two documents
+
+
+  def test_save_content(self):
+    '''
+    save a custom utf8 content string a document
+    '''
+    document = Document(corpus=self.corpus, name=u'custom text')
+    document.save() # set_text use slug property...
+    document.set_text(u'Mary had a little lamb.'.encode('UTF-8'))
+    
+    self.assertEqual(document.text(), u'Mary had a little lamb.'.encode('UTF-8'))
+
+
+
 class DocumentTest(TestCase):
   def setUp(self):
     # Every test needs access to the request factory.
@@ -146,7 +167,7 @@ class DocumentTest(TestCase):
       response = sven.api.document_upload(request, corpus_pk=self.corpus.pk)
       jresponse = json.loads(response.content)
       print jresponse
-
+  
 
   def test_create_whoosh(self):
     '''
