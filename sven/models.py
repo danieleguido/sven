@@ -673,11 +673,16 @@ class Document(models.Model):
           with codecs.open(textified, encoding='utf-8', mode='w') as f:
             f.write(content)
         elif self.url is not None:
-          goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
-          
-          content = goo.cleaned_text
-          with codecs.open(textified, encoding='utf-8', mode='w') as f:
-            f.write(content)
+          try:
+            goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
+          except urllib2.HTTPError,e:
+            logger.error('HTTPError received while goosing %s' % url)
+            logger.exception(e)
+            content = ''
+          else:
+            content = goo.cleaned_text
+            with codecs.open(textified, encoding='utf-8', mode='w') as f:
+              f.write(content)
         else:
           content = '' #%s does not have a text associed. %s' % (self.mimetype, textified)
         # exitsts text translations?
