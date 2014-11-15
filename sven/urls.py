@@ -30,7 +30,7 @@ apipatterns = patterns('sven.api',
   url(r'^document$', 'documents', name='sven_api_documents'), # user document 
   url(r'^document/(?P<pk>\d+)$', 'document', name='sven_api_document'), # user document (user must have access, or a nOT found error is thrown)
   url(r'^document/(?P<pk>\d+)/segments$', 'document_segments', name='sven_api_document_segments'), # get requet.user's document segments list (with simple tf idf)
-  url(r'^document/(?P<pk>\d+)/tag$', 'document_tags', name='sven_api_document_tags'), # get requet.user's document segments list (with simple tf idf). Return Document as data object
+  url(r'^document/(?P<pk>\d+)/tag$', 'document_tags', name='sven_api_document_tags'), # attach/detach a tag
   url(r'^document/(?P<pk>\d+)/upload$', 'document_text_version_upload', name='sven_api_document_upload_text'), # user document (user must have access, or a nOT found error is thrown)
   url(r'^document/(?P<pk>\d+)/download$', 'document_text_version_download', name='sven_api_document_download_text'), # user document (user must have access, or a nOT found error is thrown)
   

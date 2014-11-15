@@ -184,7 +184,7 @@ def corpus_documents(request, corpus_pk):
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo
     candidates_tags = None
-    
+    # tags have to be a json oject
     if 'tags' in epoxy.data:
       try:
         candidates_tags = json.loads(epoxy.data['tags'])
@@ -267,7 +267,6 @@ def document(request, pk):
     d.save()
     epoxy.item(d, deep=False)
     
-
   return epoxy.json()
 
 
@@ -406,7 +405,6 @@ def document_text_version_upload(request, pk):
 @login_required(login_url='/api/login')
 def tags(request):
   epoxy = Epoxy(request)
-
   epoxy.queryset(Tag.objects.filter())
   return epoxy.json()
 
@@ -425,7 +423,13 @@ def document_tags(request, pk):
     if not is_valid:
       return epoxy.throw_error(error=result, code=API_EXCEPTION_FORMERRORS).json()
 
-  epoxy.item(doc, deep=True)
+  if epoxy.is_DELETE():
+    is_valid, result = helper_detach_tag(instance=doc, append=True, epoxy=epoxy)
+    if not is_valid:
+      return epoxy.throw_error(error=result, code=API_EXCEPTION_FORMERRORS).json()
+
+
+  epoxy.item(doc, deep=False)
   return epoxy.json()
 
 
@@ -1034,5 +1038,29 @@ def helper_free_tag(instance, epoxy, append=True):
     
     instance.save()
 
+    return True, instance
+  return False, form.errors
+
+
+
+@transaction.atomic
+def helper_detach_tag(instance, epoxy, append=True):
+  '''
+  instance's model should have tags m2m property...
+  '''
+  form = TagsForm(epoxy.data)
+
+  if form.is_valid():
+    tags = list(set([t.strip() for t in form.cleaned_data['tags'].split(',')]))# list of unique comma separated cleaned tags.
+    candidates = []
+    for tag in tags:
+      try:
+        t = Tag.objects.get(name=tag, type=form.cleaned_data['type'])
+      except Tag.DoesNotExist, e:
+        continue
+
+      instance.tags.remove(t)
+    
+    instance.save()
     return True, instance
   return False, form.errors

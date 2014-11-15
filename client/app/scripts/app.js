@@ -17,68 +17,69 @@ angular
     'ngSanitize',
     'ngTouch',
     'ui.bootstrap',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ngTagsInput'
   ])
   .config(function ($routeProvider, $httpProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: '/static/app/views/main.html',
+        templateUrl: 'static/app/views/main.html',
         controller: 'MainCtrl'
       })
       .when('/about', {
-        templateUrl: '/static/app/views/about.html',
+        templateUrl: 'static/app/views/about.html',
         controller: 'AboutCtrl'
       })
       .when('/documents', {
-        templateUrl: '/static/app/views/documents.html',
+        templateUrl: 'static/app/views/documents.html',
         controller: 'DocumentsCtrl'
       })
       .when('/documents/new', {
-        templateUrl: '/static/app/views/documents.new.html',
+        templateUrl: 'static/app/views/documents.new.html',
         controller: 'DocumentsCtrl'
       })
       .when('/document/:id', { // document id
-        templateUrl: '/static/app/views/document.html',
+        templateUrl: 'static/app/views/document.html',
         controller: 'DocumentCtrl'
       })
       .when('/document/:id/edit', { // document id
-        templateUrl: '/static/app/views/document.edit.html',
+        templateUrl: 'static/app/views/document.edit.html',
         controller: 'DocumentCtrl'
       })
       .when('/concepts', {
-        templateUrl: '/static/app/views/concepts.html',
+        templateUrl: 'static/app/views/concepts.html',
         controller: 'ConceptsCtrl'
       })
       .when('/concept', {
-        templateUrl: '/static/app/views/concept.html',
+        templateUrl: 'static/app/views/concept.html',
         controller: 'ConceptCtrl'
       })
       .when('/profile', {
-        templateUrl: '/static/app/views/profile.html',
+        templateUrl: 'static/app/views/profile.html',
         controller: 'ProfileCtrl'
       })
       .when('/corpus/:id', {
-        templateUrl: '/static/app/views/corpus.html',
+        templateUrl: 'static/app/views/corpus.html',
         controller: 'CorpusCtrl'
       })
       .when('/corpus/:id/concepts', {
-        templateUrl: '/static/app/views/concepts.html',
+        templateUrl: 'static/app/views/concepts.html',
         controller: 'ConceptsCtrl'
       })
       .when('/corpus/:id/documents', {
-        templateUrl: '/static/app/views/documents.html',
+        templateUrl: 'static/app/views/documents.html',
         controller: 'CorpusDocumentsCtrl'
       })
       .when('/corpus/:id/documents/new', {
-        templateUrl: '/static/app/views/documents.new.html',
+        templateUrl: 'static/app/views/documents.new.html',
         controller: 'CorpusDocumentsCtrl'
       })
       .when('/corpus/:id/stopwords', {
-        templateUrl: '/static/app/views/stopwords.html',
+        templateUrl: 'static/app/views/stopwords.html',
         controller: 'StopwordsCtrl'
       })
       .when('/corpus/:id/search/:query', {
-        templateUrl: '/static/app/views/search.html',
+        templateUrl: 'static/app/views/search.html',
         controller: 'SearchCtrl'
       })
       .otherwise({

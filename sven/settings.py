@@ -98,7 +98,7 @@ STATIC_ROOT = local_settings.STATIC_ROOT
 MEDIA_ROOT = local_settings.MEDIA_ROOT
 MEDIA_URL = local_settings.MEDIA_URL
 
-LOGIN_URL = '/login/'
+LOGIN_URL = local_settings.LOGIN_URL
 
 STATICFILES_DIRS = (
   os.path.join(BASE_DIR, 'client'),
