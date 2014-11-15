@@ -8,7 +8,7 @@
  * Controller of the svenClientApp
  */
 angular.module('svenClientApp')
-  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, DocumentsConceptsFactory) {
+  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, DocumentsConceptsFactory, DocumentTagsFactory) {
     $scope.document = {
       date: new Date()
     };
@@ -23,21 +23,33 @@ angular.module('svenClientApp')
 
 
     $scope.save = function() {
-      var doc = angular.copy($scope.document);
-      $log.info('DocumentCtrl saving ', angular.copy($scope.document))
-      DocumentFactory.save({
-        id: doc.id,
-        name: doc.name,
-        date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),//$scope.document.date,
-        abstract: doc.abstract
-      }, function(res) {
+      var doc_copy = angular.copy($scope.document),
+          doc = {
+            id: doc_copy.id,
+            name: doc_copy.name,
+            date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),//$scope.document.date,
+            abstract: doc_copy.abstract
+          }; // translation for api purposes of some fields
+
+      // attach new tags
+      for(var tag_type in doc_copy.tags) {
+        doc_copy.tags[tag_type] = doc_copy.tags[tag_type].filter(function(d){
+          return !d.id; // not having id
+        }).map(function(d){
+          return d.name
+        })
+      };
+      
+
+      $log.info('DocumentCtrl.save() -->', doc,  doc_copy.tags);
+
+      DocumentFactory.save(doc, function(res) {
         console.debug('DocumentCtrl saved',res);
         $scope.document = res.object;
         if(res.status == 'ok') {
           toast('saved');
-          $location.path('/document/' + res.object.id);
+          // $location.path('/document/' + res.object.id);
         }
-        
       });
     };
 
@@ -47,6 +59,26 @@ angular.module('svenClientApp')
       $event.stopPropagation();
       $scope.opened = true;
     };
+
+    // tags
+    /*
+      @param type should be a valid type according to sven.models.Tag, usually 'ac' or 'tm'
+    */
+    $scope.attachTag = function(doc, type, tag) {
+      $log.info('DocumentCtrl.attachTag() -->', type, tag.name);
+      DocumentTagsFactory.save({id: doc.id, tags: tag.name, type:type}, function(data){
+        console.log('DocumentCtrl.attachTag() success', data);
+        $scope.document.tags = data.object.tags;
+      });
+    }
+
+    $scope.detachTag = function(doc, type, tag) {
+      $log.info('DocumentCtrl.detachTag() -->', type, tag.name);
+      DocumentTagsFactory.remove({id: doc.id, tags: tag.name, type:type}, function(data){
+        console.log('DocumentCtrl.detachTag() success', data);
+        $scope.document.tags = data.object.tags;
+      });
+    }
 
     /*
       SEGMENTS PART 
@@ -82,5 +114,5 @@ angular.module('svenClientApp')
 
     $scope.sync();
 
-    
+    $log.debug('DocumentCtrl ready');
   });

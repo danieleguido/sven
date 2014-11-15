@@ -21,6 +21,28 @@
             </span>
           </p>
         </div>
+      
+      </div>
+      <div class="form-group">
+
+        <label>type of media</label>
+        <tags-input
+          ng-model="document.tags.type_of_media"
+          replace-spaces-with-dashes="false"
+          on-tag-added="attachTag(document,'tm',$tag)" on-tag-removed="detachTag(document,'tm',$tag)"
+          display-property="name"></tags-input>
+
+      </div>
+      <div class="form-group">
+
+        <label>actors involved</label>
+        <tags-input ng-model="document.tags.actor" replace-spaces-with-dashes="false" display-property="name"  on-tag-added="attachTag(document,'ac',$tag)" on-tag-removed="detachTag(document,'ac',$tag)"></tags-input>
+
+      </div>
+      <div class="form-group">
+
+        <label>free tags</label>
+        <tags-input ng-model="document.tags.others" replace-spaces-with-dashes="false" display-property="name"></tags-input>
 
       </div>
       <div class="form-group">
