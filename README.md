@@ -50,8 +50,8 @@ If everything is ok you can start deploying the django server (for test purposes
 
   python manage.py runserver
 
-Normally a development version of sven should be running under 
-[localhost:8000]
+Normally a development version of sven would now be running under 
+[localhost:8000](localhost:8000)
 
 <!-- sven in production: some hints
 ---
@@ -64,18 +64,6 @@ Note: sven hasn't been tested on a production environment.
   workon sven
   python manage.py collectstatic
 
-
-  
-
-troubleshooting
----
-__(OSX)__ how to compile local .po file for localization 
-
-	brew update
-	brew install gettext
-	brew link getttext --force
-
-	django-admin.py makemessages --locale=fr
 
 
 Note on sven structure
