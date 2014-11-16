@@ -466,14 +466,14 @@ def corpus(request, pk):
   epoxy = Epoxy(request)
 
   try:
-    corpus = Corpus.objects.get(pk=pk)
+    cor = Corpus.objects.get(pk=pk)
   except Corpus.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_DELETE():
-    corpus.delete()
+    cor.delete()
   else:
-    epoxy.item(corpus, deep=True)
+    epoxy.item(cor, deep=True)
     
   return epoxy.json()
 
@@ -483,11 +483,20 @@ def corpus(request, pk):
 def corpus_stopwords(request, corpus_pk):
   epoxy = Epoxy(request)
   try:
-    corpus = Corpus.objects.get(pk=corpus_pk)
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  epoxy.add('objects', corpus.get_stopwords())
+  if epoxy.is_POST():
+    if 'words' not in epoxy.data:
+      return epoxy.throw_error(error='words param not found', code=API_EXCEPTION_FORMERRORS).json()
+    # clean empty lines
+
+    cor.set_stopwords(sorted(filter(None,[
+      w.strip() for w in epoxy.data['words'].split('\n')
+    ])))
+
+  epoxy.add('objects', cor.get_stopwords())
   return epoxy.json()
 
 
