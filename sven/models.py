@@ -655,6 +655,7 @@ class Document(models.Model):
     '''
     Get utf8 text content of the file. If the document is of type text/html
     '''
+    content = ''
     if self.mimetype is None:
       self.mimetype == 'text/plain'
       content = "" # not yet ready ... Empty string
@@ -679,8 +680,11 @@ class Document(models.Model):
             goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
           except urllib2.HTTPError,e:
             logger.error('HTTPError received while goosing %s' % self.url)
-            logger.exception(e)
             content = ''
+          except IOError, e:
+            logger.error('IOError received while goosing %s' % self.url)
+            content = ''
+
           else:
             content = goo.cleaned_text
             with codecs.open(textified, encoding='utf-8', mode='w') as f:
