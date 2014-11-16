@@ -439,7 +439,7 @@ class Tag(models.Model):
   Clustering documents according to tag. A special tag category is actor.
   feel free to add tag type to this model ... :D
   '''
-  FREE = '' # i.e, no special category at all
+  FREE = 'fr' # i.e, no special category at all
   ACTOR = 'ac'
   INSTITUTION = 'in'
   TYPE_OF_MEDIA = 'tm'

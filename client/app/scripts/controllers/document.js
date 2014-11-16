@@ -33,6 +33,8 @@ angular.module('svenClientApp')
 
       // attach new tags
       for(var tag_type in doc_copy.tags) {
+        if(!doc_copy.tags[tag_type])
+          continue
         doc_copy.tags[tag_type] = doc_copy.tags[tag_type].filter(function(d){
           return !d.id; // not having id
         }).map(function(d){
@@ -48,7 +50,7 @@ angular.module('svenClientApp')
         $scope.document = res.object;
         if(res.status == 'ok') {
           toast('saved');
-          // $location.path('/document/' + res.object.id);
+          $location.path('/document/' + res.object.id);
         }
       });
     };
