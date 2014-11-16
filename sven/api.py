@@ -267,7 +267,7 @@ def document(request, pk):
     form = edit_object(instance=d, Form=DocumentForm, epoxy=epoxy)
     if not form.is_valid():
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
-    
+    d.save()
     # chec if there is a text param to save ...
     if 'text' in epoxy.data:
       d.set_text(epoxy.data['text'])
