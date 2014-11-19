@@ -173,7 +173,7 @@ class Command(BaseCommand):
       logger.debug('%s does not exist', options['csv'])
       return
 
-    f = open(options['csv'], 'rU')
+    f = open(options['csv'], 'rb')
     rows = unicodecsv.DictReader(f, encoding='utf-8')
     #rows = unicodecsv.DictReader(f)
     # get number of rows

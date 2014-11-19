@@ -10,9 +10,9 @@ Welcome to our (twenty)three minutes install! All you need is a terminal, virtua
 	cd ~/path/to/sven
 	cp sven/local_settings.sample.py sven/local_settings.py
 	
-modify it according to your __own__ configutation: provide your python interpreter absolute path for the sven virtualenv. This interpreter will be used by sven custom management command.
+modify it according to your __own__ configutation: provide your python interpreter absolute path for the **sven virtualenv**. This interpreter will be used by sven custom management command.
   
-  PYTHON_INTERPRETER = '/Users/daniele/.virtualenvs/sven/bin/python'
+  	PYTHON_INTERPRETER = '/Users/daniele/.virtualenvs/sven/bin/python'
 
 if you're going to use a _sqlite_ database (a light and fast alternative), you need to create a specific directory to hold the sqlite file. Then give adequate permissions access to both sqlite file and its parent directory.
 
@@ -31,7 +31,15 @@ install submodules
   	(sven) git submodule init
   	(sven) git submodule update
 
-
+Create missing folders and check folder permission (Ubuntu/OSx)
+	
+	cd ~/path/to/sven
+	sudo mkdir media logs
+	sudo chown -R lime:www-data media
+	sudo chmod -R g+ws media
+	sudo chown -R lime:www-data logs
+	sudo chmod -R g+ws logs
+	
 then sync and test.
 
 	(sven) python manage.py syncdb
@@ -52,6 +60,13 @@ If everything is ok you can start deploying the django server (for test purposes
 
 Normally a development version of sven would now be running under 
 [localhost:8000](localhost:8000)
+
+Installation issues on UBUNTU
+---
+Please check that python-lxml is installed.
+
+	sudo apt-get install libxml2-dev libxslt1-dev python-dev
+	sudo apt-get install python-lxml
 
 <!-- sven in production: some hints
 ---

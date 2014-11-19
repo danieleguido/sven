@@ -29,4 +29,27 @@ angular.module('svenClientApp')
       input = input || '';
       return input.replace(/\n\n+/g,'\n\n').split('\n').join('<br/>');
     };
+  })
+  // convert tsv strings into well formatted javascript objects
+  .filter('tsv', function() {
+    return function(input) {
+        var lines     = input.split(/[\n\r]+/),
+            separator = '\t',
+            result    = {
+              headers: [],
+              rows: []
+            },
+            numlines = 0;
+
+        if(!lines.length) 
+          return;
+
+        result.headers = lines.shift().split(separator);
+        numlines = Math.min(lines.length, 25);
+        for (var i=0; i<numlines; i++) {
+          result.rows.push(lines[i].split(separator));
+        };
+
+        return result;
+      };
   });

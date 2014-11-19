@@ -19,6 +19,8 @@ angular.module('svenClientApp')
       $modalInstance.dismiss('cancel');
     };
   })
+  
+
   .controller('ModalTagCtrl', function ($scope, $routeParams, $log, $modal) {
     
 
@@ -33,6 +35,39 @@ angular.module('svenClientApp')
         resolve: {
           item: function () {
             return doc;
+          }
+        }
+      });
+    });
+  })
+
+
+  .controller('PreviewTsvCtrl', function ($scope, $modalInstance, table) {
+    $scope.table = table;
+
+    $scope.ok = function () {
+      $modalInstance.close();
+      $scope.onMetadataStart();
+    };
+
+    $scope.cancel = function () {
+      $modalInstance.dismiss('cancel');
+    };
+  })
+  .controller('ModalPreviewTsvCtrl', function ($scope, $filter, $routeParams, $log, $modal) {
+    var modal;
+
+    $scope.$watch('tsv', function(tsv) {
+      if(!tsv)
+        return;
+      modal = $modal.open({
+        templateUrl: 'previewTsv.html',
+        controller: 'PreviewTsvCtrl',
+        backdrop:false,
+        resolve: {
+          table: function () {
+            console.log()
+            return $filter('tsv')(tsv);
           }
         }
       });

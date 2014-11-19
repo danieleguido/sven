@@ -35,7 +35,7 @@ function toast(message, title, options){
  * Controller of the svenClientApp
  */
 angular.module('svenClientApp')
-  .controller('CoreCtrl', function ($scope, $log, $upload, $sce, $cookies, $timeout, LoginFactory, CommandFactory, NotificationFactory) {
+  .controller('CoreCtrl', function ($scope, $log, $upload, $sce, $cookies, $timeout, $filter, LoginFactory, CommandFactory, NotificationFactory) {
     $log.debug('CoreCtrl ready');
     $scope.status = 'LOADING';
 
@@ -179,24 +179,43 @@ angular.module('svenClientApp')
     };
 
 
+    
+    /*
+      launch the preview of the csv data
+    */
     $scope.onMetadataSelect = function($files) {
       $log.debug('onMetadataSelect', $files);
-      toast('checking metadata file...');
-      
-      $upload.upload({
-          url: '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
-          file: $files[0]
-        }).then(function(res) {
-          $log.info('completed', res);
-          toast(res.config.file.name + ' uploaded...', {cleanToast:true});
-        }, function(response) {
-          $log.error(response);
-          //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
-        }, function(evt) {
-          // Math.min is to fix IE which reports 200% sometimes
-          console.log(evt);
-        });
+      toast('loading preview of the metadata file...');
+      var reader = new FileReader();
+      reader.onload = function(e){
+        $scope.file = $files[0];
+        $scope.tsv = e.target.result.replace(/[\n\r]+/g,'\n').split(/[\n\r]/).join('\n');
+        
+      };
+      reader.readAsText($files[0]);
+      // debugger
+      // leave the file quiet ....
     }
+
+    /*
+      once the preview has been validated, the data can be uploaded on server.
+    */
+    $scope.onMetadataStart = function() {
+      $upload.upload({
+        url: '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
+        file: $scope.file
+      }).then(function(res) {
+        $log.info('completed', res);
+        toast(res.config.file.name + ' uploaded...', {cleanToast:true});
+      }, function(response) {
+        $log.error(response);
+        //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
+      }, function(evt) {
+        // Math.min is to fix IE which reports 200% sometimes
+        console.log(evt);
+      });
+    }
+
 
     $scope.onFileSelect = function($files) {
       $log.debug('onFileSelect', $files);

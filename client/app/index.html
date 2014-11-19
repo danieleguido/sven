@@ -127,7 +127,7 @@
                 <!-- div style="position: fixed; height: 100%; width: 200px; margin-left: -230px; background: #b1b2ab"> 
                    filtering by
                 </div -->
-
+              
                 <div class="row" ng-show="!reload_corpora">
                     <div class="col-lg-12" ng-view>
                         
@@ -160,6 +160,33 @@
           </script>
         </div>
 
+        <!--#modal -->
+        <div ng-controller="ModalPreviewTsvCtrl">
+          <script type="text/ng-template" id="previewTsv.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">hello</h3>
+              </div>
+              <div class="modal-body">
+                <table>
+                  <thead>
+                    <tr>
+                      <th ng-repeat="cell in table.headers">{{cell}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="row in table.rows">
+                      <td style="overflow: hidden; width:{{100/table.rows.length}}%" ng-repeat="cell in row track by $index">{{cell}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
+        
 
 
     </div>

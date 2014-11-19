@@ -1,7 +1,10 @@
-import os
-import sys
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os, sys, site
 
-path = ‘/home/lime/public/sven'
+site.addsitedir('/home/user/.virtualenvs/sven/lib/python2.7/site-packages') #
+
+path = '/home/user/sven' # sven path
 if path not in sys.path:
     sys.path.append(path)
 
