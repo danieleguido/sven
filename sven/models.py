@@ -746,10 +746,16 @@ class Document(models.Model):
 
 
   def save(self, **kwargs):
-    # understanding datetime included in file title... YYYY MM DD
-    date = re.search(r'_(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_',self.name)
-    if not self.date and date:
-      self.date = make_aware(datetime.strptime('%s-%s-%s' % (date.group('year'), date.group('month'), date.group('day')), '%Y-%m-%d'), utc)
+    # understanding datetime, language included in file title... YYYY MM DD
+    parts = re.search(r'^(?P<tags>[^_]*)_+(?P<language>\w\w)_+(?P<year>\d{4})[\/\-\.\s]*(?P<month>\d{2})[\/\-\.\s]*(?P<day>\d{2})_+(?P<title>.*)$', self.name)
+    if not parts:
+      date = re.search(r'_+(?P<year>\d{4})[\/\-\.\s]*(?P<month>\d{2})[\/\-\.\s]*(?P<day>\d{2})_+',self.name)
+      if not self.date and date:
+        self.date = make_aware(datetime.strptime('%s-%s-%s' % (date.group('year'), date.group('month'), date.group('day')), '%Y-%m-%d'), utc)
+    else:
+      self.date = make_aware(datetime.strptime('%s-%s-%s' % (parts.group('year'), parts.group('month'), parts.group('day')), '%Y-%m-%d'), utc)
+      self.name = parts.group('title') if len(parts.group('title').strip()) > 0 else self.name
+      self.language = parts.group('language').lower()
 
     self.slug = helper_uuslug(model=Document, instance=self, value=self.name)
     if self.raw:
@@ -779,7 +785,19 @@ class Document(models.Model):
               t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key])
               self.tags.add(t)
 
+    # get id because we want to save discovered tags in self.name
+    if parts:
+      if not self.id:
+        super(Document, self).save()
+      with transaction.atomic():
+        tags = [t.strip() for t in filter(None,parts.group('tags').split('-'))]
+        for tag in tags:
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag)
+          self.tags.add(t)
+    # sven magic way to understand filename: from rights-policy-advocacy_EN_20140417_PC230 to doc
+    
     super(Document, self).save()
+
 
 
 

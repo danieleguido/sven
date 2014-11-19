@@ -178,9 +178,26 @@ class DocumentTest(TestCase):
 
 
   def test_create_document_having_datetime(self):
-    document = Document(corpus=self.corpus, name=u'N-L_FR_20140305_.txt')
-    document.save()
-    self.assertEqual(document.date.isoformat(), '2014-03-05T00:00:00+00:00')
+    # test tag creation, language and date. Note: doc only date should only have date.. 
+    doc_with_tag_in_its_name = Document(corpus=self.corpus, name=u'rights  -  policy  - advocacy__EN_20140417_PC230')
+    doc_with_tag_in_its_name.save()
+    self.assertEqual(doc_with_tag_in_its_name.name, 'PC230')
+    self.assertEqual(doc_with_tag_in_its_name.language, 'en')
+    self.assertEqual(doc_with_tag_in_its_name.tags.count(), 3)
+
+    doc_with_tag_in_its_name_but_unvalid_title = Document(corpus=self.corpus, name=u'rights  -  policy  - advocacy__EN_20140417_')
+    doc_with_tag_in_its_name_but_unvalid_title.save()
+    self.assertEqual(doc_with_tag_in_its_name_but_unvalid_title.name, u'rights  -  policy  - advocacy__EN_20140417_')
+    self.assertEqual(doc_with_tag_in_its_name_but_unvalid_title.language, 'en')
+    self.assertEqual(doc_with_tag_in_its_name_but_unvalid_title.tags.count(), 3)
+
+    doc_with_only_date_in_its_name = Document(corpus=self.corpus, name=u'N-L_d_2014.03.05_') # because title here is null
+    doc_with_only_date_in_its_name.save()
+    self.assertEqual(doc_with_only_date_in_its_name.date.isoformat(), '2014-03-05T00:00:00+00:00')
+    self.assertEqual(doc_with_only_date_in_its_name.language, '')
+    self.assertEqual(doc_with_tag_in_its_name_but_unvalid_title.tags.count(), 0)
+    #print doc_with_tag_in_its_name_but_unvalid_title.name, doc_with_tag_in_its_name.name, doc_with_tag_in_its_name.language,doc_with_only_date_in_its_name.language, doc_with_only_date_in_its_name.name
+    
 
 
   def test_create_document(self):
