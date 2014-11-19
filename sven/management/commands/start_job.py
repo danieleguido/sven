@@ -283,7 +283,12 @@ class Command(BaseCommand):
         job.document = doc
         job.completion = 1.0*step/total
         job.save()
-      logger.debug('tf executed language "%s" %s%%' % (language, job.completion))
+      logger.debug('tf doc id:%(id)s, language:%(language)s, completion %(step)s / %(total)s' % {
+        'id': doc.id,
+        'language': language,
+        'step': step,
+        'total': total
+      })
 
     logger.debug('tf completed')
 

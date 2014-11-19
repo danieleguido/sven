@@ -9,7 +9,7 @@
  */
 angular.module('svenClientApp')
   .controller('ConceptsCtrl', function ($scope, $log, $routeParams, ConceptsFactory) {
-    $log.debug('ConceptsCtrl ready ca');
+    $log.debug('ConceptsCtrl ready');
     $scope.localCorpus = {};
 
     $scope.measure = 'tf'; // tf | tf_idf

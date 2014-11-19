@@ -439,7 +439,7 @@ class Tag(models.Model):
   Clustering documents according to tag. A special tag category is actor.
   feel free to add tag type to this model ... :D
   '''
-  FREE = '' # i.e, no special category at all
+  FREE = 'fr' # i.e, no special category at all
   ACTOR = 'ac'
   INSTITUTION = 'in'
   TYPE_OF_MEDIA = 'tm'
@@ -580,7 +580,7 @@ class Document(models.Model):
       except Exception, e:
         logger.exception(e)
         d.update({
-          'text': 'can\'t get the text version of this document'
+          'text': 'can\'t get the text version of this document %s' % e
         })
 
    
@@ -655,14 +655,17 @@ class Document(models.Model):
     '''
     Get utf8 text content of the file. If the document is of type text/html
     '''
+    content = ''
+
     if self.mimetype is None:
       content = "" # not yet ready ... Empty string
-    elif self.mimetype == 'text/plain':
-      with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
-        content = f.read()
-    else: #document which need textification
+    elif self.mimetype == 'text/plain' and self.raw and os.path.exists(self.raw.path):
+        with codecs.open(self.raw.path, encoding='utf-8', mode='r') as f:
+          content = f.read()
 
+    else: #document which need textification
       textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+      
       if os.path.exists(textified):
         with codecs.open(textified, encoding='utf-8', mode='r') as f:
           content = f.read()
@@ -673,21 +676,26 @@ class Document(models.Model):
           with codecs.open(textified, encoding='utf-8', mode='w') as f:
             f.write(content)
         elif self.url is not None:
-          goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
-          
-          content = goo.cleaned_text
-          with codecs.open(textified, encoding='utf-8', mode='w') as f:
-            f.write(content)
+          try:
+            goo = gooseapi(url=self.url) # use gooseapi to extract text content from html
+          except urllib2.HTTPError,e:
+            logger.error('HTTPError received while goosing %s: %s' % (self.url, e))
+            content = ''
+          except IOError, e:
+            logger.error('IOError received while goosing %s: %s' % (self.url, e))
+          else:
+            content = goo.cleaned_text
+            with codecs.open(textified, encoding='utf-8', mode='w') as f:
+              f.write(content)
         else:
           content = '' #%s does not have a text associed. %s' % (self.mimetype, textified)
         # exitsts text translations?
         
         # store whoosh, only if contents needs to be created. not that store update document content in index
         if len(content):
-          logger.info("storing content of file")
           self.store(content)
 
-    if not self.language:
+    if not self.language :
       import langid
       self.abstract = helper_truncatesmart(content, 150)
       language, probability = langid.classify(content[:255])
@@ -696,6 +704,15 @@ class Document(models.Model):
     
     content = dry(content)
 
+    if not len(content):
+      logger.error('Unable to find some text content for document id:%s' % (self.id))
+    return content
+
+
+  def set_text(self, content):
+    textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+    with codecs.open(textified, encoding='utf-8', mode='w') as f:
+      f.write(content)
     return content
 
 

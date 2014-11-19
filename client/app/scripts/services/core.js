@@ -57,7 +57,7 @@ angular.module('svenClientApp')
   .factory('StopwordsFactory', function($resource) {
     return $resource('/api/corpus/:id/stopwords', {}, {
         query: {method: 'GET', isArray: false, params: {id:'@id'}},
-        update: {method: 'POST', isArray: false, params: {id:'@id'} }
+        save: {method: 'POST', isArray: false, params: {id:'@id'} }
     });
   });
 

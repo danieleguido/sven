@@ -372,8 +372,22 @@ li.spacer{
   color: #bbb;
 }
 
+.big-item .content{
+  padding: 15px 20px 25px 20px;
+  border-top: 1px solid #eee;
+  border-bottom: 2px solid #eee;
+  margin-top: 10px;
+}
 
 
+/*
+  ~~~~~~~~~///////////////~~~~~~~~~
+           ACE EDITOR MODS
+  ~~~~~~~~~///////////////~~~~~~~~~
+*/
+.ace_editor{
+  height: 300px;
+}
 /*
   ~~~~~~~~~//////////////~~~~~~~~~
            BOOTSTRAP MODS

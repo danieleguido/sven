@@ -12,9 +12,10 @@
 
         <span class="tag language" tooltip="language {{document.language}}">{{document.language}}</span>
         <span class="tag type_of_media" ng-repeat="tag in document.tags.type_of_media" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
-        <span class="tag" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+        <span class="tag actor" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+        <span class="tag" ng-repeat="tag in document.tags.tags" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
 
-      </p>
+        </p>
       <div ng-if="document.tags.oembed_provider_name">
         <div ng-switch="document.tags.oembed_provider_name.slug">
           <div ng-switch-when="vimeo">
@@ -31,11 +32,12 @@
         <div class="btn-group">
 
           <a ng-href="#/document/{{document.id}}/edit" class="btn btn-default">edit metadata <i class="fa fa-pencil"></i></a>
+          <a ng-href="#/document/{{document.id}}/text" class="btn btn-default">edit text <i class="fa fa-file-text"></i></a>
 
         </div>
         <div class="btn-group">
 
-          <a href="{{document.media_txt}}" class="btn btn-default" download>plain text <i class="fa fa-download"></i></a>
+          <a href="{{document.media_txt}}" class="btn btn-default" download>download text <i class="fa fa-download"></i></a>
 
           <a ng-if="document.url" href="{{document.url}}" class="btn btn-default" target="_blank">follow url <i class="fa fa-link"></i></a>
           
@@ -44,8 +46,8 @@
       </div>
       
         <!-- span ng-click="attachTag(document)">add tag</span -->
-      <div class="content">
-      {{document.text}}
+      <div class="content" ng-bind-html="document.text|htmltext">
+
       </div>
     </div>
     <!-- endof:big document -->

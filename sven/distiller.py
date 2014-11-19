@@ -114,8 +114,9 @@ def gooseapi(url):
   Return a goose instance (with title and content only) for a specific url provided.
   '''
   from goose import Goose
-  goo = Goose()
+  goo = Goose({'enable_image_fetching':False})
   opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
+  opener.addheaders = [('User-agent', 'User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36')]
   response = opener.open(url)
   raw_html = response.read()
   return goo.extract(raw_html=raw_html)

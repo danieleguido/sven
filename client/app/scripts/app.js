@@ -16,6 +16,7 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
+    'ui.ace',
     'ui.bootstrap',
     'angularFileUpload',
     'ngTagsInput'
@@ -44,6 +45,10 @@ angular
       })
       .when('/document/:id/edit', { // document id
         templateUrl: 'static/app/views/document.edit.html',
+        controller: 'DocumentCtrl'
+      })
+      .when('/document/:id/text', { // document id
+        templateUrl: 'static/app/views/document.text.html',
         controller: 'DocumentCtrl'
       })
       .when('/concepts', {

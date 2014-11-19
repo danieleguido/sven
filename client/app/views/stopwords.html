@@ -18,7 +18,14 @@
     </a>
   </li>
 </ul>
-
-<form role="form">
-<textarea class="form-control" ng-model="stopwords"></textarea>
-</form>
+<div class="row">
+  <div class="col-sm-6">
+    <div ui-ace="ace" readonly="{{lock}}" ng-model="stopwords"></div>
+  </div>
+  <div class="col-sm-6">
+    <div class="btn-group">
+      <button class="btn btn-primary" ng-click="save()">save changes</button>
+      <button class="btn btn-default">clean concepts</button>
+    </div>
+  </div>
+</div>
