@@ -105,11 +105,22 @@ angular.module('svenClientApp')
       });
     };
 
+
     $scope.openDatePicker = function($event) {
       $event.preventDefault();
       $event.stopPropagation();
       $scope.opened = true;
     };
+
+    /*
+      Export current corpus in a single csv file
+    */
+    $scope.exportCorpus = function() {
+      $log.debug('CorpusDocumentsCtrl --> exportCorpus()');
+      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/document?' + JSON.stringify($scope.filters), '_blank', '');
+    //ng-href="/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}"
+    };
+
 
     $scope.$on(API_PARAMS_CHANGED, function(){
       $log.debug('CorpusDocumentsCtrl @API_PARAMS_CHANGED');

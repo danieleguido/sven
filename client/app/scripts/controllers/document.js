@@ -12,12 +12,14 @@ angular.module('svenClientApp')
     $scope.document = {
       date: new Date()
     };
-
+    $log.info($routeParams, 'loading stuff')
     $routeParams.id && DocumentFactory.query({id: $routeParams.id}, function(data){
       console.log(data);
       $scope.document = data.object;
       // once done load segments
     
+    }, function(err){
+      console.log(err)
     });
 
 

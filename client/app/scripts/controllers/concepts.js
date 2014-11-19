@@ -46,7 +46,7 @@ angular.module('svenClientApp')
     });
 
     $scope.downloadConcepts = function() {
-      window.open('/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
+      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
     };
 
     $scope.sync = function() {

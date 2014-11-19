@@ -84,6 +84,7 @@ def _shared_context(request, tags=[], d={}):
     'SVEN_NAME': settings.SVEN_NAME,
     'DEBUG': settings.DEBUG,
     'ENABLE_CDN_SERVICES': settings.ENABLE_CDN_SERVICES,
-    'LANGUAGE': request.LANGUAGE_CODE
+    'LANGUAGE': request.LANGUAGE_CODE,
+    'BASE_URL': settings.BASE_URL
   })
   return d
