@@ -99,10 +99,10 @@ MEDIA_ROOT = local_settings.MEDIA_ROOT
 MEDIA_URL = local_settings.MEDIA_URL
 
 LOGIN_URL = local_settings.LOGIN_URL
+BASE_URL  = local_settings.BASE_URL
 
 STATICFILES_DIRS = (
   os.path.join(BASE_DIR, 'client'),
-  os.path.join(BASE_DIR, 'client/dist'),
 )
 
 TEMPLATE_DIRS = (

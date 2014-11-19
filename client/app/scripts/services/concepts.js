@@ -9,7 +9,7 @@
  */
 angular.module('svenClientApp')
   .factory('ConceptsFactory', function($resource) {
-    return $resource('/api/corpus/:id/segment', {}, {
+    return $resource(SVEN_BASE_URL + '/api/corpus/:id/segment', {}, {
       query: {method: 'GET', isArray: false, params: {id: '@id'} },
       remove: {method: 'DELETE', params: {id: '@id'} }
     });

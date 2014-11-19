@@ -161,7 +161,7 @@ angular.module('svenClientApp')
     
     var start = function($file, index) {
       uploaders[index] = $upload.upload({
-          url: '/api/corpus/' + $scope.corpus.id + '/upload', //upload.php script, node.js route, or servlet url
+          url: SVEN_BASE_URL + '/api/corpus/' + $scope.corpus.id + '/upload', //upload.php script, node.js route, or servlet url
           file: $file
         }).then(function(res) {
           $scope.uploadingQueue[index].completion = 100;
@@ -184,7 +184,7 @@ angular.module('svenClientApp')
       toast('checking metadata file...');
       
       $upload.upload({
-          url: '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
+          url: SVEN_BASE_URL + '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
           file: $files[0]
         }).then(function(res) {
           $log.info('completed', res);
