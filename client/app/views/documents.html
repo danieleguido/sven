@@ -34,7 +34,7 @@
   </div>
   <div class="btn-group">
 
-    <a class="btn btn-default" ng-href="/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}">
+    <a class="btn btn-default" ng-click="exportCorpus()">
       <span>export</span> <i class="fa fa-download"></i>
     </a>
     <div class="uploader btn btn-default"  ng-file-select="onMetadataSelect($files)" data-multiple="false">
