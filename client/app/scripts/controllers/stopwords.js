@@ -20,7 +20,9 @@ angular.module('svenClientApp')
 
     StopwordsFactory.query({id:$routeParams.id}, function(data){
       $log.info('loading documents', data);
-      $scope.stopwords = data.objects.join("\n");
+      if(typeof data.objects == 'object')
+        $scope.stopwords = data.objects.join("\n");
+      
       }, function(){
     });
 
