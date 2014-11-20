@@ -517,7 +517,7 @@ class Document(models.Model):
   
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
 
-  raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True)
+  raw  = models.FileField(upload_to=helper_get_document_path, blank=True, null=True, max_length=200)
   mimetype = models.CharField(max_length=100)
 
 
