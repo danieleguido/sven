@@ -270,6 +270,7 @@ def document(request, pk):
     d.save()
     # chec if there is a text param to save ...
     if 'text' in epoxy.data:
+      logger.debug('saving text for the given document')
       d.set_text(epoxy.data['text'])
       epoxy.item(d, deep=True)
     else:

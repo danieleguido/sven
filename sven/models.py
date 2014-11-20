@@ -712,9 +712,14 @@ class Document(models.Model):
 
 
   def set_text(self, content):
-    textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+    if self.mimetype == 'text/plain':
+      textified = self.raw.path
+    else:
+      textified = '%s.txt' % self.raw.path if self.raw else '%s/%s.txt' % (self.corpus.get_path(), self.slug)
+
     with codecs.open(textified, encoding='utf-8', mode='w') as f:
       f.write(content)
+
     return content
 
 
