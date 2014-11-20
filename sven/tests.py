@@ -101,8 +101,10 @@ class CorpusTest(TestCase):
     self.corpus.set_stopwords(contents=[u'Hey', u'Alleluya'])
     self.corpus.set_stopwords(contents=[u'English Hey', u'English Alleluya'], language='en')
     stopwords = self.corpus.get_stopwords()
-    print stopwords
+    #print stopwords
     en_stopwords = self.corpus.get_stopwords(language='en')
+    self.assertEqual(stopwords, [u'Hey', u'Alleluya'])
+    self.assertEqual(en_stopwords, [u'English Hey', u'English Alleluya'])
 
 
   def test_upload_metadata_csv(self):
@@ -195,7 +197,7 @@ class DocumentTest(TestCase):
     doc_with_only_date_in_its_name.save()
     self.assertEqual(doc_with_only_date_in_its_name.date.isoformat(), '2014-03-05T00:00:00+00:00')
     self.assertEqual(doc_with_only_date_in_its_name.language, '')
-    self.assertEqual(doc_with_tag_in_its_name_but_unvalid_title.tags.count(), 0)
+    self.assertEqual(doc_with_only_date_in_its_name.tags.count(), 0)
     #print doc_with_tag_in_its_name_but_unvalid_title.name, doc_with_tag_in_its_name.name, doc_with_tag_in_its_name.language,doc_with_only_date_in_its_name.language, doc_with_only_date_in_its_name.name
     
 
