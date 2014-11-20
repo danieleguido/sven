@@ -117,14 +117,19 @@ angular.module('svenClientApp')
     */
     $scope.exportCorpus = function() {
       $log.debug('CorpusDocumentsCtrl --> exportCorpus()');
-      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/document?' + JSON.stringify($scope.filters), '_blank', '');
+      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/document?filters=' + JSON.stringify($scope.filters), '_blank', '');
     //ng-href="/api/export/corpus/{{corpus.id}}/document?filters={{filters|json}}"
     };
 
-
+    var api_params_changed_timer = 0;
     $scope.$on(API_PARAMS_CHANGED, function(){
-      $log.debug('CorpusDocumentsCtrl @API_PARAMS_CHANGED');
-      $scope.sync();
+      $log.info('CorpusDocumentsCtrl @API_PARAMS_CHANGED, waiting 300ms...');
+      api_params_changed_timer && clearTimeout($scope.api_params_changed);
+      api_params_changed_timer = setTimeout(function() {
+        $log.info('CorpusDocumentsCtrl @API_PARAMS_CHANGED executed');
+      
+        $scope.sync();
+      }, 300);
     });
 
     // start

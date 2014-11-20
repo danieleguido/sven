@@ -165,9 +165,9 @@ angular.module('svenClientApp')
           file: $file
         }).then(function(res) {
           $scope.uploadingQueue[index].completion = 100;
-          console.log(res);
-          $log.info('completed', res);
-          toast('uploading completed', $scope.uploadingQueue[index].name);
+          $log.info('upload @start completed', res);
+          toast($scope.uploadingQueue[index].name + ' uploaded');
+          
           $scope.$broadcast(API_PARAMS_CHANGED)
         }, function(response) {
           $log.error(response);
