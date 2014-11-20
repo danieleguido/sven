@@ -508,6 +508,8 @@ class Tag(models.Model):
 
 
 class Document(models.Model):
+  DOCUMENT_ABSTRACT_PLACEHOLDER = '...'
+
   name = models.CharField(max_length=128)
   slug = models.CharField(max_length=128, unique=True)
   abstract = models.CharField(max_length=160,  blank=True, null=True) # sample taken from .text() transformation 
@@ -695,7 +697,7 @@ class Document(models.Model):
         if len(content):
           self.store(content)
 
-    if not self.language :
+    if not self.language or not self.abstract or self.abstract == Document.DOCUMENT_ABSTRACT_PLACEHOLDER:
       import langid
       self.abstract = helper_truncatesmart(content, 150)
       language, probability = langid.classify(content[:255])

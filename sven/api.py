@@ -356,7 +356,7 @@ def document_upload(request, corpus_pk):
     'filename':  f.name
   })
 
-  d = Document(corpus=corpus, raw=f, name=f.name, abstract="(document recently uploaded)")
+  d = Document(corpus=corpus, raw=f, name=f.name, abstract=Document.DOCUMENT_ABSTRACT_PLACEHOLDER)
   d.save()
   epoxy.meta('total_count', Document.objects.filter(corpus__owners=request.user).count())
   epoxy.item(d, deep=False)
