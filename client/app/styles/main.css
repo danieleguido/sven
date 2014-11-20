@@ -339,7 +339,6 @@ li.spacer{
 
   margin-right: 5px;
   display: inline-block;
-  font-size: 1em;
   color: #777;
 }
 
@@ -348,6 +347,13 @@ li.spacer{
   cursor: pointer;
   background: #fafafa;
   margin: 0px 6px;
+  padding: 0px 5px;
+  line-height: 22px;
+  font-size:14px;
+}
+
+.tag.filtered{
+  background-color: #f1e3a7;
 }
 
 .tag:hover{
@@ -356,6 +362,19 @@ li.spacer{
 
 .tags{
   padding: 12px;
+}
+
+.filters-wrapper{
+  max-height: 0px;
+  overflow: hidden;
+  transition: all .35s ease-in-out;
+  transition-delay: .3s;
+}
+.filters-wrapper.active{
+  max-height: 200px;
+}
+.filters{
+  padding: 10px;
 }
 
 /*

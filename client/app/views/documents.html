@@ -4,12 +4,12 @@
   <li role="presentation" class="active">
     
     <a ng-href="#/corpus/{{corpus.id}}/documents">
-        {{corpus.count.documents}} documents
+      {{corpus.count.documents}} documents
     </a>
   </li>
   <li role="presentation">
     <a ng-href="#/corpus/{{corpus.id}}/concepts">
-        {{corpus.count.clusters}} concepts
+      {{corpus.count.clusters}} concepts
     </a>
   </li>
   <li role="presentation">
@@ -63,11 +63,13 @@
 
   </div>
 </div>
-
-<div>
-  <span ng-repeat="(key, item) in filtersItems">
-    {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
-  </span>
+<div class="filters-wrapper" ng-class="totalItems != corpus.count.documents && totalItems != 0?'active': ''">
+  <div class="filters" >
+    <span>{{totalItems}} of {{corpus.count.documents}} documents matching:</span>
+    <span class="tag filtered" ng-repeat="(key, item) in filtersItems">
+      {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
+    </span>
+  </div>
 </div>
 <div class="btn-toolbar" role="toolbar">
     <div class="btn-group" dropdown is-open="orderBy.isopen">
