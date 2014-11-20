@@ -185,6 +185,10 @@ angular.module('svenClientApp')
     */
     $scope.onMetadataSelect = function($files) {
       $log.debug('onMetadataSelect', $files);
+      //
+      $scope.file = $files[0];
+      $scope.onMetadataStart();
+      return;
       toast('loading preview of the metadata file...');
       var reader = new FileReader();
       reader.onload = function(e){
@@ -203,7 +207,7 @@ angular.module('svenClientApp')
     $scope.onMetadataStart = function() {
       $upload.upload({
           url: SVEN_BASE_URL + '/api/import/corpus/' + $scope.corpus.id + '/document', //upload.php script, node.js route, or servlet url
-          file: $files[0]
+          file: $scope.file
         }).then(function(res) {
           $log.info('completed', res);
           toast(res.config.file.name + ' uploaded...', {cleanToast:true});

@@ -706,15 +706,15 @@ def export_corpus_documents(request, corpus_pk):
   from django.http import HttpResponse
 
   if 'plain-text' not in request.REQUEST:
-    response = HttpResponse(mimetype='text/tsv; charset=utf-8')
+    response = HttpResponse(mimetype='text/csv; charset=utf-8')
     response['Content-Description'] = "File Transfer";
-    response['Content-Disposition'] = "attachment; filename=%s.documents.tsv" % c.name 
+    response['Content-Disposition'] = "attachment; filename=%s.documents.csv" % c.name 
   
   else:
     response = HttpResponse(mimetype='text/plain; charset=utf-8')
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
-  writer = unicodecsv.writer(response, delimiter='\t', encoding='utf-8')
+  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
   # write headers
   writer.writerow([u'key', u'name', u'date', u'language'] + [u'%s' % label for t,label in Tag.TYPE_CHOICES] )
   
@@ -727,7 +727,7 @@ def export_corpus_documents(request, corpus_pk):
     row = [doc.id, doc.name, doc.date.strftime('%Y-%m-%d') if doc.date is not None else None, doc.language]
 
     for tag_type,tag_label in Tag.TYPE_CHOICES:
-      row.append('\t'.join(tags[tag_type])) # comma separated
+      row.append(','.join(tags[tag_type])) # comma separated
 
     writer.writerow(row)
 
@@ -792,15 +792,15 @@ def export_corpus_segments(request, corpus_pk):
   )
   
   if 'plain-text' not in request.REQUEST:
-    response = HttpResponse(content_type='text/tsv; charset=utf-8')
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Description'] = "File Transfer";
-    response['Content-Disposition'] = "attachment; filename=%s.concepts.tsv" % c.name 
+    response['Content-Disposition'] = "attachment; filename=%s.concepts.csv" % c.name 
   
   else:
     response = HttpResponse(content_type='text/plain; charset=utf-8')
   
   
-  writer = unicodecsv.writer(response, delimiter='\t', encoding='utf-8')
+  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
   
   # headers  
   writer.writerow(['_id', 'content', 'concept',  'distribution', 'status', 'max_tf', 'max_tfidf'])

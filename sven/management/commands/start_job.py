@@ -169,31 +169,32 @@ class Command(BaseCommand):
     (todo) Anyway, a copy of the previous csv should be available to restore the system at a previous state.
     '''
     logger.debug('executing "import tags"...')
+
     if not options['csv'] or not os.path.exists(options['csv']):
       logger.debug('%s does not exist', options['csv'])
       return
+
+    total = sum(1 for line in open(options['csv']))
 
     f = open(options['csv'], 'rb')
     rows = unicodecsv.DictReader(f, encoding='utf-8')
     #rows = unicodecsv.DictReader(f)
     # get number of rows
-    total = sum(1 for row in rows)
-    logger.debug('%s lines in csv file, starting import', total)
+    logger.debug('%s lines in csv file, starting import' % total)
+      
     for step,row in enumerate(rows):
-
+      logger.debug('import line %s of %s' % (step, total))
       name = row['name'] # change document title (it has to be a complete csv export !!!!)
       language = row['language'][:2]
 
-      job.document = doc
       job.completion = 1.0*step/total
-      job.save()
-
-      ogger.debug('step', step, 'of', total)
+      
 
       form = DocumentMetadataForm(row)
-      if not form.is_valid():
+      if row['date'] and not form.is_valid():
         logger.error('validating csv fields... %s' % row['date'])
         logger.error(form.errors)
+        job.save()
         continue
 
       date = form.cleaned_data['date'] if row['date'] else None
@@ -205,9 +206,11 @@ class Command(BaseCommand):
           'id': row['key'],
           'corpus': job.corpus.name
         })
+        job.save()
         continue # skip and check next document
 
-      logger.debug('saving tags', step, 'of', total)
+      job.document = doc
+      job.save()
 
       with transaction.atomic():
         doc.name     = name
@@ -215,12 +218,13 @@ class Command(BaseCommand):
         doc.date     = date
 
         doc.tags.clear() # delete previous tags. filter.
-        logger.debug('docs tags', step, 'of', total)
+        
         for tag_type,tag_label in Tag.TYPE_CHOICES: # restrict possible values
           tags = filter(None, row[tag_label].split(','))
           # create tag if needed
           # remove old tag
-          
+          logger.debug('import tags %s - %s at line %s of %s' % (tags, tag_label, step, total))
+      
           for t in tags:
             tag, created = Tag.objects.get_or_create(name=t,type=tag_type)
             doc.tags.add(tag)

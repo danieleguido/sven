@@ -55,12 +55,12 @@ class UploadCSVForm(forms.Form):
     file = forms.FileField()
 
 
-class DocumentMetadataForm(forms.ModelForm):
+class DocumentMetadataForm(forms.Form):
   '''
   Cfr. sven/amnagement/command/start_job
   '''
   date = forms.DateTimeField(required=False)
-  class Meta:
-    model = Document
-    exclude = ['corpus', 'slug', 'mimetype', 'abstract']
+  #class Meta:
+  #  model = Document
+  #  exclude = ['corpus', 'slug', 'mimetype', 'abstract']
   
