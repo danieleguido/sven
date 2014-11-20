@@ -766,47 +766,84 @@ def import_corpus_documents(request, corpus_pk):
 
 
 def export_corpus_segments(request, corpus_pk):
+  '''
+  Return the list of segments in a specific corpus (given by pk)
+  '''
   epoxy = Epoxy(request)
   try:
-    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
-    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
-
+    return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
   import unicodecsv
   from django.http import HttpResponse
-  
-  ss = Segment.objects.raw("""
+
+  if not epoxy.order_by:
+    epoxy.order_by = ['tf DESC']
+  # total count
+  cursor = connection.cursor()
+  cursor.execute("""
+    SELECT
+      COUNT(distinct cluster)
+    FROM sven_segment
+      WHERE corpus_id = %(corpus_id)s
+    """ % {
+    'corpus_id': cor.id
+  })
+
+  row = cursor.fetchone()
+  epoxy.meta('total_count', row[0]) # luster pagination
+
+  segments = Segment.objects.raw("""
     SELECT 
-      s.`id`, s.`content`, s.`language`, 
-      s.`cluster`, s.`status`,
-      MAX( ds.`tfidf`) AS `max_tfidf`,
-      MAX( ds.`tf`) AS `max_tf`, 
-      COUNT(DISTINCT ds.document_id) AS `distro` 
+      s.`id`, s.`content`,s.`language`, 
+      s.`cluster`, s.`status`, 
+      MAX( ds.`tfidf`) AS `tfidf`,
+      MAX( ds.`tf`) AS `tf`,
+      COUNT(DISTINCT ds.document_id) AS `distribution` 
     FROM sven_segment s
       JOIN sven_document_segment ds ON s.id = ds.segment_id 
-      JOIN sven_document d ON ds.document_id = d.id
-    WHERE d.corpus_id = %s
+      JOIN sven_document d          ON ds.document_id = d.id
+      JOIN sven_corpus c            ON d.corpus_id = c.id
+    WHERE c.id = %(corpus_id)s
     GROUP BY s.cluster
-    ORDER BY max_tf DESC, distro DESC
-    """,[corpus_pk]
-  )
+    ORDER BY %(order_by)s
+    """ % {
+    'corpus_id': cor.id,
+    'order_by': ','.join(epoxy.order_by)
+  })
+  #print '%s' %segments.query
+  #epoxy.meta('query', '%s' %segments.query)
+
+  # for each segments, tf e tfidf value for each actor...
+  clusters = [{
+    'id': s.id,
+    'tf': s.tf,
+    'tf_idf': s.tfidf,
+    'status': s.status,
+    'cluster': s.cluster,
+    'distribution': s.distribution,
+    'content': s.content
+  } for s in segments]
   
   if 'plain-text' not in request.REQUEST:
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Description'] = "File Transfer";
-    response['Content-Disposition'] = "attachment; filename=%s.concepts.csv" % c.name 
+    response['Content-Disposition'] = "attachment; filename=%s.concepts.csv" % cor.name 
   
   else:
     response = HttpResponse(content_type='text/plain; charset=utf-8')
   
-  
-  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
-  
-  # headers  
-  writer.writerow(['_id', 'content', 'concept',  'distribution', 'status', 'max_tf', 'max_tfidf'])
+  writer = unicodecsv.DictWriter(response, fieldnames=['id','tf','tf_idf','status','cluster','distribution','content'], delimiter=',', encoding='utf-8')
+  writer.writeheader()
 
-  for s in ss:
-    writer.writerow([  s.id, s.content, s.cluster, s.distro, s.status, s.max_tf, s.max_tfidf])
+  for s in clusters:
+    # writer.writerow(['_id', 'content', 'concept',  'distribution', 'status', 'max_tf', 'max_tfidf'])
+    writer.writerow(s)
+  # headers  
+  #writer.writerow(['_id', 'content', 'concept',  'distribution', 'status', 'max_tf', 'max_tfidf'])
+
+  #for s in ss:
+  #  writer.writerow([  s.id, s.content, s.cluster, s.distro, s.status, s.max_tf, s.max_tfidf])
   
   return response
 

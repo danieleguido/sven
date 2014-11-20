@@ -23,6 +23,14 @@
 </ul>
 
 
+<div class="filters-wrapper" ng-class="totalItems != corpus.count.clusters && totalItems != 0?'active': ''">
+  <div class="filters" >
+    <span>{{totalItems}} of {{corpus.count.clusters}} documents matching:</span>
+    <span class="tag filtered" ng-repeat="(key, item) in filtersItems">
+      {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
+    </span>
+  </div>
+</div>
 
 <div class="btn-toolbar" role="toolbar">
   <div class="btn-group">
