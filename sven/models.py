@@ -250,7 +250,7 @@ class Corpus(models.Model):
     # raw query to ge count. Probably there should be a better place :D
     cursor = connection.cursor()
     cursor.execute('''
-      SELECT COUNT(s.`cluster`)
+      SELECT COUNT(distinct s.`cluster`)
       FROM sven_segment s
       WHERE corpus_id=%s
     ''', [self.id])
