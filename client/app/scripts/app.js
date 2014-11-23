@@ -98,8 +98,19 @@ angular
         return function(promise) {
           return promise.then(function(response) {
             // response.data.extra = 'intercepted';
-            if(response.data.status == 'error') {
-              toast(response.data.error);
+            if(response.data.status == 'error') { // on error recieived other and 200 thhtp, reject response and sow the meaning
+              if(response.data.code == 'FormErrors') {
+                var msg = [];// the error message, concatenated 
+                for (var i in response.data.error) {
+                  msg.push('<b>' + i + '</b>: ' +  response.data.error[i].join('.'));
+                }
+                toast(msg.join('<br/>'), {stayTime: msg.length * 3000});
+              }
+                
+              $log.info('warnings',response);
+              
+              return $q.reject(response);
+              
             }
             if(response.data.meta && response.data.meta.warnings){ // form error from server!
               // if(response.data.meta.warnings.invalid && response.data.meta.warnings.limit):
