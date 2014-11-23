@@ -47,6 +47,11 @@ angular.module('svenClientApp')
         update: {method: 'POST', isArray: false }
     });
   })
+  .factory('CorporaFactory', function($resource) {
+    return $resource(SVEN_BASE_URL + '/api/corpus', {}, {
+      save: {method: 'POST', isArray: false }
+    });
+  })
   .factory('CorpusFactory', function($resource) {
     return $resource(SVEN_BASE_URL + '/api/corpus/:id', {}, {
         query: {method: 'GET', isArray: false, params: {id:'@id'}},

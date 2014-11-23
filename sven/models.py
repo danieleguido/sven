@@ -154,7 +154,7 @@ class Corpus(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
 
   owners = models.ManyToManyField(User, related_name="corpora")
-  watchers = models.ManyToManyField(User, related_name="corpora_watched")
+  watchers = models.ManyToManyField(User, related_name="corpora_watched", null=True, blank=True)
 
 
   def get_path(self):
@@ -252,6 +252,7 @@ class Corpus(models.Model):
       'jobs': [j.json() for j in self.job.all()]
       })
     except Document.DoesNotExist,e:
+      logger.exception(e)
       pass
 
     # raw query to ge count. Probably there should be a better place :D
@@ -815,6 +816,12 @@ class Document(models.Model):
     
     super(Document, self).save()
 
+@receiver(pre_delete, sender=Document)
+def delete_corpus(sender, instance, **kwargs):
+  '''
+  Delete Document related segments
+  '''
+  Document_Segment.objects.filter(document=instance).delete()
 
 
 
@@ -972,7 +979,7 @@ class Job(models.Model):
     d = {
       'cmd': self.cmd,
       'completion': self.completion,
-      'document': self.document.json() if self.document else '',
+      'document': None,
       'id': self.id,
       'pid': self.pid,
       'status': self.status

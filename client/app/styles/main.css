@@ -415,10 +415,9 @@ li.spacer{
 .btn-link {
   font-weight: normal;
   color: #666;
-  padding: 0;
   cursor: pointer;
-  border-radius: 0;
-  border-bottom: 1px solid #666;
+  border: 1px solid #eee;
+  border-radius: 3px;
 }
 .btn-default {
   color: #333;
@@ -429,7 +428,7 @@ li.spacer{
 .btn-link:hover{
   text-decoration: none;
   color: #181818;
-  border-bottom: 1px solid #181818;
+  border-color: #bbb;
 }
 
 .btn-toolbar{

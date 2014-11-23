@@ -75,6 +75,24 @@ class Command(BaseCommand):
         job.save()
 
 
+  def _cleansegments(self, job, options):
+    '''
+    Remove only analisys result leaving document untouched.
+    Useful when adding a stopword list and start over the extraction process.
+    '''
+    logger.debug('executing "clean segments" corpus...')
+    number_of_documents = job.corpus.documents.count()
+    
+    docs = job.corpus.documents.all()
+
+    for step, doc in enumerate(docs):
+      with transaction.atomic():
+        Document_Segment.objects.filter(document=doc).delete()
+      job.completion = 1.0*step/number_of_documents
+      job.save()
+    logger.debug('executing "clean segments" finished')
+
+
 
   def _clean(self, job, options):
     logger.debug('executing "clean" corpus...')
@@ -84,12 +102,18 @@ class Command(BaseCommand):
 
     for step, doc in enumerate(docs):
       with transaction.atomic():
+        Job.objects.filter(document=doc).update(document=None)
         Document_Segment.objects.filter(document=doc).delete()
         doc.delete()
       job.completion = 1.0*step/number_of_documents
       job.save()
     logger.debug('executing "clean" finished')
 
+
+
+  def _removecorpus(self, job, options):
+    logger.debug('removing corpus - would remove job also...')
+    job.corpus.delete()
 
 
   def _tfidf(self, job, options):

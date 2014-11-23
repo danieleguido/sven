@@ -182,10 +182,11 @@ def corpus_documents(request, corpus_pk):
   http://localhost:8000/api/corpus/4/document?method=POST&tags=[{"type":"tm","tags":["primary media","secondary media"]}]&name=Test&indent&mimetype=text/plain&date=2014-09-24
   '''
   epoxy = Epoxy(request)
-  
+  logger.debug('corpus_documents')
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
+    logger.exception(e)
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
   if epoxy.is_POST(): # add a new document and attach it to this specific corpus. Content would be attached later, via upload. @todo

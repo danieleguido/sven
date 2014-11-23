@@ -67,40 +67,7 @@
 
                 
                 <li class="spacer"></li>
-                <!-- li class="corpus sidebar-brand">
-          
-                  <a ng-href="#/corpus/{{corpus.id}}">
-                    <h4>{{corpus.name}}
-                      <div ng-show="corpus.jobs.length" class="percentage {{corpus.jobs[0].status}}"> {{corpus.jobs[0].completion|percentage}}</div>
-                    </h4>
-                  </a -->
 
-                  <!-- a href="#/corpus/{{corpus.id}}/documents" style="text-indent: 0;">
-                    <strong>{{corpus.count.documents}}</strong> documents</a>,
-                  <a href="#/corpus/{{corpus.id}}/concepts" style="text-indent: 0;">
-                    <strong>{{corpus.count.clusters}}</strong> concepts</a>
-                  
-                  <div class="row">
-                    <div class="col-lg-6 col-xs-6">
-                      <a class="left" href="#/corpus/{{corpus.id}}/documents/new" style="text-indent: 0">
-                        <span>add url</span> <i class="fa fa-plus"></i>
-                      </a>   
-                    </div>
-                    <div class="col-lg-6 col-xs-6">
-                      <div class="uploader" ng-file-select="onFileSelect($files)" data-multiple="true">
-                        <span>upload</span> <i class="fa fa-upload"></i>
-                      </div>
-                    </div>
-                  </div -->
-                  <!-- div ng-show="corpus.jobs.length" class="bar {{corpus.jobs[0].status}}">
-                    <div class="completion" style="width:{{corpus.jobs[0].completion*100}}%"></div -->
-
-                    <!-- div class="spinner" ng-show="corpus.jobs[0].status=='RUN'" style="left:{{corpus.jobs[0].completion*100}}%">
-                        <div class="double-bounce1"></div>
-                        <div class="double-bounce2"></div>
-                      </div-->
-                  <!-- /div>
-                </li -->
                 <!-- other (not selected) user's corpora -->
                 <li class="corpus {{corpus.id == cor.id? 'selected': ''}}" ng-repeat="cor in corpora">
                   <a ng-click="activate(cor)" ng-href="#/corpus/{{cor.id}}/documents">
@@ -114,7 +81,11 @@
                   </a>
                 </li>
 
-                
+                <li class="spacer"></li>
+
+                <li>
+                  <button class="btn btn-link btn-block" ng-click="addCorpus()">add corpus</button>
+                </li>
                 
                 <!-- li>
                     <a href="#">Contact</a>
@@ -165,6 +136,25 @@
         </div>
 
         <!--#modal -->
+        <div ng-controller="ModalCtrl">
+          <script type="text/ng-template" id="addCorpus.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">Add new corpus</h3>
+              </div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <label>name</label>
+                    <input type="text" ng-model="candidate" class="form-control">
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
         <div ng-controller="ModalPreviewTsvCtrl">
           <script type="text/ng-template" id="previewTsv.html">
               <div class="modal-header">

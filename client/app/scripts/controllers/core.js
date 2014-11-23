@@ -1,6 +1,7 @@
 'use strict';
 
 var API_PARAMS_CHANGED = 'api_params_changed',
+    OPEN_ADD_CORPUS    = 'OPEN_ADD_CORPUS',
     OPEN_ATTACH_TAG    = 'OPEN_ATTACH_TAG';
 
 
@@ -26,6 +27,12 @@ function toast(message, title, options){
 
   $().toastmessage("showToast", settings);
 };
+
+
+function cleanToast () {
+ $().toastmessage("cleanToast");
+};
+
 
 /**
  * @ngdoc function
@@ -116,20 +123,25 @@ angular.module('svenClientApp')
         if(data.meta.profile.date_last_modified != $scope.profile.date_last_modified)
           $scope.profile = data.meta.profile;
 
-        if($scope.reload_corpora) {
+        if($scope.reload_corpora || $scope.corpora.length != data.objects) {
           $scope.corpora = data.objects;
           $scope.reload_corpora = false;
+          cleanToast();
         } else {
           $scope.diffclone($scope.corpora, data.objects);
         }
+        // check existence of cookie corpusId
 
         $scope.jobs = data.jobs;
         // if corpusID choose the corpus matching corpusId, if any. @todo
-        var candidate = data.objects[data.objects.length-1];
+        var candidate;
         for(var i=0; i<data.objects.length;i++) {
           if($cookies.corpusId == data.objects[i].id)
             candidate = data.objects[i];
         }
+        if(!candidate)
+          candidate = data.objects[data.objects.length-1];
+
         $scope.diffclone($scope.corpus, candidate);
         
         // update status and do things
@@ -299,7 +311,7 @@ angular.module('svenClientApp')
       @param corpus - <Corpus> as command target
     */
     $scope.executeCommand = function(cmd, corpus) {
-      if(cmd != 'clean' || confirm('Clean test on corpus ' + corpus.name))
+      if(~~['clean', 'removecorpus'].indexOf(cmd) || confirm('Clean test on corpus ' + corpus.name))
         CommandFactory.launch({
           id: corpus.id,
           cmd: cmd
@@ -310,6 +322,7 @@ angular.module('svenClientApp')
     };
 
 
+
     /*
       
       @param document - instance of <Documents> to attach tag
@@ -317,6 +330,12 @@ angular.module('svenClientApp')
     $scope.attachTag = function(doc) {
       $scope.$broadcast(OPEN_ATTACH_TAG, doc);
     }
+
+    $scope.addCorpus = function() {
+      $log.info('CoreCtrl.addCorpus()')
+      
+      $scope.$broadcast(OPEN_ADD_CORPUS);
+    };
 
     /*
       Call the right api to execute the desired command.
@@ -335,7 +354,7 @@ angular.module('svenClientApp')
       if($cookies.corpusId == corpus.id) return;
       $cookies.corpusId = corpus.id;
       $scope.reload_corpora = true;
-      toast('activating corpus ...');
+      toast('activating corpus ...', {stayTime: 5000});
     }
 
 
