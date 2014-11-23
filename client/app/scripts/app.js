@@ -105,6 +105,8 @@ angular
                   msg.push('<b>' + i + '</b>: ' +  response.data.error[i].join('.'));
                 }
                 toast(msg.join('<br/>'), {stayTime: msg.length * 3000});
+              } else if(response.data.code == 'BUSY') {
+                toast(response.data.error, {stayTime: 3000});
               }
                 
               $log.info('warnings',response);

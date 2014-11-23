@@ -72,7 +72,6 @@
           'text-anchor': 'middle',
           'class': 'header'
         })
-
       return matrix;
     };
 
@@ -117,14 +116,20 @@
           tfidf_max = d3.max(_data,function(d) {return d.tf_idf}),
           
           elements = _svg
-            .selectAll(".block")
-            .data(_data, _key);
+            .selectAll('.block')
+            .data(_data, _key),
+
+          columns  = _svg
+            .selectAll('.column')
+            .data(_headers, function(d) {
+              return d.id;
+            });
       
       // recalculate svg width according to the number of groups
       _svg.attr("width", 260 + _headers.length * 30)
 
       // cfr http://bost.ocks.org/mike/nest/
-      matrix.draw(elements, {
+      matrix.draw(elements, columns, {
         tf_min: tf_min,
         tf_max: tf_max,
         tfidf_min: tfidf_min,
@@ -136,8 +141,8 @@
     /*
       options.min and options.max
     */
-    matrix.draw = function(elements, options) {
-      console.log(options);
+    matrix.draw = function(elements, columns, options) {
+      //console.log(options);
       
 
 
@@ -162,6 +167,16 @@
           }),
         switchers;
         
+        // write text for column headers
+        columns.enter()
+          .append('text')
+          .attr({
+            x: function(d,i){ return i*20 + offsetx + 60;},
+            y: 40,
+            'transform': 'matrix(' + [Math.cos(45), -Math.sin(45), 0, Math.cos(45), Math.sin(45), 1].join(' ') + ')'
+          })
+          .text(function(d,i){ return d.name})
+
 
         // set basic transform for each row (y)
         enter_selection
@@ -219,30 +234,34 @@
               cx: offsetx + 30,
               opacity: ".4",
               r: function(d) {
-                console.log(d);
                 return tfidf_size(+d.tf_idf);
               },
               fill: "gold"
             })
 
 
-        
+        // write column names
+
 
         // adding columns based on headers
         enter_selection
-          .selectAll('rect')
+          .selectAll('.measure')
             .data(function(d,i) {
               return _headers.map(function(o) { // put this function outside
-                for(var j=0; j<d.tags.length;j++)
-                  if(d.tags[j].id==o.id) {
-                    //o.tf = d.tags[j].tf;
-                    //o.tfidf = d.tags[j].tfidf;
-                    return {
-                      id: d.tags[j].id,
-                      tf: d.tags[j].tf,
-                      tfidf: d.tags[j].tfidf
-                    };
-                  }
+
+                  for(var j=0; j<d.tags.length;j++) {
+                    if(d.tags[j].id==o.id) {
+                      //o.tf = d.tags[j].tf;
+                      //o.tfidf = d.tags[j].tfidf;
+                      return {
+                        id: d.tags[j].id,
+                        tf: d.tags[j].tf,
+                        tfidf: d.tags[j].tfidf
+                      };
+                    }
+                  
+                };
+                // otherwise
                 return o;
               });
             }, function(o){
@@ -250,12 +269,14 @@
             })
             .enter()
               .append('circle')
-              .attr('class', 'measure')
+              .attr({
+                'class': 'measure'
+              })
               .attr('r', function(d){
-                return 2//return d[options.measure]? Math.max(1, size(d[options.measure])):1;
+                return 1;//return d[options.measure]? Math.max(1, size(d[options.measure])):1;
               })
               .attr('cx', function(d,i) {
-                return i*7 + offsetx + 60;
+                return i*20 + offsetx + 60;
               });
 
 
@@ -270,12 +291,12 @@
           .selectAll('.measure')
             .attr('r', function(d){
                 if(options.measure == 'tf')
-                  return tf_size(+d.tf);
+                  return tf_size(+d.tf||0);
                 else
-                  return tfidf_size(+d.tf_idf);
+                  return tfidf_size(+d.tf_idf||0);
               })
               .attr('cx', function(d,i) {
-                return i*7 + offsetx + 60;
+                return i*20 + offsetx + 60;
               });
 
         update_selection

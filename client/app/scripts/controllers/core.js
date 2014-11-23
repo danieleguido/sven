@@ -299,13 +299,14 @@ angular.module('svenClientApp')
       @param corpus - <Corpus> as command target
     */
     $scope.executeCommand = function(cmd, corpus) {
-      CommandFactory.launch({
-        id: corpus.id,
-        cmd: cmd
-      }, function(res) {
-        if(res.status=="ok")
-          toast('command started, plase wait ...');
-      })
+      if(cmd != 'clean' || confirm('Clean test on corpus ' + corpus.name))
+        CommandFactory.launch({
+          id: corpus.id,
+          cmd: cmd
+        }, function(res) {
+          if(res.status=="ok")
+            toast('command started, plase wait ...');
+        })
     };
 
 

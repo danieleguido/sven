@@ -790,6 +790,9 @@ circle.tf{
 circle.tf:hover{
   fill: red;
 }
+circle.measure{
+  fill-opacity:.6;
+}
 
 text.header{
   font-size: 12px;
