@@ -583,7 +583,7 @@ def corpus_segments(request, corpus_pk):
 
   # if goruping on TAG: get the grouping, with limit and offsets as well
   tags = Tag.objects.filter(document__corpus=cor)[g_offset:g_offset+g_limit]
-  groups = [ '%s' % g.id for g in tags]
+  groups = ['0']+[ '%s' % g.id for g in tags]
 
   epoxy.meta('ids', groups)
 
