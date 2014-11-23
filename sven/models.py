@@ -248,10 +248,13 @@ class Corpus(models.Model):
     }
 
     # raw query to ge count. Probably there should be a better place :D
+    # note that DISTINCT ON FIeld is not supported by mysql backend ...
     cursor = connection.cursor()
     cursor.execute('''
-      SELECT COUNT(distinct s.`cluster`)
-      FROM sven_segment s
+      SELECT
+        COUNT(distinct s.`cluster`)
+      FROM sven_segment s INNER JOIN sven_document_segment ds
+        ON s.id = ds.segment_id
       WHERE corpus_id=%s
     ''', [self.id])
     d['count']['clusters'] = cursor.fetchone()[0]
