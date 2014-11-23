@@ -244,8 +244,15 @@ class Corpus(models.Model):
         'documents': self.documents.count(),
         'owners': self.owners.count()
       },
-      'jobs': [j.json() for j in self.job.all()]
+      'jobs' : []
     }
+
+    try:
+      d.update({
+      'jobs': [j.json() for j in self.job.all()]
+      })
+    except Document.DoesNotExist,e:
+      pass
 
     # raw query to ge count. Probably there should be a better place :D
     # note that DISTINCT ON FIeld is not supported by mysql backend ...

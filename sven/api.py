@@ -46,8 +46,14 @@ def notification(request):
   # DEPRECATED. too much. 
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
+  
+
   epoxy.queryset(corpora)
-  epoxy.add('jobs', [j.json() for j in jobs])
+  try:
+    epoxy.add('jobs', [j.json() for j in jobs])
+  except Document.DoesNotExist, e:
+    epoxy.add('jobs', [])
+
   epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()
@@ -521,12 +527,12 @@ def corpus_segments(request, corpus_pk):
   # translate orderby -tf, tf or -tfidf, tfidf
 
 
-  # total count
+  # total count. It works.
   cursor = connection.cursor()
   cursor.execute("""
     SELECT
       COUNT(distinct cluster)
-    FROM sven_segment
+    FROM sven_segment s INNER JOIN sven_document_segment ds ON s.id = ds.segment_id
       WHERE corpus_id = %(corpus_id)s
     """ % {
     'corpus_id': cor.id
@@ -785,7 +791,7 @@ def export_corpus_segments(request, corpus_pk):
   cursor.execute("""
     SELECT
       COUNT(distinct cluster)
-    FROM sven_segment
+    FROM sven_segment 
       WHERE corpus_id = %(corpus_id)s
     """ % {
     'corpus_id': cor.id

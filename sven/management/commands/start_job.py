@@ -50,7 +50,7 @@ class Command(BaseCommand):
   def _test(self, job, options):
     job.completion = 0
     while job.completion < 1:
-      job.completion = job.completion + 0.1
+      job.completion = min(1.0, job.completion + 0.1)
       job.save()
       time.sleep(10)
   
@@ -73,6 +73,22 @@ class Command(BaseCommand):
           logger.exception(e)
         job.completion = c/number_of_documents
         job.save()
+
+
+
+  def _clean(self, job, options):
+    logger.debug('executing "clean" corpus...')
+    number_of_documents = job.corpus.documents.count()
+    
+    docs = job.corpus.documents.all()
+
+    for step, doc in enumerate(docs):
+      with transaction.atomic():
+        Document_Segment.objects.filter(document=doc).delete()
+        doc.delete()
+      job.completion = 1.0*step/number_of_documents
+      job.save()
+    logger.debug('executing "clean" finished')
 
 
 
