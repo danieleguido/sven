@@ -80,6 +80,8 @@ angular.module('svenClientApp')
 
     $scope.now = new Date(); // today datetime
 
+    $scope.waitingJob = false; // if set to a specific corpus id, it will listen to it  
+
     // current documents orderby(s). Watch for $scope.$watch('orderBy.choice') 
     $scope.orderBy = {
       choices: [
@@ -120,16 +122,50 @@ angular.module('svenClientApp')
 
     function tick() {
       NotificationFactory.query({},function(data){
+        var activeJobs = data.jobs.filter(function(d){
+          return d.completion != 1
+        });
+          
+        // is there at least a job running? And we're not waiting for it specifically?
+        if(!$scope.waitingJob && activeJobs.length) {
+          $scope.waitingJob = activeJobs[activeJobs.length - 1].id;
+          $log.info('assign the last useful job to waitingJob', $scope.waitingJob)
+          
+        };
+
+        // check status and exablish if a job has been finished
+        if($scope.waitingJob) {
+          for(var i=0; i < data.jobs.length; i++) {
+            if(data.jobs[i].id == $scope.waitingJob) {
+              if(data.jobs[i].completion == 1 && data.jobs[i].status == "END") {
+                $log.debug('job completed!',data.jobs[i].completion, data.jobs[i].status);
+                toast("job completed");
+                $scope.waitingJob = false;
+              };
+            };
+          };
+
+        }
+
+        // otherwise, if there are no jobs running ...
+        //$scope.waitingJob = false;
+
+        // update profile, if needed
         if(data.meta.profile.date_last_modified != $scope.profile.date_last_modified)
           $scope.profile = data.meta.profile;
 
-        if($scope.reload_corpora || $scope.corpora.length != data.objects) {
+        if($scope.reload_corpora || $scope.corpora.length != data.objects.length) {
           $scope.corpora = data.objects;
           $scope.reload_corpora = false;
           cleanToast();
         } else {
           $scope.diffclone($scope.corpora, data.objects);
         }
+
+        
+
+        // check that corpus job completion (or output errors)
+        
         // check existence of cookie corpusId
 
         $scope.jobs = data.jobs;
@@ -305,19 +341,22 @@ angular.module('svenClientApp')
 
 
     /*
-      Call the right api to execute the desired command.
+      Call the right api to execute the desired command. At the same time set $scope.waitingJob to true;
+      Cfr tick function.
       For a list of all available cmd please cfr. ~/sven/management/start_job.py
       @param cmd - a valid cmd command to be passed to api/start. Cfr api.py
       @param corpus - <Corpus> as command target
     */
     $scope.executeCommand = function(cmd, corpus) {
-      if(~~['clean', 'removecorpus'].indexOf(cmd) || confirm('Clean test on corpus ' + corpus.name))
+      if(~~['clean', 'removecorpus'].indexOf(cmd) || confirm('Those actions are classed as dangerous. Beware! Corpus selected: ' + corpus.name))
         CommandFactory.launch({
           id: corpus.id,
           cmd: cmd
         }, function(res) {
-          if(res.status=="ok")
+          if(res.status=="ok") {
             toast('command started, plase wait ...');
+            $scope.waitingJob = res.object.id;
+          }
         })
     };
 

@@ -116,6 +116,7 @@ class Command(BaseCommand):
     job.corpus.delete()
 
 
+
   def _tfidf(self, job, options):
     import math
     from django.db.models import F
