@@ -126,7 +126,7 @@
             });
       
       // recalculate svg width according to the number of groups
-      _svg.attr("width", 260 + _headers.length * 30)
+      _svg.attr("width", 260 + _headers.length * 120)
 
       // cfr http://bost.ocks.org/mike/nest/
       matrix.draw(elements, columns, {
@@ -210,7 +210,7 @@
               y: 4
             })
             .text(function(d) {
-              return d.content || '...'
+              return d.cluster || '...'
             });
 
         // adding tfrs
@@ -228,7 +228,6 @@
 
         enter_selection
           .append('circle')
-            
             .attr({
               'class': 'tf_idf',
               cx: offsetx + 30,
@@ -268,15 +267,14 @@
               return o.id
             })
             .enter()
-              .append('circle')
+              .append('rect')
               .attr({
-                'class': 'measure'
-              })
-              .attr('r', function(d){
-                return 1;//return d[options.measure]? Math.max(1, size(d[options.measure])):1;
-              })
-              .attr('cx', function(d,i) {
-                return i*20 + offsetx + 60;
+                'class'    : 'measure',
+                'width'    : 60,
+                'height'   : 1,
+                'y'        : -0.5,
+                'gid'  : function(d) {return d.id},
+                'x'        : function(d,i) {return i*60 + offsetx + 60;}
               });
 
 
@@ -289,15 +287,19 @@
               return 'block ' + d.status;
             })
           .selectAll('.measure')
-            .attr('r', function(d){
+            .attr('height', function(d){
                 if(options.measure == 'tf')
-                  return tf_size(+d.tf||0);
+                  return tf_size(+d.tf||0)*2;
                 else
-                  return tfidf_size(+d.tf_idf||0);
+                  return tfidf_size(+d.tf_idf||0)*2;
               })
-              .attr('cx', function(d,i) {
-                return i*20 + offsetx + 60;
-              });
+            .attr('y', function(d){
+                if(options.measure == 'tf')
+                  return -tf_size(+d.tf||0);
+                else
+                  return -tfidf_size(+d.tf_idf||0);
+              })
+              
 
         update_selection
           .exit()

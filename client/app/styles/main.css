@@ -789,8 +789,11 @@ circle.tf{
 circle.tf:hover{
   fill: red;
 }
-circle.measure{
+rect.measure{
   fill-opacity:.6;
+}
+rect.measure:hover{
+  fill-opacity:.9;
 }
 
 text.header{

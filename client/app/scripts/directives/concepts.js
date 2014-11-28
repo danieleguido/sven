@@ -23,24 +23,60 @@ angular.module('svenClientApp')
             matrix   = snark
               .matrix()
               .init(d3.select(".viewer")),
-            previous_concept = {};
+            previous_concept = {},
+            previous_group = {};
 
-        var get_tooltip = function(concept_id) {
-          var t = function(concept) {
+        var get_tooltip = function(concept_id, group_id) {
+          var t = function(concept, group) {
+            if(group){
+              var groupmeasures = concept.tags.filter(function(d){
+                return d.id == group.id
+              })[0];
+              
+              return [
+                '<h4>',group.name, '</h4>',
+                '<h5>',concept.content,'<br/>(', concept.cluster,')','</h5>',
+                '<div class="tooltip-measures">tf ..... ',
+                groupmeasures?(Math.round(+groupmeasures.tf * 10000)/100): 0,
+                '<br/>tfidf .. ',
+                groupmeasures?(Math.round(+groupmeasures.tf_idf * 10000)/100):0,
+                '<br/>distr .. ',
+                groupmeasures?+concept.distribution: 'absent',
+                  '</div>'
+              ].join('');
+            }
             return [
               '<h4>',
-              concept.content, 
+              concept.content,' (',
+              concept.cluster,')',
+              
               '</h4><div class="tooltip-measures">tf ..... ',
               (Math.round(+concept.tf * 10000)/100),
               '<br/>tfidf .. ',
               (Math.round(+concept.tf_idf * 10000)/100),
               '<br/>distr .. ',
-              +concept.distribution
+              +concept.distribution,
+              '</div>'
             ].join('');
+
           };
           
+          if(!group_id) {
+            previous_group = null;
+          } else if(previous_group && previous_group.id == group_id) {
+            //
+          } else {
+            for(var i=0; i < scope.groups.length; i++) {
+              if(scope.groups[i].id == group_id) {
+                previous_group = scope.groups[i];
+                break;
+              }
+            }
+          }
+
+
           if(previous_concept && previous_concept.id == concept_id) {
-            return t(previous_concept);
+            return t(previous_concept, previous_group);
           };
           
           try{
@@ -52,7 +88,7 @@ angular.module('svenClientApp')
             return '';
           }
 
-          return t(previous_concept)
+          return t(previous_concept,previous_group)
         };
 
 
@@ -70,7 +106,8 @@ angular.module('svenClientApp')
         }).on("mousemove", ".block", function(event) {
           var concept   = $(this),
               concept_id = concept.attr('cid'),
-              text = get_tooltip(concept_id);
+              group_id   = $(event.target).attr('gid'),
+              text = get_tooltip(concept_id, group_id);
 
           tooltip
             .style("opacity", 1)
