@@ -7,7 +7,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Min, Max
 from django.db import connection, transaction
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
@@ -16,7 +16,7 @@ from glue.api import edit_object
 from sven.forms import LoginForm, CorpusForm, DocumentForm, CorpusSegmentForm, ProfileForm, TagsForm, UploadCSVForm
 
 from sven.models import helper_truncatesmart
-from sven.models import Corpus, Document, Profile, Job, Segment, Tag, helper_get_document_path
+from sven.models import Corpus, Document, Document_Segment, Profile, Job, Segment, Tag, helper_get_document_path
 
 
 logger = logging.getLogger("sven")
@@ -695,6 +695,35 @@ def corpus_segment(request, corpus_pk, segment_pk):
 
   epoxy.add('object', s)
 
+  return epoxy.json()
+
+
+def corpus_concepts(request, corpus_pk):
+  '''
+  Export filtered segments.
+  Given by filters params as JSON - as usual, Filters need to be prefixed either with document__ or segment__ prefixes
+  '''
+  epoxy = Epoxy(request)
+  try:
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).values('segment__cluster').annotate(
+    distribution=Count('document'),
+    tf=Max('tf'),
+    tf_idf=Max('tfidf')
+  )
+
+  # get global min and global max for clusters
+  epoxy.meta('bounds', Document_Segment.objects.filter(document__corpus__id=4, segment__status='IN').aggregate(max_tf=Max('tf'), min_tf=Min('tf'), max_tfidf=Max('tfidf'), min_tfidf=Min('tfidf')))
+
+  epoxy.meta('total_count', clusters.count())
+
+  # get groupings e.g value for groups for selected cluster only
+
+  epoxy.add('objects', [c for c in clusters.order_by(*epoxy.order_by)[epoxy.offset:epoxy.limit] ])
+  #.order_by('-docs').count()
   return epoxy.json()
 
 
