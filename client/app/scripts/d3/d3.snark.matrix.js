@@ -109,11 +109,29 @@
             measure: 'tf'
           },
 
-          tf_min = d3.min(_data, function(d) {return d.tf}),
-          tf_max = d3.max(_data,function(d) {return d.tf}),
+          tf_min = d3.min(_data, function(d) {
+            return d3.min(d.tags, function(t){
+              return t.tf||0
+            })
+          }),
 
-          tfidf_min = d3.min(_data, function(d) {return d.tf_idf}),
-          tfidf_max = d3.max(_data,function(d) {return d.tf_idf}),
+          tf_max = d3.max(_data,function(d) {
+            return d3.max(d.tags, function(t){
+              return t.tf||0
+            })
+          }),
+
+          tfidf_min = d3.min(_data, function(d) {
+            return d3.min(d.tags, function(t){
+              return t.tfidf||0
+            })
+          }),
+
+          tfidf_max = d3.max(_data,function(d) {
+            return d3.max(d.tags, function(t){
+              return t.tfidf||0
+            })
+          }),
           
           elements = _svg
             .selectAll('.block')
@@ -124,7 +142,7 @@
             .data(_headers, function(d) {
               return d.id;
             });
-      
+      console.log(tf_min, tf_max, tfidf_min, tfidf_max)
       // recalculate svg width according to the number of groups
       _svg.attr("width", 260 + _headers.length * 120)
 

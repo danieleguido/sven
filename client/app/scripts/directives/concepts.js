@@ -40,8 +40,7 @@ angular.module('svenClientApp')
                 groupmeasures?(Math.round(+groupmeasures.tf * 10000)/100): 0,
                 '<br/>tfidf .. ',
                 groupmeasures?(Math.round(+groupmeasures.tf_idf * 10000)/100):0,
-                '<br/>distr .. ',
-                groupmeasures?+concept.distribution: 'absent',
+                groupmeasures?'':'<br/>distr .. absent',
                   '</div>'
               ].join('');
             }
