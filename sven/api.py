@@ -709,21 +709,34 @@ def corpus_concepts(request, corpus_pk):
   except Corpus.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
 
-  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).values('segment__cluster').annotate(
+  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).values('segment__cluster').order_by(*epoxy.order_by).annotate(
     distribution=Count('document'),
     tf=Max('tf'),
     tf_idf=Max('tfidf')
   )
 
-  # get global min and global max for clusters
-  epoxy.meta('bounds', Document_Segment.objects.filter(document__corpus__id=4, segment__status='IN').aggregate(max_tf=Max('tf'), min_tf=Min('tf'), max_tfidf=Max('tfidf'), min_tfidf=Min('tfidf')))
-
-  epoxy.meta('total_count', clusters.count())
-
+  clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+  
   # get groupings e.g value for groups for selected cluster only
+  groups = Document_Segment.objects.filter(
+    document__corpus=cor,
+    segment__status='IN'
+  ).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+    select={'G': """DATE_FORMAT(date, "%%Y-%%m")"""}
+  ).values('G', 'segment__cluster').order_by(*epoxy.order_by).annotate(
+    distribution=Count('document'),
+    tf=Max('tf'),
+    tf_idf=Max('tfidf')
+  )
+  epoxy.add('groups', [g for g in groups])
+  #outputting values
+  epoxy.add('objects', clusters_objects)
+  # get global min and global max for clusters
+  epoxy.meta('bounds', Document_Segment.objects.filter(document__corpus=cor, segment__status='IN').aggregate(max_tf=Max('tf'), min_tf=Min('tf'), max_tfidf=Max('tfidf'), min_tfidf=Min('tfidf')))
+  # get total number of clusters
+  epoxy.meta('total_count', clusters.count())
+  epoxy.meta('query', '%s' % clusters.query)
 
-  epoxy.add('objects', [c for c in clusters.order_by(*epoxy.order_by)[epoxy.offset:epoxy.limit] ])
-  #.order_by('-docs').count()
   return epoxy.json()
 
 

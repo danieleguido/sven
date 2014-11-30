@@ -29,7 +29,7 @@ class DocumentForm(forms.ModelForm):
   class Meta:
     model = Document
 
-    exclude = ['corpus', 'slug', 'language']
+    exclude = ['corpus', 'slug', 'language', 'segments']
 
 
 
