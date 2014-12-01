@@ -540,7 +540,7 @@ class Document(models.Model):
   url = models.URLField(blank=True, null=True, max_length=255) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
-  tags = models.ManyToManyField(Tag, blank=True, null=True)
+  tags = models.ManyToManyField(Tag, blank=True, null=True, related_name='tagdocuments')
 
 
   def json(self, deep=False):
