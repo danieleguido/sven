@@ -13,17 +13,36 @@ angular.module('svenClientApp')
     $scope.localCorpus = {};
 
     $scope.measure = 'tf'; // tf | tf_idf
+    $scope.group_by = {
+      is_open: false,
+      choices: [
+        {label:'actors', value:'ac'},
+        {label:'type of media', value:'tm'},
+      ],
+      choice: {label:'actors', value:'ac'}
+    };
+
+    /*
+      group_by set
+    */
+    $scope.changeGroupBy = function(choice) {
+      $log.info('changeGroupBy', choice);
+      $scope.page = 1;
+      $scope.group_by.choice = choice;
+      $scope.group_by.isopen = false;
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    };
 
     $scope.$parent.page = 2; // reset page
     $scope.$parent.limit = 50;
 
     $scope.$parent.orderBy.choices = [
-        {label:'tf', value:'tf DESC'},
-        {label: 'tfidf', value:'tfidf DESC'},
-        {label: 'top shared TF', value:'distribution DESC|tf DESC'},
-        {label:'by name a-z', value:'cluster ASC'}
+        {label:'tf', value:'-tf'},
+        {label: 'tfidf', value:'-tf_idf'},
+        {label: 'most common', value:'-distribution|-tf_idf'},
+        {label:'by name a-z', value:'-cluster'}
       ];
-    $scope.$parent.orderBy.choice = {label: 'top shared TF', value:'distribution DESC|tf DESC'};
+    $scope.$parent.orderBy.choice = {label: 'most common', value:'-distribution|-tf_idf'};
     
     $scope.toggleVisibility = function(concept_id) {
       // send toggle visibility then update . this below is fake...
@@ -45,6 +64,7 @@ angular.module('svenClientApp')
 
     });
 
+    /* considering filters and grouping */
     $scope.downloadConcepts = function() {
       window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
     };
@@ -52,13 +72,16 @@ angular.module('svenClientApp')
     $scope.sync = function() {
       $routeParams.id && ConceptsFactory.query(
         $scope.getParams({
-          id:$routeParams.id
+          id:$routeParams.id,
+          group_by: $scope.group_by.choice.value
         }), function(data){
           console.log(data); // pagination needed
           $scope.totalItems = data.meta.total_count;
+          $scope.bounds     = data.meta.bounds;
+          $scope.groups     = data.groups;
+          $scope.clusters   = data.objects;
+          console.log('groups', $scope.groups)
           
-          $scope.clusters = data.objects;
-          $scope.groups = data.groups;
       });
     };
 

@@ -32,7 +32,7 @@
         _svg, // the svg container
         
         _key = function(d){
-          return d.cluster
+          return d.id
         };
 
 
@@ -104,34 +104,19 @@
     matrix.update = function(options){
       if(!_data.length)
         throw "matrix.update error. There aren't any data associated";
+      console.log(_headers)
       // calculate local max and min
       var options = options || {
             measure: 'tf'
           },
 
-          tf_min = d3.min(_data, function(d) {
-            return d3.min(d.tags, function(t){
-              return t.tf||0
-            })
-          }),
 
-          tf_max = d3.max(_data,function(d) {
-            return d3.max(d.tags, function(t){
-              return t.tf||0
-            })
-          }),
+          tf_min = options.bounds.min_tf,
+          tf_max = options.bounds.max_tf,
 
-          tfidf_min = d3.min(_data, function(d) {
-            return d3.min(d.tags, function(t){
-              return t.tfidf||0
-            })
-          }),
+          tfidf_min = options.bounds.min_tfidf,
 
-          tfidf_max = d3.max(_data,function(d) {
-            return d3.max(d.tags, function(t){
-              return t.tfidf||0
-            })
-          }),
+          tfidf_max = options.bounds.max_tfidf,
           
           elements = _svg
             .selectAll('.block')
@@ -140,7 +125,7 @@
           columns  = _svg
             .selectAll('.column')
             .data(_headers, function(d) {
-              return d.id;
+              return d.G;
             });
       console.log(tf_min, tf_max, tfidf_min, tfidf_max)
       // recalculate svg width according to the number of groups
@@ -181,7 +166,7 @@
             return 'block ' + d.status;
           })
           .attr('cid', function(d) {
-            return d.id;
+            return d.segment__cluster;
           }),
         switchers;
         
@@ -191,9 +176,8 @@
           .attr({
             x: function(d,i){ return i*20 + offsetx + 60;},
             y: 40,
-            'transform': 'matrix(' + [Math.cos(45), -Math.sin(45), 0, Math.cos(45), Math.sin(45), 1].join(' ') + ')'
           })
-          .text(function(d,i){ return d.name})
+          .text(function(d,i){ return d.G})
 
 
         // set basic transform for each row (y)
@@ -213,7 +197,7 @@
           .append('circle')
             .attr('class', 'toggler')
             .attr('cid', function(d) {
-              return d.id;
+              return d.segment__cluster;
             })
             .attr('r', 8)
             .attr('cx', 10)
@@ -228,7 +212,7 @@
               y: 4
             })
             .text(function(d) {
-              return d.cluster || '...'
+              return d.segment__cluster || '...'
             });
 
         // adding tfrs
@@ -261,19 +245,24 @@
 
 
         // adding columns based on headers
-        enter_selection
+        var cols_selection = enter_selection
           .selectAll('.measure')
+            .remove()
             .data(function(d,i) {
               return _headers.map(function(o) { // put this function outside
-
-                  for(var j=0; j<d.tags.length;j++) {
-                    if(d.tags[j].id==o.id) {
-                      //o.tf = d.tags[j].tf;
-                      //o.tfidf = d.tags[j].tfidf;
+                console.log('mappin', d, o.name)
+                if(!d.cols)
+                  return o;
+                
+                  for(var j=0; j<d.cols.length;j++) {
+                    if(d.cols[j].G==o.name) {
+                      //o.tf = d.cols[j].tf;
+                      //o.tfidf = d.cols[j].tfidf;
                       return {
-                        id: d.tags[j].id,
-                        tf: d.tags[j].tf,
-                        tfidf: d.tags[j].tfidf
+                        name: o.name,
+                        id: d.cols[j].G,
+                        tf: d.cols[j].tf,
+                        tfidf: d.cols[j].tfidf
                       };
                     }
                   
@@ -282,19 +271,24 @@
                 return o;
               });
             }, function(o){
-              return o.id
+              return o.name
             })
+
+
+        cols_selection
             .enter()
+
               .append('rect')
               .attr({
                 'class'    : 'measure',
                 'width'    : 60,
                 'height'   : 1,
                 'y'        : -0.5,
-                'gid'  : function(d) {return d.id},
+                'gid'  : function(d) {return d.name},
                 'x'        : function(d,i) {return i*60 + offsetx + 60;}
               });
 
+        
 
         update_selection
           .transition(500)
@@ -306,6 +300,7 @@
             })
           .selectAll('.measure')
             .attr('height', function(d){
+              
                 if(options.measure == 'tf')
                   return tf_size(+d.tf||0)*2;
                 else
@@ -317,7 +312,7 @@
                 else
                   return -tfidf_size(+d.tf_idf||0);
               })
-              
+            
 
         update_selection
           .exit()

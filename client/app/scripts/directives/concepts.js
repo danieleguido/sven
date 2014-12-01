@@ -16,6 +16,7 @@ angular.module('svenClientApp')
         data: '=',
         measure: '=',
         groups: '=',
+        bounds: '=',
         toggle: '&'
       },
       link: function postLink(scope, element, attrs) {
@@ -28,31 +29,30 @@ angular.module('svenClientApp')
 
         var get_tooltip = function(concept_id, group_id) {
           var t = function(concept, group) {
+            
             if(group){
-              var groupmeasures = concept.tags.filter(function(d){
-                return d.id == group.id
+              var groupmeasures = concept.cols.filter(function(d){
+                return d.G == group.name
               })[0];
               
               return [
-                '<h4>',group.name, '</h4>',
-                '<h5>',concept.content,'<br/>(', concept.cluster,')','</h5>',
+                '<h4>"',concept.segment__cluster, '" in ', group.name, '</h4>',
                 '<div class="tooltip-measures">tf ..... ',
-                groupmeasures?(Math.round(+groupmeasures.tf * 10000)/100): 0,
+                groupmeasures?(Math.round(+groupmeasures.tf * 10000)/10000): 0,
                 '<br/>tfidf .. ',
-                groupmeasures?(Math.round(+groupmeasures.tf_idf * 10000)/100):0,
+                groupmeasures?(Math.round(+groupmeasures.tf_idf * 10000)/10000):0,
                 groupmeasures?'':'<br/>distr .. absent',
                   '</div>'
               ].join('');
             }
             return [
               '<h4>',
-              concept.content,' (',
-              concept.cluster,')',
+              concept.segment__cluster,
               
               '</h4><div class="tooltip-measures">tf ..... ',
-              (Math.round(+concept.tf * 10000)/100),
+              (Math.round(+concept.tf * 10000)/10000),
               '<br/>tfidf .. ',
-              (Math.round(+concept.tf_idf * 10000)/100),
+              (Math.round(+concept.tf_idf * 10000)/10000),
               '<br/>distr .. ',
               +concept.distribution,
               '</div>'
@@ -62,11 +62,11 @@ angular.module('svenClientApp')
           
           if(!group_id) {
             previous_group = null;
-          } else if(previous_group && previous_group.id == group_id) {
+          } else if(previous_group && previous_group.name == group_id) {
             //
           } else {
             for(var i=0; i < scope.groups.length; i++) {
-              if(scope.groups[i].id == group_id) {
+              if(scope.groups[i].name == group_id) {
                 previous_group = scope.groups[i];
                 break;
               }
@@ -74,13 +74,13 @@ angular.module('svenClientApp')
           }
 
 
-          if(previous_concept && previous_concept.id == concept_id) {
+          if(previous_concept && previous_concept.segment__cluster == concept_id) {
             return t(previous_concept, previous_group);
           };
           
           try{
             previous_concept = scope.data.filter(function(d){
-              return d.id==concept_id
+              return d.segment__cluster==concept_id
             })[0];
           } catch(e){
             console.log("tooltip not found for concept id", concept_id);
@@ -131,11 +131,11 @@ angular.module('svenClientApp')
         var render = function() {
           // get positions for each set
           
-          if(scope.data)
+          if(scope.data && scope.groups && scope.bounds)
             matrix
               .headers(scope.groups)
-              .data(scope.data, function(d) {return d.cluster;})
-              .update({ measure:scope.measure||'tf'})
+              .data(scope.data, function(d) {return d.segment__cluster;})
+              .update({ bounds: scope.bounds, measure:scope.measure||'tf'})
           
         }
 
