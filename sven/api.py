@@ -582,7 +582,7 @@ def corpus_segments(request, corpus_pk):
   g_limit = 50
   
   # if goruping on TAG: get the grouping, with limit and offsets as well
-  tags = Tag.objects.filter(document__corpus=cor)[g_offset:g_offset+g_limit]
+  tags = Tag.objects.filter(tagdocuments__corpus=cor)[g_offset:g_offset+g_limit]
   groups = ['0']+[ '%s' % g.id for g in tags]
 
   epoxy.meta('ids', groups)
@@ -710,7 +710,7 @@ def corpus_concepts(request, corpus_pk):
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
 
   clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).values('segment__cluster').order_by(*epoxy.order_by).annotate(
-    distribution=Count('document'),
+    distribution=Count('document', distinct=True),
     tf=Max('tf'),
     tf_idf=Max('tfidf')
   )
@@ -730,21 +730,19 @@ def corpus_concepts(request, corpus_pk):
       groups_available = Document.objects.filter(corpus=cor).extra(
         select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
       ).values('G').annotate(distribution=Count('id'))
-      epoxy.add('groups', [g for g in groups_available])
+      
       
       # get groupings e.g value for groups for selected cluster only
       groups = Document_Segment.objects.filter(
         document__corpus=cor,
         segment__status='IN'
-      ).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
         select={'G': """DATE_FORMAT(date, "%%Y-%%m")"""}
-      ).values('G', 'segment__cluster').order_by(*epoxy.order_by).annotate(
-        distribution=Count('document'),
+      ).order_by().values('G', 'segment__cluster').annotate(
+        distribution=Count('document', distinct=True),
         tf=Max('tf'),
         tf_idf=Max('tfidf')
       )
-
-      #epoxy.add('groups', [g for g in set([g['G'] for g in groups])])
 
     elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
       # get all groupin possibilities according to date:
@@ -753,20 +751,31 @@ def corpus_concepts(request, corpus_pk):
       ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
-      epoxy.add('groups', [g for g in groups_available])
-
-      # default 'group_by' in epoxy.data and epoxy.data['group_by'] == 'tag':
-      """groups = Document_Segment.objects.filter(
+      
+      groups = Document_Segment.objects.filter(
         document__corpus=cor,
-        segment__status=Segment.IN
-      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
-        select={'G': 'document__tag'}
-      ).values('G', 'segment__cluster').order_by(*epoxy.order_by).annotate(
-        distribution=Count('document'),
+        segment__status=Segment.IN,
+        document__tags__type=epoxy.data['group_by']
+      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+        select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
+        distribution=Count('document', distinct=True),
         tf=Max('tf'),
         tf_idf=Max('tfidf')
       )
-      """
+
+    if groups_available:
+      #epoxy.meta('query', '%s' % groups.query)
+      # format here your groups
+      epoxy.add('groups', [g for g in groups_available])
+
+      # find the right  matching the group name
+      for cluster in clusters_objects:
+        for g in groups:
+          if g['segment__cluster'] == cluster['segment__cluster']:
+            if not 'cols' in cluster:
+              cluster['cols'] = []
+            cluster['cols'].append(g)            
+
     else:
       epoxy.warning('grouping', 'grouping not recognized, should be one value among these (for tags): %s' % ','.join([t[0] for t in Tag.TYPE_CHOICES])) 
     
@@ -778,8 +787,7 @@ def corpus_concepts(request, corpus_pk):
   epoxy.meta('bounds', Document_Segment.objects.filter(document__corpus=cor, segment__status='IN').aggregate(max_tf=Max('tf'), min_tf=Min('tf'), max_tfidf=Max('tfidf'), min_tfidf=Min('tfidf')))
   # get total number of clusters
   epoxy.meta('total_count', clusters.count())
-  epoxy.meta('query', '%s' % clusters.query)
-
+  
   return epoxy.json()
 
 
@@ -1109,7 +1117,7 @@ def graph_corpus_tags(request, corpus_pk):
   corpus tags as nodes-edges value
   '''
   epoxy = Epoxy(request)
-  epoxy.add('nodes', [t.json() for t in Tag.objects.filter(document__corpus__pk=corpus_pk).distinct()])
+  epoxy.add('nodes', [t.json() for t in Tag.objects.filter(tagdocuments__corpus__pk=corpus_pk).distinct()])
   
   cursor = connection.cursor()
   # NODES
