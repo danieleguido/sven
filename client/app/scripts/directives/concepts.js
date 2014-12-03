@@ -110,7 +110,7 @@ angular.module('svenClientApp')
 
           tooltip
             .style("opacity", 1)
-            .style("left", Math.max(0, event.offsetX) +  "px")
+            .style("left", Math.max(0, event.pageX - 200) +  "px")
             .style("top", (event.pageY - 10) + "px")
             .html(text);
 

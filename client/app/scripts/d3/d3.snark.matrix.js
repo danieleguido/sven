@@ -49,27 +49,23 @@
         .text('concept example')
         .attr({
           x: 40,
-          y: 26,
+          y: 100,
           'class': 'header'
         })
 
       _svg
         .append("text")
-        .text('TF')
+        .text('frequency')
         .attr({
-          x: 200,
-          y: 26,
-          'text-anchor': 'middle',
+          transform: 'translate(220, 100) rotate(-45)',
           'class': 'header'
         })
 
       _svg
         .append("text")
-        .text('TFIDF')
+         .text('specificity')
         .attr({
-          x: 230,
-          y: 26,
-          'text-anchor': 'middle',
+          transform: 'translate(260, 100) rotate(-45)',
           'class': 'header'
         })
       return matrix;
@@ -125,11 +121,11 @@
           columns  = _svg
             .selectAll('.column')
             .data(_headers, function(d) {
-              return d.G;
+              console.log('column', d)
+              return d.name || d.G;
             });
       console.log(tf_min, tf_max, tfidf_min, tfidf_max)
-      // recalculate svg width according to the number of groups
-      _svg.attr("width", 260 + _headers.length * 120)
+      
 
       // cfr http://bost.ocks.org/mike/nest/
       matrix.draw(elements, columns, {
@@ -145,11 +141,11 @@
       options.min and options.max
     */
     matrix.draw = function(elements, columns, options) {
-      //console.log(options);
-      
 
-
-      var offsetx = 200,
+      var offsetx     = 260,
+          offsety     = 140,
+          diffx       = 70,
+          line_height = 28,
 
           tf_size = d3.scale.linear()
             .domain([options.tf_min, options.tf_max])
@@ -159,49 +155,71 @@
             .domain([options.tfidf_min, options.tfidf_max])
             .range([2,15]),
 
-        update_selection = elements,
-        enter_selection = elements.enter()
+          update_selection = elements,
+          enter_selection,
+          switchers;
+
+      // recalculate svg width according to the number of groups
+      _svg.attr({
+        width: offsetx +  diffx * (_headers.length + 1)
+      })
+
+      enter_selection = elements
+        .enter()
           .append('g')
           .attr('class', function(d) {
-            return 'block ' + d.status;
+            return 'block ' + (d.status || '');
           })
           .attr('cid', function(d) {
             return d.segment__cluster;
           }),
-        switchers;
-        
-        // write text for column headers
-        columns.enter()
-          .append('text')
+      
+      // append background
+      enter_selection
+        .append('rect')
           .attr({
-            x: function(d,i){ return i*20 + offsetx + 60;},
-            y: 40,
+            y: -14,
+            x: 20,
+            height: line_height,
+            width: offsetx - 40 +  diffx * (_headers.length + 1),
+            fill: 'transparent'
           })
-          .text(function(d,i){ return d.G})
+        
+
+      
+
+      // write column headers (text)
+      columns.enter()
+        .append('text')
+          .attr({
+            'class': 'header',
+            transform: function(d,i){ return 'translate('+ (offsetx + diffx*(i+1))+' '+ (offsety - 40)+') rotate(-45)' ;},
+          })
+          .text(function(d,i){ return d.name})
 
 
         // set basic transform for each row (y)
         enter_selection
           .attr('transform', function(d,i) {
-            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
+            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + offsety].join(' ') + ')';
           });
 
         //
         // ADDING ELEMENTS LEFT TO RIGHT
         //
         // append base rectangle
-        switchers = enter_selection
-          .append('g')
-            .attr('class', 'switcher');
-        switchers
-          .append('circle')
-            .attr('class', 'toggler')
-            .attr('cid', function(d) {
-              return d.segment__cluster;
-            })
-            .attr('r', 8)
-            .attr('cx', 10)
-            .attr('cy', 0)
+        // switchers = enter_selection
+        //   .append('g')
+        //     .attr('class', 'switcher');
+        // switchers
+        //   .append('circle')
+        //     .attr('class', 'toggler')
+        //     .attr('cid', function(d) {
+        //       return d.segment__cluster;
+        //     })
+        //     .attr('r', 8)
+        //     .attr('cx', 10)
+        //     .attr('cy', 0)
 
 
         // write text labels (they won't change)
@@ -220,24 +238,22 @@
           .append('circle')
             .attr({
               'class': 'tf',
-              cx: offsetx,
+              cx: offsetx -diffx/2,
               opacity: ".4",
               r: function(d) {
                 return tf_size(+d.tf);
-              },
-              fill: "gold"
+              }
             })
 
         enter_selection
           .append('circle')
             .attr({
               'class': 'tf_idf',
-              cx: offsetx + 30,
+              cx: offsetx,
               opacity: ".4",
               r: function(d) {
                 return tfidf_size(+d.tf_idf);
-              },
-              fill: "gold"
+              }
             })
 
 
@@ -247,7 +263,6 @@
         // adding columns based on headers
         var cols_selection = enter_selection
           .selectAll('.measure')
-            .remove()
             .data(function(d,i) {
               return _headers.map(function(o) { // put this function outside
                 console.log('mappin', d, o.name)
@@ -276,16 +291,18 @@
 
 
         cols_selection
-            .enter()
+          .exit()
+          .remove()
 
-              .append('rect')
+        cols_selection
+            .enter()
+              .append('circle')
               .attr({
                 'class'    : 'measure',
-                'width'    : 60,
-                'height'   : 1,
-                'y'        : -0.5,
+                'r'   : 1,
+                'cy'        : -0.5,
                 'gid'  : function(d) {return d.name},
-                'x'        : function(d,i) {return i*60 + offsetx + 60;}
+                'cx'        : function(d,i) {return i*diffx + offsetx + diffx;}
               });
 
         
@@ -293,25 +310,25 @@
         update_selection
           .transition(500)
           .attr('transform', function(d,i) {
-            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + 26*2].join(' ') + ')';
+            return 'matrix(' + [1, 0, 0, 1, 0, i*26 + offsety].join(' ') + ')';
           })
           .attr('class', function(d) {
               return 'block ' + d.status;
             })
           .selectAll('.measure')
-            .attr('height', function(d){
+            .attr('r', function(d){
               
                 if(options.measure == 'tf')
-                  return tf_size(+d.tf||0)*2;
+                  return tf_size(+d.tf||0)//*2;
                 else
-                  return tfidf_size(+d.tf_idf||0)*2;
+                  return tfidf_size(+d.tf_idf||0)//*2;
               })
-            .attr('y', function(d){
-                if(options.measure == 'tf')
-                  return -tf_size(+d.tf||0);
-                else
-                  return -tfidf_size(+d.tf_idf||0);
-              })
+            // .attr('cy', function(d){
+            //     if(options.measure == 'tf')
+            //       return -tf_size(+d.tf||0);
+            //     else
+            //       return -tfidf_size(+d.tf_idf||0);
+            //   })
             
 
         update_selection

@@ -770,12 +770,20 @@ li.spacer{
   ...................................
   -----------------------------------
 */
+svg{
+  background: #f8f8f8;
+}
 .viewer{
   width:100%;
   overflow: hidden;
   overflow-x: auto;
   overflow-y: hidden;
 }
+
+g.block:hover rect{
+  fill: white;
+}
+
 circle{
   fill: #333;
 }
@@ -789,16 +797,15 @@ circle.tf{
 circle.tf:hover{
   fill: red;
 }
-rect.measure{
+.measure{
   fill-opacity:.6;
 }
-rect.measure:hover{
+.measure:hover{
   fill-opacity:.9;
 }
 
 text.header{
   font-size: 12px;
-  font-weight: bold
 }
 .OUT text{
   fill: #ccc;
