@@ -313,7 +313,7 @@ class Command(BaseCommand):
 
       with transaction.atomic():
         for i,(match, lemmata, tf, wf) in enumerate(segments):
-          seg, created = Segment.objects.get_or_create(corpus=job.corpus, partofspeech=Segment.NP, content=match, defaults={
+          seg, created = Segment.objects.get_or_create(corpus=job.corpus, partofspeech=Segment.NP, content=match[:128], defaults={
             'lemmata':  lemmata,
             'cluster':  lemmata,
             'language': language,

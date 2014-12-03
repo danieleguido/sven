@@ -792,6 +792,83 @@ def corpus_concepts(request, corpus_pk):
   return epoxy.json()
 
 
+def export_corpus_concepts(request, corpus_pk):
+  '''
+  export a huge csv containing all the filtered/sorted concept
+  '''
+  epoxy = Epoxy(request)
+  try:
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST)
+
+  clusters = Document_Segment.objects.filter(document__corpus=cor).filter(**epoxy.filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
+    distribution=Count('document', distinct=True),
+    tf=Max('tf'),
+    tf_idf=Max('tfidf')
+  )
+
+  # prepare http respinse to send csv data
+  import unicodecsv
+  from django.http import HttpResponse
+
+  response = HttpResponse(content_type='text/plain; charset=utf-8')
+  writer = unicodecsv.DictWriter(response, fieldnames=clusters[0].keys() + ['content', 'status', 'ordering'], delimiter=',', encoding='utf-8')
+  writer.writeheader()
+
+  DATE_GROUPING = {
+    'Ym' : "%%Y-%%m"
+  }
+
+  limit = 100
+  loops = int(math.ceil(1.0*clusters.count() / limit))
+  step = 0
+
+  # print set by set
+  for i in range(0, loops):
+    clusterindex = {}
+
+    # create a small index to recover computated data
+    for c in clusters[i*limit:i*limit+limit]:
+      clusterindex[c['segment__cluster']] = c
+      clusterindex[c['segment__cluster']]['ordering'] = step # sort order
+      step = step + 1
+    # get group values for the indexed clusters only
+
+    if 'group_by' in epoxy.data:
+      if epoxy.data['group_by'] in DATE_GROUPING.keys():
+        # available data grouping (translations for MYSQL ONLY !)
+        groups_available = Document.objects.filter(corpus=cor).extra(
+          select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
+        ).values('G').annotate(distribution=Count('id'))
+        print groups_available
+
+    # get distinct segments matching the indexed clusters
+    segments = Segment.objects.filter(cluster__in=clusterindex.keys()).order_by('cluster')
+    
+    # print lines
+    for s in segments:
+      if 'content' in clusterindex[s.cluster]: #clusters has already benn added
+        clusterindex[s.cluster]['content'] = '%s|' % clusterindex[s.cluster]['content'], s.content
+
+      clusterindex[s.cluster].update({
+        'content': s.content,
+        'status' : s.status
+      })
+      #print enriched_segment
+      writer.writerow(clusterindex[s.cluster])
+
+      
+
+  
+  return response  
+
+  epoxy.meta('n', loops)
+
+  return epoxy.json()
+
+
+
 
 def export_corpus_documents(request, corpus_pk):
   '''
