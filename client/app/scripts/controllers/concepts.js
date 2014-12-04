@@ -40,7 +40,7 @@ angular.module('svenClientApp')
         {label:'tf', value:'-tf'},
         {label: 'tfidf', value:'-tf_idf'},
         {label: 'most common', value:'-distribution|-tf_idf'},
-        {label:'by name a-z', value:'-cluster'}
+        {label:'by name a-z', value:'-segment__cluster'}
       ];
     $scope.$parent.orderBy.choice = {label: 'most common', value:'-distribution|-tf_idf'};
     

@@ -8,7 +8,7 @@
  * Controller of the svenClientApp
  */
 angular.module('svenClientApp')
-  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, DocumentsConceptsFactory, DocumentTagsFactory) {
+  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, ConceptsFactory, DocumentTagsFactory) {
     $scope.document = {
       date: new Date()
     };
@@ -112,22 +112,25 @@ angular.module('svenClientApp')
     $scope.$parent.limit = 50;
 
     $scope.$parent.orderBy.choices = [
-        {label:'tf', value:'tf DESC'},
-        {label: 'tfidf', value:'tfidf DESC'},
-        {label: 'top shared TF', value:'distribution DESC|tf DESC'},
-        {label:'by name a-z', value:'cluster ASC'}
+        {label:'tf', value:'-tf'},
+        {label: 'tfidf', value:'-tf_idf'},
+        {label: 'most common', value:'-distribution|-tf_idf'},
+        {label:'by name a-z', value:'-segment__cluster'}
       ];
-    $scope.$parent.orderBy.choice = {label: 'top shared TF', value:'distribution DESC|tf DESC'};
+    $scope.$parent.orderBy.choice = {label: 'most common', value:'-distribution|-tf_idf'};
     
     $scope.sync = function() {
-      DocumentsConceptsFactory.query(
+      ConceptsFactory.query(
         $scope.getParams({
-          id:$routeParams.id
+          id:$scope.corpus.id,
+          group_by: 'ac',
+          filters: JSON.stringify({document__id:$routeParams.id})
         }), function(data){
           console.log(data); // pagination needed
           $scope.totalItems = data.meta.total_count;
-          $scope.clusters = data.objects;
-          $scope.groups = [];
+          $scope.bounds     = data.meta.bounds;
+          $scope.groups     = data.groups;
+          $scope.clusters   = data.objects;
         });
     };
 
