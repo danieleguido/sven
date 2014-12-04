@@ -313,22 +313,18 @@ class Command(BaseCommand):
 
       with transaction.atomic():
         for i,(match, lemmata, tf, wf) in enumerate(segments):
-          try:
-            seg, created = Segment.objects.get_or_create(corpus=job.corpus, partofspeech=Segment.NP, content=match[:128], defaults={
-              'lemmata':  lemmata,
-              'cluster':  lemmata,
-              'language': language,
-              'corpus' :  job.corpus
-            })
+          seg, created = Segment.objects.get_or_create(corpus=job.corpus, partofspeech=Segment.NP, content=match[:128], defaults={
+            'lemmata':  lemmata[:128],
+            'cluster':  lemmata[:128],
+            'language': language,
+            'corpus' :  job.corpus
+          })
 
-            dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
-            dos.tf=tf
-            dos.wf=wf
-            dos.save()
-          except Exception, e:
-            logger.error('doc id %s blocked by %s' %(doc.id, match) )
-            logger.exception(e)
-            continue
+          dos, created = Document_Segment.objects.get_or_create(document=doc, segment=seg)
+          dos.tf=tf
+          dos.wf=wf
+          dos.save()
+          
 
       
         job.document = doc

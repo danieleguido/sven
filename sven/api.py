@@ -811,18 +811,54 @@ def export_corpus_concepts(request, corpus_pk):
   # prepare http respinse to send csv data
   import unicodecsv
   from django.http import HttpResponse
+  
+  if 'plain-text' not in epoxy.data:
+    response = HttpResponse(mimetype='text/csv; charset=utf-8')
+    response['Content-Description'] = "File Transfer";
+    response['Content-Disposition'] = "attachment; filename=%s.concepts.csv" % cor.name 
+  
+  else:
 
-  response = HttpResponse(content_type='text/plain; charset=utf-8')
-  writer = unicodecsv.DictWriter(response, fieldnames=clusters[0].keys() + ['content', 'status', 'ordering'], delimiter=',', encoding='utf-8')
-  writer.writeheader()
-
+    response = HttpResponse(content_type='text/plain; charset=utf-8')
+  
+  fieldnames = clusters[0].keys() + ['content', 'status', 'ordering']
   DATE_GROUPING = {
     'Ym' : "%%Y-%%m"
   }
+  if 'group_by' in epoxy.data:
+    if epoxy.data['group_by'] in DATE_GROUPING.keys():
+      # available data grouping (translations for MYSQL ONLY !)
+      groups_available = Document.objects.filter(corpus=cor).extra(
+        select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
+      ).values('G').annotate(distribution=Count('id'))
+      for g in groups_available:
+        fieldnames = fieldnames + [
+          '%s (tf)' % g['G'],
+          '%s (tfidf)' % g['G']
+        ]
+    elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
+      # get all groupin possibilities according to date:
+      groups_available = Tag.objects.filter(
+        tagdocuments__corpus=cor
+      ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+        distribution=Count('tagdocuments')
+      )
+      for g in groups_available:
+        fieldnames = fieldnames + [
+          '%s (tf)' % g['name'],
+          '%s (tfidf)' % g['name']
+        ]
+
+
+  
+  writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
+  writer.writeheader()
+
 
   limit = 100
   loops = int(math.ceil(1.0*clusters.count() / limit))
   step = 0
+
 
   # print set by set
   for i in range(0, loops):
@@ -834,23 +870,51 @@ def export_corpus_concepts(request, corpus_pk):
       clusterindex[c['segment__cluster']]['ordering'] = step # sort order
       step = step + 1
     # get group values for the indexed clusters only
-
     if 'group_by' in epoxy.data:
       if epoxy.data['group_by'] in DATE_GROUPING.keys():
-        # available data grouping (translations for MYSQL ONLY !)
-        groups_available = Document.objects.filter(corpus=cor).extra(
-          select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
-        ).values('G').annotate(distribution=Count('id'))
-        print groups_available
+        groups = Document_Segment.objects.filter(
+          document__corpus=cor,
+          segment__status='IN'
+        ).filter(**epoxy.filters).filter(segment__cluster__in=clusterindex.keys()).extra(
+          select={'G': """DATE_FORMAT(date, "%%Y-%%m")"""}
+        ).order_by().values('G', 'segment__cluster').annotate(
+          distribution=Count('document', distinct=True),
+          tf=Max('tf'),
+          tf_idf=Max('tfidf')
+        )
+
+        
+      elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
+        groups = Document_Segment.objects.filter(
+          document__corpus=cor,
+          segment__status=Segment.IN,
+          document__tags__type=epoxy.data['group_by']
+        ).filter(**epoxy.filters).filter(segment__cluster__in=clusterindex.keys()).extra(
+          select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
+          distribution=Count('document', distinct=True),
+          tf=Max('tf'),
+          tf_idf=Max('tfidf')
+        )
+
+      if groups:
+        for c in clusterindex.values():
+          for g in groups:
+            if g['segment__cluster'] == c['segment__cluster']:
+              c.update({
+                '%s (tf)' % g['G']:  g['tf'],
+                '%s (tfidf)' % g['G']:  g['tf_idf']
+              })
 
     # get distinct segments matching the indexed clusters
     segments = Segment.objects.filter(cluster__in=clusterindex.keys()).order_by('cluster')
     
     # print lines
+    pc = False# previouscluster
     for s in segments:
-      if 'content' in clusterindex[s.cluster]: #clusters has already benn added
-        clusterindex[s.cluster]['content'] = '%s|' % clusterindex[s.cluster]['content'], s.content
-
+      if pc and pc == s.cluster:
+        continue
+      pc = s.cluster
+      
       clusterindex[s.cluster].update({
         'content': s.content,
         'status' : s.status
