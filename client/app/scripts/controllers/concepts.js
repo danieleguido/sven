@@ -65,8 +65,8 @@ angular.module('svenClientApp')
     });
 
     /* considering filters and grouping */
-    $scope.downloadConcepts = function() {
-      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/segments', '_blank', '');
+    $scope.downloadConcepts = function(grouping) {
+      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/concepts?' + (grouping?'group_by='+grouping:''), '_blank', '');
     };
 
     $scope.sync = function() {

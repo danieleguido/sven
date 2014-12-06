@@ -35,10 +35,28 @@
 <div class="btn-toolbar" role="toolbar">
   <div class="btn-group">
     
-    <a class="btn btn-default" ng-click="downloadConcepts()" tooltip="download concept list as csv file">download <i class="fa fa-download"></i></a>
+    <!-- <a class="btn btn-default" ng-click="downloadConcepts()" tooltip="download concept list as csv file">download <i class="fa fa-download"></i></a> -->
+
+    <div dropdown is-open="isopen">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        download <span class="fa fa-angle-down"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a ng-click="downloadConcepts()">concepts only</a>
+        </li>
+        <li>
+          <a ng-click="downloadConcepts('Ym')">month by month</a>
+        </li>
+        <li>
+          <a ng-click="downloadConcepts('ac')">actor by actor</a>
+        </li>
+      </ul>
+    </div>
+
   
   </div>
-  <div class="btn-group">
+  <!-- <div class="btn-group">
     <div dropdown is-open="group_by.isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
         {{group_by.choice.label}}<span class="fa fa-angle-down"></span>
@@ -50,10 +68,10 @@
           </ul>
     </div>
   
-  </div>
+  </div> -->
   <div class="btn-group">
 
-    <div  dropdown is-open="orderBy.isopen">
+    <div  dropdown is-open="orderBy.isopen" tooltip="sort concepts by ...">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
         {{orderBy.choice.label}} <span class="fa fa-angle-down"></span>
       </button>

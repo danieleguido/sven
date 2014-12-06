@@ -158,6 +158,10 @@ def start(request, corpus_pk, cmd):
   '''
   epoxy = Epoxy(request)
 
+  # filter cmd by user
+  if cmd in settings.ADMIN_COMMANDS and not request.user.is_staff:
+    return epoxy.throw_error(error='Not authorized', code=API_EXCEPTION_AUTH).json()
+
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
   except Corpus.DoesNotExist, e:
@@ -452,8 +456,17 @@ def document_tags(request, pk):
 
 @login_required(login_url='/api/login')
 def corpora(request):
+  '''
+  Rest API for sven.models.Corpus
+  On Post (authentified) request, it create a corpus
+  only if the number of corpora is less than the declared settings.MAX_CORPORA_PER_USER
+  '''
   epoxy = Epoxy(request)
 
+  if not request.user.is_staff:
+    if request.user.corpora.count() >= settings.MAX_CORPORA_PER_USER:
+      return epoxy.throw_error(error="You have reached the maximum number of corpus available. Not staff user cannot have more than %s corpora" % settings.MAX_CORPORA_PER_USER, code=API_EXCEPTION_AUTH).json()
+  
   if epoxy.is_POST():
     form = CorpusForm(epoxy.data)
     if form.is_valid():
@@ -869,6 +882,8 @@ def export_corpus_concepts(request, corpus_pk):
       clusterindex[c['segment__cluster']] = c
       clusterindex[c['segment__cluster']]['ordering'] = step # sort order
       step = step + 1
+
+    groups=None
     # get group values for the indexed clusters only
     if 'group_by' in epoxy.data:
       if epoxy.data['group_by'] in DATE_GROUPING.keys():
@@ -896,7 +911,7 @@ def export_corpus_concepts(request, corpus_pk):
           tf_idf=Max('tfidf')
         )
 
-      if groups:
+      if 'group_by' in epoxy.data and groups:
         for c in clusterindex.values():
           for g in groups:
             if g['segment__cluster'] == c['segment__cluster']:

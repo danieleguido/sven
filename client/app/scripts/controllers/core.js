@@ -204,29 +204,91 @@ angular.module('svenClientApp')
     /*
       handle file upload at upper level
     */
-    $scope.uploadingQueue = [];
-    var uploaders = {};
-    
-    var start = function($file, index) {
-      uploaders[index] = $upload.upload({
+    $scope.uploadingLoaded = 0;
+    $scope.uploadingTotal  = 0;
+    $scope.uploadingQueued = 0;
+    $scope.uploadingQueue  = 0;
+    $scope.uploadingError  = 0;
+
+    $scope.upload = function($files) {
+      $log.info('CoreCtrl.upload', $files.length, 'files');
+
+      for(var i = 0; i < $files.length; i++){
+        $upload.upload({
           url: SVEN_BASE_URL + '/api/corpus/' + $scope.corpus.id + '/upload', //upload.php script, node.js route, or servlet url
-          file: $file
+          file: $files[i]
         }).then(function(res) {
-          $scope.uploadingQueue[index].completion = 100;
-          $log.info('upload @start completed', res);
-          toast($scope.uploadingQueue[index].name + ' uploaded');
+          $scope.uploadingLoaded += res.config.file.size;
+          $scope.uploadingQueue--;
+          $log.log('CoreCtrl.upload', res.config.file.name,'uploaded', res.config.file.size, 'remaining', $scope.uploadingQueue, '', $scope.uploadingLoaded/$scope.uploadingTotal);
           
-          $scope.$broadcast(API_PARAMS_CHANGED)
-        }, function(response) {
+          if($scope.uploadingQueue == 0) {
+            toast('uploaded ' + ($scope.uploadingQueued- $scope.uploadingError) + ' files');
+            $scope.$broadcast(API_PARAMS_CHANGED)
+          }
+        }, function(err){
           $log.error(response);
-          //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
-        }, function(evt) {
-          // Math.min is to fix IE which reports 200% sometimes
-          $scope.uploadingQueue[index].completion = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+          $scope.uploadingQueue--;
+          $scope.uploadingError++;
+          if($scope.uploadingQueue == 0) {
+            toast('uploaded ' + ($scope.uploadingQueued- $scope.uploadingError) + ' files');
+            $scope.$broadcast(API_PARAMS_CHANGED);
+
+          }
+        }, function(evt){
+          $log.info(evt);
         });
+      };
+
+      // $upload.upload({
+      //   url: SVEN_BASE_URL + '/api/corpus/' + $scope.corpus.id + '/upload', //upload.php script, node.js route, or servlet url
+      //   file: $file
+      // }).then(function(res) {
+        
+      //   var uploadedFile = $scope.uploadingQueue.filter(function(d){
+      //     return d.index == index
+      //   })[0];
+
+      //   uploadedFile
+      //     $scope.uploadingQueue[index].completion = 100;
+      //     $log.info('upload @start completed', res);
+      //     toast($scope.uploadingQueue[index].name + ' uploaded');
+          
+      //     $scope.$broadcast(API_PARAMS_CHANGED)
+      //   }, function(response) {
+      //     $log.error(response);
+      //     //if (response.status > 0) $scope.errorMsg = response.status + ': ' + response.data;
+      //   }, function(evt) {
+      //     // Math.min is to fix IE which reports 200% sometimes
+      //     $scope.uploadingQueue[index].completion = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+      //   });
     };
 
+    $scope.onFileSelect = function($files) {
+      $log.info('CoreCtrl.onFileSelect', $files.length, 'files');
+      $scope.uploadingQueue = []
 
+      var total = 0;
+
+      toast('uploading ' + $files.length + ' files...');
+      
+      for ( var i = 0; i < $files.length; i++) {
+        var $file = $files[i];
+        total += $file.size;
+      };
+      
+      $scope.uploadingTotal = total;
+      $scope.uploadingLoaded = 0;
+      $scope.uploadingError  = 0;
+      $scope.uploadingQueued = +$files.length;
+      $scope.uploadingQueue  = +$files.length;
+      
+      $log.info('CoreCtrl.onFileSelect to be uploaded:', $scope.uploadingTotal, 'bytes');
+      
+      $scope.upload($files);
+        
+      //}
+    };
     
     /*
       launch the preview of the csv data
@@ -267,27 +329,6 @@ angular.module('svenClientApp')
           console.log(evt);
         });
     }
-
-
-    $scope.onFileSelect = function($files) {
-      $log.debug('onFileSelect', $files);
-      $scope.uploadingQueue = [];
-      uploaders = {};
-      toast('uploading ' + $files.length + ' files...');
-      
-      for ( var i = 0; i < $files.length; i++) {
-        var $file = $files[i];
-        $scope.uploadingQueue.push({
-          size: $file.size,
-          name: $file.name,
-          type: $file.type,
-          index: i,
-          completion: 0
-        });
-        start($file, i);
-        
-      }
-    };
 
     
     $scope.changePage = function(page){

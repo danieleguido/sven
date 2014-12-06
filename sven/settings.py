@@ -89,6 +89,7 @@ USE_L10N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 STATIC_ROOT = local_settings.STATIC_ROOT
@@ -169,4 +170,7 @@ WHOOSH_PATH     = os.path.join(BASE_DIR, 'contents/whoosh')
 STOPWORDS_PATH  = os.path.join(BASE_DIR, 'contents/stopwords') # Cfr models.Corpus.get_stopwords_path(). Path where txt stopwords files has to be stored.
 CSV_PATH        = os.path.join(BASE_DIR, 'contents/csv') # Cfr models.Corpus.get_csv_path(). Path where csv files has to be stored.
 
+# django managemen tcommands
+MAX_CORPORA_PER_USER = 2 # max number of corpus per not admin user
 STANDALONE_COMMANDS = ['harvest', 'whoosher', 'freebase'] # standalone management commands.
+ADMIN_COMMANDS = ['removecorpus', 'clean', 'cleansegments']
