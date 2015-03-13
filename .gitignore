@@ -1,6 +1,6 @@
 local_settings.py
 sven.wsgi
-
+contents/*/
 media/*
 static/*
 dist/*
