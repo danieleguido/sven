@@ -711,6 +711,7 @@ def corpus_segment(request, corpus_pk, segment_pk):
   return epoxy.json()
 
 
+
 def corpus_concepts(request, corpus_pk):
   '''
   Export filtered segments.
@@ -725,10 +726,10 @@ def corpus_concepts(request, corpus_pk):
   clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
     tf=Max('tf'),
-    tf_idf=Max('tfidf')
+    tfidf=Max('tfidf')
   )
 
-  epoxy.meta('q', '%s'%clusters.query)
+  epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
 
   clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
   
@@ -755,7 +756,7 @@ def corpus_concepts(request, corpus_pk):
       ).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
-        tf_idf=Max('tfidf')
+        tfidf=Max('tfidf')
       )
 
     elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
@@ -774,10 +775,10 @@ def corpus_concepts(request, corpus_pk):
         select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
-        tf_idf=Max('tfidf')
+        tfidf=Max('tfidf')
       )
 
-    if groups_available:
+    if groups_available is not None:
       #epoxy.meta('query', '%s' % groups.query)
       # format here your groups
       epoxy.add('groups', [g for g in groups_available])

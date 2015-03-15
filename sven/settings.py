@@ -102,7 +102,7 @@ LOGIN_URL = local_settings.LOGIN_URL
 BASE_URL  = local_settings.BASE_URL
 
 STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'client'),
+  os.path.join(BASE_DIR, 'client/src'),
 )
 
 TEMPLATE_DIRS = (
