@@ -723,7 +723,22 @@ def corpus_concepts(request, corpus_pk):
   except Corpus.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
+  # translate epoxy filters: prepend document__ to every fields.
+  cluster_filters = {}
+  tags_filters = {}
+
+  for key,value in epoxy.filters.iteritems():
+    if key.startswith('tags__'):
+      cluster_filters['document__%s' % key] = value
+      tags_filters[ key.replace('tags__', '')] = value
+    elif key.startswith('segments__'):
+      cluster_filters[key.replace('segments__', 'document__segments__')] = value
+    else:
+      cluster_filters['document__%s' % key] = value
+
+  print cluster_filters
+
+  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
     tf=Max('tf'),
     tfidf=Max('tfidf')
@@ -763,7 +778,7 @@ def corpus_concepts(request, corpus_pk):
       # get all groupin possibilities according to date:
       groups_available = Tag.objects.filter(
         tagdocuments__corpus=cor
-      ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
       
@@ -771,7 +786,7 @@ def corpus_concepts(request, corpus_pk):
         document__corpus=cor,
         segment__status=Segment.IN,
         document__tags__type=epoxy.data['group_by']
-      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+      ).filter(**cluster_filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
         select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
@@ -854,7 +869,7 @@ def export_corpus_concepts(request, corpus_pk):
       # get all groupin possibilities according to date:
       groups_available = Tag.objects.filter(
         tagdocuments__corpus=cor
-      ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
       for g in groups_available:

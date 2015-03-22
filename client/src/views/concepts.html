@@ -91,4 +91,4 @@
 <pagination class="btn-group" max-size="5" items-per-page="limit" boundary-links="true" total-items="totalItems" ng-model="$parent.$parent.page" ng-change="changePage($parent.$parent.page)"></pagination>
 </div>
 
-<matrix toggle="toggleVisibility(concept_id)" data="clusters" groups="groups" measure="measure" bounds="bounds"><div class="viewer"></div></matrix>
+<matrix toggle="toggleVisibility(concept_id)" filtertags="filterByTag(tag_slug)" data="clusters" filterconcepts="filterByConcept(cluster)" groups="groups" measure="measure" bounds="bounds"><div class="viewer"></div></matrix>

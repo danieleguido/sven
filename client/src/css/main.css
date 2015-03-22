@@ -804,7 +804,7 @@ circle.tf:hover{
   fill-opacity:.9;
 }
 
-text.header{
+text.header, text.column{
   font-size: 12px;
 }
 .OUT text{

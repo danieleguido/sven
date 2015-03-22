@@ -17,6 +17,7 @@ angular
     'ngTouch',
     'ui.bootstrap',
     'angularFileUpload',
+    'ngTagsInput'
   ])
   .config(function ($routeProvider, $httpProvider) {
     $routeProvider

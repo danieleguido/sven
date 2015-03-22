@@ -16,12 +16,14 @@ angular.module('sven')
         measure: '=',
         groups: '=',
         bounds: '=',
-        toggle: '&'
+        toggle: '&',
+        filtertags: '&',
+        filterconcepts: '&'
       },
       link: function postLink (scope, element, attrs) {
         var minRadius  = 1,
             maxRadius  = 10,
-            colspacing = maxRadius * 4,
+            colspacing = maxRadius * 6,
             lineHeight = 28,
             marginTop = 160,
             marginLeft = 200; // labels excluded.
@@ -46,19 +48,20 @@ angular.module('sven')
 
         svg
           .append("text")
-          .text('tf')
+          .text('tf/tfidf')
           .attr({
             transform: 'translate(' + marginLeft + ', 100)',
-            'class': 'header'
+            'class': 'header',
+            'text-anchor': 'middle'
           })
 
-        svg
-          .append("text")
-           .text('tfidf')
-          .attr({
-            transform: 'translate(' + (marginLeft + colspacing) + ', 100)',
-            'class': 'header'
-          })
+        // svg
+        //   .append("text")
+        //    .text('tfidf')
+        //   .attr({
+        //     transform: 'translate(' + (marginLeft + colspacing) + ', 100)',
+        //     'class': 'header'
+        //   })
 
         /**
           
@@ -77,7 +80,7 @@ angular.module('sven')
 
           var tfidfRadius = d3.scale.sqrt()
             .range([
-              8, 9
+              minRadius, maxRadius
             ]).domain([
               scope.bounds.min_tfidf,
               scope.bounds.max_tfidf
@@ -139,9 +142,14 @@ angular.module('sven')
 
           rows
             .select('text')
+              .attr({
+                slug: function(d) {
+                  return d.segment__cluster;
+                }
+              })
               .text(function(d) {
-                  return d.segment__cluster || '...'
-                });
+                return d.segment__cluster || '...'
+              });
 
           rows
             .select('circle.tf.global')
@@ -161,6 +169,38 @@ angular.module('sven')
             .transition()
             .attr('transform', transformationMatrix)
           
+
+
+          // create (or update) group names
+          var headers = svg.selectAll('.column')
+                .data(scope.groups, function (d, i) {
+                  //console.log('group',d);
+                  return i;
+                })
+
+          var columns = headers.enter()
+            .append('text')
+              .attr('class', 'column')
+              .attr('transform', function(d,i) {
+                return 'translate(' + (marginLeft + (i + 1)*colspacing) + ', 100) rotate(-45)';
+              });
+          
+          headers
+            .exit()
+              .remove()
+          
+          headers.text(function (d) {
+            return d.name
+          });
+
+          headers.attr({
+            slug: function (d) {
+              return d.slug
+            }
+          });
+
+          // on clik filter by tag!
+
           // 
           // Position groups 
           //
@@ -230,18 +270,35 @@ angular.module('sven')
               .transition()
                 .attr({
                   r: function (d) { return tfidfRadius(d.tfidf) }
-                })
+                });
 
 
-
-
-
+          // resize svg to show all the stuffs
+          svg.attr({
+            width: marginLeft + colspacing*(scope.groups.length + 1),
+            height: marginTop + lineHeight*(scope.data.length + 1)
+          })
+        
         };
 
         scope.$watch('data', function (current, previous) {
           if(current)
             draw(current);
         });
+
+        // listeners
+        element.on('click', '.column', function(e) {
+          console.log($(e.target).attr('slug'));
+          scope.filtertags({
+            tag_slug: $(e.target).attr('slug')
+          })
+        })
+        element.on('click', '.block text', function(e) {
+          console.log('filterconcepts', $(e.target).attr('slug'));
+          scope.filterconcepts({
+            cluster: $(e.target).attr('slug')
+          })
+        })
       }
     }
   })

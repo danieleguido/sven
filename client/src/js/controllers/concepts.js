@@ -54,10 +54,19 @@ angular.module('sven')
     }
 
 
-    $scope.filterByTag = function(tag_id, tag_slug, tag_name) {
+    $scope.filterByTag = function(tag_slug) {
       // add a filter
-      $log.log('filterByTag', tag_id, tag_slug, tag_name);
+      $log.log('filterByTag', tag_slug);
       
+      $scope.changeFilter('tags__slug', tag_slug, {})
+      
+    }
+
+    $scope.filterByConcept = function(concept_slug) {
+      // add a filter
+      $log.log('filterByTag', concept_slug);
+      
+      $scope.changeFilter('segments__cluster', concept_slug, {})
       
     }
     
