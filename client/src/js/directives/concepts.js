@@ -6,7 +6,7 @@
  * @description
  * # concepts
  */
-angular.module('svenClientApp')
+angular.module('sven')
   .directive('concepts', function () {
     return {
       template: '<div class="mouse tooltip">...</div><div class="viewer"></div>',

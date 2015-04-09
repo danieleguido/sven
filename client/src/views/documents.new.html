@@ -14,15 +14,16 @@
       <div class="form-group">
         <label>url type (optional){{document.__url_type}}</label>
         <select class="form-control" ng-model="document.__url_type">
-          <option selected value=""></option>
-          <option value="blog">Blog</option>
+          <option selected value="">no type specified</option>
+          <!--option value="blog">Blog</option>
           <option value="domestic news site">Domestic News site</option>
           <option value="international news site">International News site</option>
           <option value="domestic NGO site">Domestic NGO site</option>
           <option value="international news site">International NGO site</option>
           <option value="domestic government site">Domestic Government site</option>
           <option value="international government">International Government site</option>
-          <option value="other">Other</option>
+          <option value="other">Other</option -->
+          <option ng-repeat="typology in typesofmedia" value="{{typology.slug}}">{{typology.name}}</option>
         </select>
       </div>
       <div  class="form-group">

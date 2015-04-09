@@ -133,6 +133,9 @@ angular.module('sven')
           
         };
 
+        // store qvqilqble tqg type
+        $scope.typesofmedia = data.tags;
+
         // check status and exablish if a job has been finished
         if($scope.waitingJob) {
           for(var i=0; i < data.jobs.length; i++) {

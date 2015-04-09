@@ -46,7 +46,8 @@ def notification(request):
   # DEPRECATED. too much. 
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
-  
+  # available tags. to be cached somehow
+  tags = Tag.objects.filter(type=Tag.TYPE_OF_MEDIA)
 
   epoxy.queryset(corpora)
   try:
@@ -54,6 +55,7 @@ def notification(request):
   except Document.DoesNotExist, e:
     epoxy.add('jobs', [])
 
+  epoxy.add('tags', [t.json() for t in tags])
   epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()

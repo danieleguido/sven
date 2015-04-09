@@ -23,7 +23,7 @@ class JobAdmin(admin.ModelAdmin):
 
 class TagAdmin(admin.ModelAdmin):
   search_fields = ['name']
-  
+  list_filter = ('type',)
 
 
 class SegmentAdmin(admin.ModelAdmin):
