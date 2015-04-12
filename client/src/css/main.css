@@ -775,6 +775,9 @@ li.spacer{
 svg{
   background: #f8f8f8;
 }
+.timeline svg{
+  background: transparent;
+}
 .viewer{
   width:100%;
   overflow: hidden;
@@ -826,6 +829,23 @@ text.header, text.column{
   fill:red;
 }
 
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  fill: black;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+text.label {
+  font-size: 10px;
+  font-weight: normal;
+}
 
 
 
