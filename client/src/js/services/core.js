@@ -35,6 +35,12 @@ angular.module('sven')
         update: {method: 'POST', isArray: false, params: {id:'@id'} }
     });
   })
+  .factory('CorpusFacetsFactory', function($resource) {
+    return $resource(SVEN_BASE_URL + '/api/corpus/:id/filters', {}, {
+        query: {method: 'GET', isArray: false, params: {id:'@id'}},
+        update: {method: 'POST', isArray: false, params: {id:'@id'} }
+    });
+  })
   .factory('StopwordsFactory', function($resource) {
     return $resource(SVEN_BASE_URL + '/api/corpus/:id/stopwords', {}, {
         query: {method: 'GET', isArray: false, params: {id:'@id'}},

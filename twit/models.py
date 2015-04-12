@@ -26,7 +26,6 @@ class Account(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
   date_last_modified = models.DateTimeField(auto_now=True)
 
-  corpora = models.ManyToManyField(Corpus, related_name='twitters')
   documents = models.ManyToManyField(Document, related_name='twitters', null=True, blank=True)
 
 

@@ -2,6 +2,7 @@
 
 var API_PARAMS_CHANGED = 'api_params_changed',
     OPEN_ADD_CORPUS    = 'OPEN_ADD_CORPUS',
+    CORPUS_CHANGED     = 'CORPUS_CHANGED',
     OPEN_ATTACH_TAG    = 'OPEN_ATTACH_TAG';
 
 
@@ -173,7 +174,8 @@ angular.module('sven')
 
         $scope.jobs = data.jobs;
         // if corpusID choose the corpus matching corpusId, if any. @todo
-        var candidate;
+        var candidate,
+            corpus_changed = false;
         for(var i=0; i<data.objects.length;i++) {
           if($cookies.corpusId == data.objects[i].id)
             candidate = data.objects[i];
@@ -181,8 +183,14 @@ angular.module('sven')
         if(!candidate)
           candidate = data.objects[data.objects.length-1];
 
+        if(candidate.id != $scope.corpus.id) {
+          corpus_changed = true;
+        }
+
         $scope.diffclone($scope.corpus, candidate);
         
+        if(corpus_changed)
+          $scope.$broadcast(CORPUS_CHANGED);
         // update status and do things
         
         if(data.status != "ok" && data.code=='Unauthorized') {

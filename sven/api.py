@@ -1167,7 +1167,10 @@ def corpus_filters(request, corpus_pk):
   If user is staff he can see everything
   '''
   epoxy = Epoxy(request)
-  filters = {'timeline': {}, 'tags':{}}
+  filters = {
+    'timeline': [],
+    'tags': {}
+  }
 
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
@@ -1177,22 +1180,6 @@ def corpus_filters(request, corpus_pk):
   ids = []
   docs = helper_get_available_documents(request=request, corpus=c).filter(**epoxy.filters)
   
-  for t in docs.order_by().values('date'):
-    print t
-    if t['date']:
-      _date = t['date'].strftime('%Y-%m-%d')
-    else:
-      _date = datetime.today().strftime('%Y-%m-%d')
-
-    if _date not in filters['timeline']:
-      filters['timeline'][_date] = {
-        'count' : 0,
-        'value' : _date
-      }
-
-    filters['timeline'][_date]['count'] = filters['timeline'][_date]['count'] + 1
-    
-
   # deal with reduce and search field
   if epoxy.reduce:
     for r in epoxy.reduce:
@@ -1204,11 +1191,17 @@ def corpus_filters(request, corpus_pk):
   for d in docs:
     ids.append(d.id)
 
+  # get dates.
+  for t in docs.exclude(date__isnull=True).order_by().extra(select={'day': 'date( date )'}).values('day').annotate(count=Count('id')):
+    filters['timeline'].append(t)
+  
+
+
   epoxy.meta('filtered_count', len(ids))
   
   for chunk_ids in helper_chunk_list(ids, 50):
     
-    for t in Tag.objects.filter(document__id__in=chunk_ids):
+    for t in Tag.objects.filter(tagdocuments__id__in=chunk_ids):
       _type = '%s' % t.type
       _slug = '%s' % t.slug
 
