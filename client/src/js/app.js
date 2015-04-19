@@ -71,7 +71,8 @@ angular
       })
       .when('/corpus/:id/documents', {
         templateUrl: SVEN_STATIC_URL + '/views/documents.html',
-        controller: 'CorpusDocumentsCtrl'
+        controller: 'CorpusDocumentsCtrl',
+        reloadOnSearch: false
       })
       .when('/corpus/:id/documents/new', {
         templateUrl: SVEN_STATIC_URL + '/views/documents.new.html',

@@ -43,7 +43,7 @@ function cleanToast () {
  * Controller of the svenClientApp
  */
 angular.module('sven')
-  .controller('CoreCtrl', function ($scope, $log, $upload, $sce, $cookies, $timeout, $filter, CommandFactory, NotificationFactory) {
+  .controller('CoreCtrl', function ($scope, $location, $log, $upload, $sce, $cookies, $timeout, $filter, CommandFactory, NotificationFactory) {
     $log.debug('CoreCtrl ready');
     $scope.status = 'LOADING';
 
@@ -373,7 +373,8 @@ angular.module('sven')
     */
     $scope.changeSearch = function(search) {
       $scope.search = search;
-      $scope.$broadcast(API_PARAMS_CHANGED);
+      $location.search('search', search);
+      // $scope.$broadcast(API_PARAMS_CHANGED);
     }
     /*
       Orderby set
@@ -460,6 +461,16 @@ angular.module('sven')
       toast('activating corpus ...', {stayTime: 5000});
     }
 
+    /*
+      handle reoute update, e.g on search
+    */
+    $scope.$on('$routeUpdate', function(next, current) { 
+      $log.debug('coreCtrl', '@routeUpdate', next, current);
+      $scope.search = current.params.search || '';
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    });
+
+    
 
     /*
       handle corpus management
@@ -469,6 +480,13 @@ angular.module('sven')
         return;
       corpusId = $scope.corpus.id; // set cookie please...
       console.log('switch to corpus:', $scope.corpus.name);
-    })
-    $log.info('corpus id (cookies):', corpusId || 'cookie not set');
+    });
+
+    /*
+      handle filters on startup
+    */
+    var startupParams = $location.search();
+    if(startupParams.search)
+      $scope.search = startupParams.search;
+    //$log.info('corpus id (cookies):', corpusId || 'cookie not set');
   });
