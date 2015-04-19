@@ -75,6 +75,8 @@ angular.module('sven')
     // number of items for pagination purpose
     $scope.totalItems = 0;
 
+    // current query search
+    $scope.search = '';
     // current documents filters (tags, language, date)
     $scope.filters = {};
     $scope.filtersItems = {}; // the collection of actual emlement in order not to reload every time filters vars
@@ -365,6 +367,14 @@ angular.module('sven')
 
       $scope.$broadcast(API_PARAMS_CHANGED);
     };
+
+    /*
+      Attach to request params the search query
+    */
+    $scope.changeSearch = function(search) {
+      $scope.search = search;
+      $scope.$broadcast(API_PARAMS_CHANGED);
+    }
     /*
       Orderby set
     */
@@ -388,6 +398,8 @@ angular.module('sven')
         filters: JSON.stringify(angular.copy($scope.filters)),
         order_by: JSON.stringify($scope.orderBy.choice.value.split('|'))
       }, params);
+      if($scope.search.trim().length)
+        params.search = $scope.search;
       return params;
     };
 

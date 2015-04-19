@@ -121,7 +121,14 @@
         <div id="timeline-wrapper" ng-controller="FacetsCtrl">
           <div class="container-fluid">
             <div class="row">
-              <div class="col-lg-12">
+              <div class="col-sm-2">
+                <form class="form-horizontal" ng-submit="changeSearch(search)">
+                  <div class="form-group" id="search-field">
+                    <input placeholder="search" class="form-control" ng-model="search"/>
+                  </div>
+                </form>
+              </div>
+              <div class="col-sm-8">
               
                 <timeline class="timeline" values="facets.timeline">
               

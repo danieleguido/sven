@@ -79,6 +79,23 @@ a:hover{
   margin-top: 28px;
 }
 
+
+/*
+  timeline filter and other wrappers
+*/
+#search-field{
+  padding: 10px;
+}
+
+.match{
+  background: rgb(147,235,188);
+}
+
+.match.term0{}
+.match.term0{}
+
+
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   /* Remove the padding we set earlier */
@@ -376,6 +393,8 @@ li.spacer{
 .filters{
   padding: 10px;
 }
+
+
 
 
 
