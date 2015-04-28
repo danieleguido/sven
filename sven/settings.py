@@ -160,6 +160,9 @@ LOG_FILE = LOGGING['handlers']['file']['filename']
 # sven management stuffs
 FREEBASE_KEY = local_settings.FREEBASE_KEY
 ALCHEMYAPI_KEY = local_settings.ALCHEMYAPI_KEY
+TEXTRAZOR_KEY = local_settings.TEXTRAZOR_KEY
+
+
 TWITTER_CONSUMER_KEY = local_settings.TWITTER_CONSUMER_KEY
 TWITTER_CONSUMER_SECRET = local_settings.TWITTER_CONSUMER_SECRET
 TWITTER_ACCESS_TOKEN = local_settings.TWITTER_ACCESS_TOKEN

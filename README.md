@@ -68,6 +68,14 @@ Please check that python-lxml is installed.
 	sudo apt-get install libxml2-dev libxslt1-dev python-dev
 	sudo apt-get install python-lxml
 
+Installation issues MacOs with MySQL
+---
+  
+  brew install mysql
+  export PATH=$PATH:/usr/local/mysql/bin
+  workon sven
+  (sven) pip install MySQL-Python
+
 <!-- sven in production: some hints
 ---
 -->

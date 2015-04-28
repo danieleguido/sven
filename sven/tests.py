@@ -402,6 +402,14 @@ class DistillerTests(TestCase):
       #print res
       self.assertEqual(res['entities'][0]['type'], u'Person')
 
+
+  def test_textrazor(self):
+    from distiller import textrazor
+    if settings.TEXTRAZOR_KEY is not None:
+      res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=u"Mary Cachasça had a little lamb and it was really gorgeous, in Paris.")
+      print res['response']['entities'][0]['type']
+      self.assertEqual(res['response']['entities'][0]['type'], [u'Person'])
+
   
   def test_goose(self):
     from distiller import gooseapi

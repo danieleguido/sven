@@ -163,6 +163,26 @@ freebase(query="Londres", api_key=settings.FREEBASE_KEY, lang='fr')
 
 
 
+def textrazor(api_key, text, service='entities'):
+  if api_key is None:
+    return None
+
+  request = urllib2.Request(url='http://api.textrazor.com',
+    data=urllib.urlencode({
+      'apiKey': api_key,
+      'extractors' : service,
+      'text': text.encode('utf8')
+    }),
+    headers={
+      #'Content-type': "application/x-www-form-urlencoded",
+    }
+  )
+
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)  
+
+
+
 def alchemyapi(api_key, text, service='TextGetRankedNamedEntities'):
   '''
   Note that text should be utf8 string.
