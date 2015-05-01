@@ -454,6 +454,7 @@ class Tag(models.Model):
   ACTOR = 'ac'
   INSTITUTION = 'in'
   TYPE_OF_MEDIA = 'tm'
+  PLACE = 'pl'
 
   ALCHEMY = {
     'City':'Ci'
@@ -464,6 +465,7 @@ class Tag(models.Model):
     (TYPE_OF_MEDIA, 'type_of_media'),
     (ACTOR, 'actor'),
     (INSTITUTION, 'institution'),
+    (PLACE, 'place'),
   )
 
   OEMBED_PROVIDER_NAME = 'OP' #tag specify an oembed field...
@@ -741,7 +743,20 @@ class Document(models.Model):
     Note: Settings.ALCHEMYAPI_KEY var should be set !
 
     '''
-    if settings.ALCHEMYAPI_KEY is not None:
+    if settings.TEXTRAZOR_KEY is not None:
+      from distiller import textrazor
+      res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=self.text())
+      
+      for ent in res['response']['entities']:
+        print ent
+        if u'type' in ent and u'Person' in ent[u'type']:
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['entityId'], 'Person'))
+          self.tags.add(t)
+        if u'type' in ent and u'Place' in ent[u'type']:
+          t, created = Tag.objects.get_or_create(type=Tag.PLACE, name='%s - %s' % (ent['entityId'], 'Place'))
+          self.tags.add(t)
+
+    elif settings.ALCHEMYAPI_KEY is not None:
       from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
       for ent in res['entities'][:5]:

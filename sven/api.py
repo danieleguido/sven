@@ -947,13 +947,13 @@ def export_corpus_concepts(request, corpus_pk):
       if pc and pc == s.cluster:
         continue
       pc = s.cluster
-      
-      clusterindex[s.cluster].update({
-        'content': s.content,
-        'status' : s.status
-      })
+      if s.cluster in clusterindex:
+        clusterindex[s.cluster].update({
+          'content': s.content,
+          'status' : s.status
+        })
       #print enriched_segment
-      writer.writerow(clusterindex[s.cluster])
+        writer.writerow(clusterindex[s.cluster])
 
       
 
