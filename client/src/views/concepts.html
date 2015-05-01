@@ -1,0 +1,94 @@
+<h2>
+  {{localCorpus.name}}
+  
+</h2>
+
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" >
+    
+    <a ng-href="#/corpus/{{corpus.id}}/documents">
+        {{corpus.count.documents}} documents
+    </a>
+  </li>
+  <li role="presentation" class="active">
+    <a ng-href="#/corpus/{{corpus.id}}/concepts">
+        {{corpus.count.clusters}} concepts
+    </a>
+  </li>
+  <li role="presentation">
+    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
+      stopwords list
+    </a>
+  </li>
+</ul>
+
+
+<div class="filters-wrapper" ng-class="totalItems != corpus.count.clusters && totalItems != 0?'active': ''">
+  <div class="filters" >
+    <span>{{totalItems}} of {{corpus.count.clusters}} documents matching:</span>
+    <span class="tag filtered" ng-repeat="(key, item) in filtersItems">
+      {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
+    </span>
+  </div>
+</div>
+
+<div class="btn-toolbar" role="toolbar">
+  <div class="btn-group">
+    
+    <!-- <a class="btn btn-default" ng-click="downloadConcepts()" tooltip="download concept list as csv file">download <i class="fa fa-download"></i></a> -->
+
+    <div dropdown is-open="isopen">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        download <span class="fa fa-angle-down"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a ng-click="downloadConcepts()">concepts only</a>
+        </li>
+        <li>
+          <a ng-click="downloadConcepts('Ym')">month by month</a>
+        </li>
+        <li>
+          <a ng-click="downloadConcepts('ac')">actor by actor</a>
+        </li>
+      </ul>
+    </div>
+
+  
+  </div>
+  <!-- <div class="btn-group">
+    <div dropdown is-open="group_by.isopen">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        {{group_by.choice.label}}<span class="fa fa-angle-down"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="choice in group_by.choices">
+          <a ng-click="changeGroupBy(choice)">{{choice.label}}</a>
+        </li>
+          </ul>
+    </div>
+  
+  </div> -->
+  <div class="btn-group">
+
+    <div  dropdown is-open="orderBy.isopen" tooltip="sort concepts by ...">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+        {{orderBy.choice.label}} <span class="fa fa-angle-down"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="choice in orderBy.choices">
+          <a ng-click="changeOrderBy(choice)">{{choice.label}}</a>
+        </li>
+          </ul>
+    </div>
+  </div>
+
+<!-- div class="btn-group">
+  <label class="btn btn-default" ng-model="include" btn-radio="'tf'" uncheckable>show all</label>
+  <label class="btn btn-default" ng-model="include" btn-radio="'tf_idf'" uncheckable>show IN only</label>
+</div -->
+
+<pagination class="btn-group" max-size="5" items-per-page="limit" boundary-links="true" total-items="totalItems" ng-model="$parent.$parent.page" ng-change="changePage($parent.$parent.page)"></pagination>
+</div>
+
+<matrix toggle="toggleVisibility(concept_id)" filtertags="filterByTag(tag_slug)" data="clusters" filterconcepts="filterByConcept(cluster)" groups="groups" measure="measure" bounds="bounds"><div class="viewer"></div></matrix>

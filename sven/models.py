@@ -385,7 +385,8 @@ def delete_corpus(sender, instance, **kwargs):
   shutil.rmtree(path)
 
 
-
+#  Modification requested
+# ALTER TABLE `sven_segment` ADD `entity` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `partofspeech`, ADD `url` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `entity`;
 class Segment( models.Model): 
   OUT = 'OUT'
   IN = 'IN'
@@ -403,6 +404,9 @@ class Segment( models.Model):
   content = models.CharField(max_length=128)
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
+
+  entity  = models.CharField(max_length=100, null=True, blank=True) # disambiguated entity, alternative to cluster. Indeed the same cluster may have different entity according to the context 
+  url     = models.CharField(max_length=100, null=True, blank=True)
 
   corpus    = models.ForeignKey(Corpus, related_name="segments") # corpus specific [sic]
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
@@ -454,6 +458,7 @@ class Tag(models.Model):
   ACTOR = 'ac'
   INSTITUTION = 'in'
   TYPE_OF_MEDIA = 'tm'
+  PLACE = 'pl'
 
   ALCHEMY = {
     'City':'Ci'
@@ -464,6 +469,7 @@ class Tag(models.Model):
     (TYPE_OF_MEDIA, 'type_of_media'),
     (ACTOR, 'actor'),
     (INSTITUTION, 'institution'),
+    (PLACE, 'place'),
   )
 
   OEMBED_PROVIDER_NAME = 'OP' #tag specify an oembed field...
@@ -741,7 +747,20 @@ class Document(models.Model):
     Note: Settings.ALCHEMYAPI_KEY var should be set !
 
     '''
-    if settings.ALCHEMYAPI_KEY is not None:
+    if settings.TEXTRAZOR_KEY is not None:
+      from distiller import textrazor
+      res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=self.text())
+      
+      for ent in res['response']['entities']:
+        print ent
+        if u'type' in ent and u'Person' in ent[u'type']:
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['entityId'], 'Person'))
+          self.tags.add(t)
+        if u'type' in ent and u'Place' in ent[u'type']:
+          t, created = Tag.objects.get_or_create(type=Tag.PLACE, name='%s - %s' % (ent['entityId'], 'Place'))
+          self.tags.add(t)
+
+    elif settings.ALCHEMYAPI_KEY is not None:
       from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
       for ent in res['entities'][:5]:

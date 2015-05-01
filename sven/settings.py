@@ -43,7 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sven',
-    'glue'
+    'glue',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -102,7 +102,7 @@ LOGIN_URL = local_settings.LOGIN_URL
 BASE_URL  = local_settings.BASE_URL
 
 STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'client'),
+  os.path.join(BASE_DIR, 'client/src'),
 )
 
 TEMPLATE_DIRS = (
@@ -160,6 +160,9 @@ LOG_FILE = LOGGING['handlers']['file']['filename']
 # sven management stuffs
 FREEBASE_KEY = local_settings.FREEBASE_KEY
 ALCHEMYAPI_KEY = local_settings.ALCHEMYAPI_KEY
+TEXTRAZOR_KEY = local_settings.TEXTRAZOR_KEY
+
+
 TWITTER_CONSUMER_KEY = local_settings.TWITTER_CONSUMER_KEY
 TWITTER_CONSUMER_SECRET = local_settings.TWITTER_CONSUMER_SECRET
 TWITTER_ACCESS_TOKEN = local_settings.TWITTER_ACCESS_TOKEN

@@ -1,0 +1,280 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Gentium+Basic|Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="{{STATIC_URL}}/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{STATIC_URL}}/css/ng-tags-input.min.css" />
+    <link rel="stylesheet" href="{{STATIC_URL}}/css/ng-tags-input.bootstrap.min.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="{{STATIC_URL}}/css/main.css">
+    <link rel="stylesheet" href="{{STATIC_URL}}/css/simple-sidebar.css">
+    <!-- endbuild -->
+    <script>
+      var SVEN_BASE_URL   = '{{BASE_URL}}',
+          SVEN_STATIC_URL = '{{STATIC_URL}}';
+    </script>
+  </head>
+  <body ng-app="sven">
+    <style>
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+      display: none !important;
+    }
+    </style>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    {% block page%}
+    {% verbatim %}
+    <div id="wrapper" ng-cloak ng-controller="CoreCtrl">
+        <!-- header -->
+        <div id="header-wrapper" class="{{status}}">
+          <div id="header">
+            <div id="menu-toggle" class="fa fa-bars">&nbsp;</div>
+            <h1>SVEN</h1>
+          </div>
+        </div>
+
+        <div id="loader-wrapper" class="{{status}}">
+                    <h4>loading ...</h4>
+                    <div style="margin-top: 20px;" class="loader"></div>
+                </div>
+        <!-- Sidebar -->
+
+        <div id="sidebar-wrapper" class="{{status}}">
+            <ul class="sidebar-nav">
+                <li class="profile">
+                  <div class="circle"><img ng-src="{{profile.picture}}"></div>
+
+                  <div class="user">
+                    <a href="#/profile" class="username">{{profile.firstname? profile.firstname + ' ' +profile.lastname: profile.username}}</a>
+                    <div class="logout"><a href="/logout">logout {{profile.username}}</a></div>
+
+                  </div>
+
+                </li>
+
+
+                
+                <li class="spacer"></li>
+
+                <!-- other (not selected) user's corpora -->
+                <li class="corpus {{corpus.id == cor.id? 'selected': ''}}" ng-repeat="cor in corpora">
+                  <a ng-click="activate(cor)" ng-href="#/corpus/{{cor.id}}/documents">
+                    {{cor.name}} ({{cor.count.documents}})
+                    <span ng-show="cor.jobs.length" class="percentage {{cor.jobs[0].status}}">
+                        {{cor.jobs[0].completion|percentage}}
+                    </span>
+                    <div ng-show="cor.jobs.length" class="bar {{cor.jobs[0].status}}">
+                      <div class="completion" style="width:{{cor.jobs[0].completion*100}}%"></div>
+                    </div>
+                  </a>
+                </li>
+
+                <li class="spacer"></li>
+
+                <!-- li>
+                  <button class="btn btn-link btn-block" ng-click="addCorpus()">add corpus</button>
+                </li -->
+                
+                <!-- li>
+                    <a href="#">Contact</a>
+                </li -->
+            </ul>
+            
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid" ng-if="status=='RUNNING'" style="position: relative">
+                <!-- if filters ... -->
+                <!-- div style="position: fixed; height: 100%; width: 200px; margin-left: -230px; background: #b1b2ab"> 
+                   filtering by
+                </div -->
+              
+                <div class="row" ng-show="!reload_corpora">
+                    <div class="col-lg-12" ng-view>
+                        
+                        
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- /#page-content-wrapper -->
+
+        <!-- timeline filter -->
+        <div id="timeline-wrapper" ng-controller="FacetsCtrl">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-2">
+                <form class="form-horizontal" ng-submit="changeSearch(search)">
+                  <div class="form-group" id="search-field">
+                    <input placeholder="search" class="form-control" ng-model="search"/>
+                  </div>
+                </form>
+              </div>
+              <div class="col-sm-8">
+              
+                <timeline class="timeline" values="facets.timeline">
+              
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+        <!-- #modal-attach tag -->
+        <div ng-controller="ModalTagCtrl">
+          <script type="text/ng-template" id="myModalContent.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">Attach tag to {{item.name}}</h3>
+              </div>
+              <div class="modal-body">
+                  <form role="form" ng-submit="save()">
+                    <div class="form-group">
+                      <input type="text" ng-model="candidate" class="form-control">
+                    </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
+
+        <!--#modal -->
+        <div ng-controller="ModalCtrl">
+          <script type="text/ng-template" id="addCorpus.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">Add new corpus</h3>
+              </div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <label>name</label>
+                    <input type="text" ng-model="candidate" class="form-control">
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
+        <div ng-controller="ModalPreviewTsvCtrl">
+          <script type="text/ng-template" id="previewTsv.html">
+              <div class="modal-header">
+                  <h3 class="modal-title">hello</h3>
+              </div>
+              <div class="modal-body">
+                <table>
+                  <thead>
+                    <tr>
+                      <th ng-repeat="cell in table.headers">{{cell}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="row in table.rows">
+                      <td style="overflow: hidden; width:{{100/table.rows.length}}%" ng-repeat="cell in row track by $index">{{cell}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" ng-click="ok()">OK</button>
+                  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+              </div>
+          </script>
+        </div>
+        
+
+
+    </div>
+    {% endverbatim %}
+    {%endblock%}
+    <!-- jquery -->
+    <script src="{{STATIC_URL}}/js/lib/jquery.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/jquery.toastmessage.js"></script>
+
+    <script src="{{STATIC_URL}}/js/lib/es5-shim.min.js"></script>
+    
+    <!-- script src="{{STATIC_URL}}/bower_components/json3/lib/json3.js"></script -->
+    <script src="{{STATIC_URL}}/js/lib/bootstrap.min.js"></script>
+
+    <script src="{{STATIC_URL}}/js/lib/angular.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-resource.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-cookies.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-sanitize.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-touch.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-route.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/angular-file-upload.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/ui-bootstrap-tpls.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/ng-tags-input.min.js"></script>
+    <script src="{{STATIC_URL}}/js/lib/d3.min.js"></script>
+
+
+    
+    <script src="{{STATIC_URL}}/js/app.js"></script>
+    <script src="{{STATIC_URL}}/js/filters.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/core.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/corpus.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/concepts.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/index.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/modals.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/document.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/profile.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/facets.js"></script>
+    <script src="{{STATIC_URL}}/js/services/core.js"></script>
+    <script src="{{STATIC_URL}}/js/services/documents.js"></script>
+    <script src="{{STATIC_URL}}/js/services/concepts.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/matrix.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/timeline.js"></script>
+    <!-- script src="{{STATIC_URL}}/js/controllers/main.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/about.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/documents.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/core.js"></script>
+    <script src="{{STATIC_URL}}/js/services/documents.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/document.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/concepts.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/concept.js"></script>
+    <script src="{{STATIC_URL}}/js/services/core.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/profile.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/corpus.js"></script>
+    <script src="{{STATIC_URL}}/js/d3/venn.js"></script>
+    <script src="{{STATIC_URL}}/js/d3/d3.snark.matrix.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/venn.js"></script>
+    <script src="{{STATIC_URL}}/js/filters/tag.js"></script>
+    <script src="{{STATIC_URL}}/js/services/concepts.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/concepts.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/stopwords.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/modals.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/search.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/vimeo.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/youtube.js"></script -->
+
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+  </body>
+</html>

@@ -46,7 +46,8 @@ def notification(request):
   # DEPRECATED. too much. 
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
-  
+  # available tags. to be cached somehow
+  tags = Tag.objects.filter(type=Tag.TYPE_OF_MEDIA)
 
   epoxy.queryset(corpora)
   try:
@@ -54,6 +55,7 @@ def notification(request):
   except Document.DoesNotExist, e:
     epoxy.add('jobs', [])
 
+  epoxy.add('tags', [t.json() for t in tags])
   epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()
@@ -711,6 +713,7 @@ def corpus_segment(request, corpus_pk, segment_pk):
   return epoxy.json()
 
 
+
 def corpus_concepts(request, corpus_pk):
   '''
   Export filtered segments.
@@ -722,13 +725,28 @@ def corpus_concepts(request, corpus_pk):
   except Corpus.DoesNotExist, e:
     return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
 
-  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**epoxy.filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
+  # translate epoxy filters: prepend document__ to every fields.
+  cluster_filters = {}
+  tags_filters = {}
+
+  for key,value in epoxy.filters.iteritems():
+    if key.startswith('tags__'):
+      cluster_filters['document__%s' % key] = value
+      tags_filters[ key.replace('tags__', '')] = value
+    elif key.startswith('segments__'):
+      cluster_filters[key.replace('segments__', 'document__segments__')] = value
+    else:
+      cluster_filters['document__%s' % key] = value
+
+  print cluster_filters
+
+  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
     tf=Max('tf'),
-    tf_idf=Max('tfidf')
+    tfidf=Max('tfidf')
   )
 
-  epoxy.meta('q', '%s'%clusters.query)
+  epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
 
   clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
   
@@ -755,14 +773,14 @@ def corpus_concepts(request, corpus_pk):
       ).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
-        tf_idf=Max('tfidf')
+        tfidf=Max('tfidf')
       )
 
     elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
       # get all groupin possibilities according to date:
       groups_available = Tag.objects.filter(
         tagdocuments__corpus=cor
-      ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
       
@@ -770,14 +788,14 @@ def corpus_concepts(request, corpus_pk):
         document__corpus=cor,
         segment__status=Segment.IN,
         document__tags__type=epoxy.data['group_by']
-      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+      ).filter(**cluster_filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
         select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
-        tf_idf=Max('tfidf')
+        tfidf=Max('tfidf')
       )
 
-    if groups_available:
+    if groups_available is not None:
       #epoxy.meta('query', '%s' % groups.query)
       # format here your groups
       epoxy.add('groups', [g for g in groups_available])
@@ -853,7 +871,7 @@ def export_corpus_concepts(request, corpus_pk):
       # get all groupin possibilities according to date:
       groups_available = Tag.objects.filter(
         tagdocuments__corpus=cor
-      ).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
       for g in groups_available:
@@ -929,13 +947,13 @@ def export_corpus_concepts(request, corpus_pk):
       if pc and pc == s.cluster:
         continue
       pc = s.cluster
-      
-      clusterindex[s.cluster].update({
-        'content': s.content,
-        'status' : s.status
-      })
+      if s.cluster in clusterindex:
+        clusterindex[s.cluster].update({
+          'content': s.content,
+          'status' : s.status
+        })
       #print enriched_segment
-      writer.writerow(clusterindex[s.cluster])
+        writer.writerow(clusterindex[s.cluster])
 
       
 
@@ -1149,7 +1167,10 @@ def corpus_filters(request, corpus_pk):
   If user is staff he can see everything
   '''
   epoxy = Epoxy(request)
-  filters = {'timeline': {}, 'tags':{}}
+  filters = {
+    'timeline': [],
+    'tags': {}
+  }
 
   try:
     c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
@@ -1159,22 +1180,6 @@ def corpus_filters(request, corpus_pk):
   ids = []
   docs = helper_get_available_documents(request=request, corpus=c).filter(**epoxy.filters)
   
-  for t in docs.order_by().values('date'):
-    print t
-    if t['date']:
-      _date = t['date'].strftime('%Y-%m-%d')
-    else:
-      _date = datetime.today().strftime('%Y-%m-%d')
-
-    if _date not in filters['timeline']:
-      filters['timeline'][_date] = {
-        'count' : 0,
-        'value' : _date
-      }
-
-    filters['timeline'][_date]['count'] = filters['timeline'][_date]['count'] + 1
-    
-
   # deal with reduce and search field
   if epoxy.reduce:
     for r in epoxy.reduce:
@@ -1186,11 +1191,17 @@ def corpus_filters(request, corpus_pk):
   for d in docs:
     ids.append(d.id)
 
+  # get dates.
+  for t in docs.exclude(date__isnull=True).order_by().extra(select={'day': 'date( date )'}).values('day').annotate(count=Count('id')):
+    filters['timeline'].append(t)
+  
+
+
   epoxy.meta('filtered_count', len(ids))
   
   for chunk_ids in helper_chunk_list(ids, 50):
     
-    for t in Tag.objects.filter(document__id__in=chunk_ids):
+    for t in Tag.objects.filter(tagdocuments__id__in=chunk_ids):
       _type = '%s' % t.type
       _slug = '%s' % t.slug
 
