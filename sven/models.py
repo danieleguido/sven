@@ -804,7 +804,7 @@ class Document(models.Model):
     if segments.count() == 0:
       logger.debug('autotagging enabled only for already analyzed segments')
       return
-    if segments.filter(entity__isnull=True).count() > 0:
+    if segments.filter(entity__isnull=False).count() > 0:
       logger.debug('autotagging already performed on this document, skipping')
       return;
     if settings.TEXTRAZOR_KEY is not None:
