@@ -300,7 +300,10 @@ def document_segments(request, pk):
     d = Document.objects.get(pk=pk, corpus__owners=request.user)
   except Document.DoesNotExist, e:
     return result.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
-  
+  # aniotate its text...
+  epoxy.add('annotated', d.annotate())
+  epoxy.add('text', d.text())
+
   # total count
   cursor = connection.cursor()
   cursor.execute("""
@@ -315,36 +318,36 @@ def document_segments(request, pk):
   row = cursor.fetchone()
   epoxy.meta('total_count', row[0]) # luster pagination
 
-  segments = Segment.objects.raw("""
-    SELECT 
-      s.`id`, s.`content`,s.`language`, 
-      s.`cluster`, s.`status`, 
-      MAX( ds.`tfidf`) AS `tfidf`,
-      MAX( ds.`tf`) AS `tf`,
-      COUNT( DISTINCT ds.document_id) AS `distribution` 
-    FROM sven_segment s
-      JOIN sven_document_segment ds ON s.id = ds.segment_id 
-      JOIN sven_document d ON ds.document_id = d.id
-    WHERE d.id = %(document_id)s
-    GROUP BY s.cluster
-    ORDER BY %(order_by)s
-    LIMIT %(offset)s, %(limit)s
-    """ % {
-      'document_id': d.id,
-      'order_by': ','.join(epoxy.order_by),
-      'offset': epoxy.offset,
-      'limit': epoxy.limit
-  })
+  # segments = Segment.objects.raw("""
+  #   SELECT 
+  #     s.`id`, s.`content`,s.`language`, 
+  #     s.`cluster`, s.`status`, 
+  #     MAX( ds.`tfidf`) AS `tfidf`,
+  #     MAX( ds.`tf`) AS `tf`,
+  #     COUNT( DISTINCT ds.document_id) AS `distribution` 
+  #   FROM sven_segment s
+  #     JOIN sven_document_segment ds ON s.id = ds.segment_id 
+  #     JOIN sven_document d ON ds.document_id = d.id
+  #   WHERE d.id = %(document_id)s
+  #   GROUP BY s.cluster
+  #   ORDER BY %(order_by)s
+  #   LIMIT %(offset)s, %(limit)s
+  #   """ % {
+  #     'document_id': d.id,
+  #     'order_by': ','.join(epoxy.order_by),
+  #     'offset': epoxy.offset,
+  #     'limit': epoxy.limit
+  # })
 
-  epoxy.add('objects', [{
-    'id': s.id,
-    'tf': s.tf,
-    'tf_idf': s.tfidf,
-    'status': s.status,
-    'cluster': s.cluster,
-    'distribution': s.distribution,
-    'content': s.content
-  } for s in segments])
+  # epoxy.add('objects', [{
+  #   'id': s.id,
+  #   'tf': s.tf,
+  #   'tf_idf': s.tfidf,
+  #   'status': s.status,
+  #   'cluster': s.cluster,
+  #   'distribution': s.distribution,
+  #   'content': s.content
+  # } for s in segments])
 
   return epoxy.json()
 

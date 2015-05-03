@@ -8,19 +8,12 @@
  * Controller of the svenClientApp
  */
 angular.module('sven')
-  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, ConceptsFactory, DocumentTagsFactory) {
+  .controller('DocumentCtrl', function ($scope, $log, $filter, $location, $routeParams, DocumentFactory, DocumentSegmentsFactory, ConceptsFactory, DocumentTagsFactory) {
     $scope.document = {
       date: new Date()
     };
     $log.info($routeParams, 'loading stuff')
-    $routeParams.id && DocumentFactory.query({id: $routeParams.id}, function(data){
-      console.log(data);
-      $scope.document = data.object;
-      // once done load segments
     
-    }, function(err){
-      console.log(err)
-    });
 
 
 
@@ -66,6 +59,7 @@ angular.module('sven')
       DocumentFactory.saveText({
         id: $scope.document.id,
         text: $scope.document.text,
+        date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),
         abstract: $scope.document.abstract,
       }, function(res) {
         console.debug('DocumentCtrl.saveText() --> saved', res);
@@ -120,18 +114,32 @@ angular.module('sven')
     $scope.$parent.orderBy.choice = {label: 'most common', value:'-distribution|-tf_idf'};
     
     $scope.sync = function() {
-      ConceptsFactory.query(
-        $scope.getParams({
-          id:$scope.corpus.id,
-          group_by: 'ac',
-          filters: JSON.stringify({document__id:$routeParams.id})
-        }), function(data){
-          console.log(data); // pagination needed
-          $scope.totalItems = data.meta.total_count;
-          $scope.bounds     = data.meta.bounds;
-          $scope.groups     = data.groups;
-          $scope.clusters   = data.objects;
-        });
+      if(!isNaN($routeParams.id)) {
+        $log.info('DocumentCtrl -> sync() id:', $routeParams.id)
+        DocumentFactory.query({id: $routeParams.id}, function (data) {
+          $scope.document = data.object;
+          // once done load segments
+          $log.info('DocumentCtrl -> sync() load :DocumentSegmentsFactory', $routeParams.id)
+          DocumentSegmentsFactory.get({id: $routeParams.id}, function (data) {
+            $scope.document.annotated = data.annotated;
+            $scope.document.text = data.text;
+            //console.log(data)
+          })
+          
+        });  
+      }
+      // ConceptsFactory.query(
+      //   $scope.getParams({
+      //     id:$scope.corpus.id,
+      //     group_by: 'ac',
+      //     filters: JSON.stringify({document__id:$routeParams.id})
+      //   }), function(data){
+      //     console.log(data); // pagination needed
+      //     $scope.totalItems = data.meta.total_count;
+      //     $scope.bounds     = data.meta.bounds;
+      //     $scope.groups     = data.groups;
+      //     $scope.clusters   = data.objects;
+      //   });
     };
 
     $scope.$on(API_PARAMS_CHANGED, function(){

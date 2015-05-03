@@ -38,6 +38,50 @@ def helper_truncatesmart(value, limit=80):
     return ' '.join(words) + '...'
 
 
+# @param text - MUST be unicode
+def helper_annotate(text, segments):
+  points      = []
+  splitpoints = []
+  chunks      = []
+  annotated   = u''
+
+  for s in segments:
+    _points = ((s, m.start(), m.start() + len(s.content)) for m in re.finditer(ur'((?<=[^\w])|^)%s((?=[^\w])|$)' % re.escape(s.content), text))
+    points = points + [p for p in _points]
+  # retrieve all the splitpoints, left and right
+  splitpoints = [0, len(text)] + map(lambda x:x[1], points) + map(lambda x:x[2], points)
+  splitpoints = sorted(set(splitpoints))
+
+
+  for i in range(len(splitpoints) - 1):
+    chunks.append({
+      's': text[splitpoints[i]:splitpoints[i+1]],
+      'l': splitpoints[i],
+      'r': splitpoints[i + 1],
+      'links': map(lambda p:[p[0].content, p[0].cluster, p[0].id], filter(lambda p:p[1] <= splitpoints[i] and p[2]>= splitpoints[i + 1], points))
+    })
+
+  for c in chunks:
+    if len(c['links']) > 0:
+      annotated = annotated + '<span data-id="' + u' '.join(map(lambda x:x[1], c['links'])) + '">' + c['s'] +  '</span>'
+    else :
+      annotated = annotated + c['s']
+
+  # splitpoints = _.sortBy(_.unique([0, content.length].concat(
+  #     _.map(points, function(d){
+  #       return d.context.left
+  #     })).concat(
+  #     _.map(points, function(d){
+  #       return d.context.right
+  #     }))
+  #   ), function(d) {
+  #     return d
+  #   });
+
+  return annotated #map(lambda x:[ x[0].content, x[0].id, x[0]. x[1], x[2]], points)
+
+  
+
 
 def helper_uuslug(model, instance, value, max_length=128):
   slug = slugify(value)[:max_length] # safe autolimiting
@@ -385,6 +429,12 @@ def delete_corpus(sender, instance, **kwargs):
   shutil.rmtree(path)
 
 
+
+class Entity(models.Model):
+  content = models.CharField(max_length=128)
+  url     = models.URLField()
+
+
 #  Modification requested
 # ALTER TABLE `sven_segment` ADD `entity` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `partofspeech`, ADD `url` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `entity`;
 class Segment( models.Model): 
@@ -405,8 +455,7 @@ class Segment( models.Model):
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
 
-  entity  = models.CharField(max_length=100, null=True, blank=True) # disambiguated entity, alternative to cluster. Indeed the same cluster may have different entity according to the context 
-  url     = models.CharField(max_length=100, null=True, blank=True)
+  entity  = models.ForeignKey(Entity, related_name="segments") # disambiguated entity, alternative to cluster. Indeed the same cluster may have different entity according to the context
 
   corpus    = models.ForeignKey(Corpus, related_name="segments") # corpus specific [sic]
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
@@ -589,7 +638,6 @@ class Document(models.Model):
       d['corpus'] = self.corpus.json()
       try:
         d.update({
-          'text': self.text()[:25000],
           'language': self.language
         })
       except UnicodeDecodeError, e:
@@ -608,6 +656,10 @@ class Document(models.Model):
 
   def __unicode__(self):
     return '%s [%s]' % (self.name, self.slug)
+
+  # annotate the document text with the document segments, markdown fashion. Cfr helper_annotate
+  def annotate(self):
+    return helper_annotate(self.text(), self.segments.all())
 
 
   @staticmethod

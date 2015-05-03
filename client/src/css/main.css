@@ -419,6 +419,10 @@ li.spacer{
   margin-top: 10px;
 }
 
+.big-item .content span {
+  border-bottom: 1px solid #555;
+}
+
 
 /*
   ~~~~~~~~~///////////////~~~~~~~~~

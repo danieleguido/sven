@@ -14,7 +14,7 @@ angular.module('sven')
       save: {method: 'POST', params: {id: '@id'} },
     });
   })
-  .factory('DocumentsConceptsFactory', function ($resource) {
+  .factory('DocumentSegmentsFactory', function ($resource) {
     return $resource(SVEN_BASE_URL + '/api/document/:id/segments', {}, {
       query: {method: 'GET', isArray: false,  params: {id: '@id'}  },
     });

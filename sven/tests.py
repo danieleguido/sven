@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS
-from sven.models import helper_truncatesmart
+from sven.models import helper_truncatesmart, helper_annotate
 from sven.models import Segment, Corpus, Document, Job, Document_Segment, Tag
 
 from django.test.client import RequestFactory
@@ -32,6 +32,23 @@ class HelpersTest(TestCase):
     print len(v1), len(v2), 
     self.assertEqual(len(v1) < 28, True)
     self.assertEqual(len(v2), len('This class test helper function in models.py'))
+
+  # split a given string with specific words.
+  def test_annotate(self):
+    contents = u'Tunisia and Tunis, Tunisia - With Tunisia\'s legislative and presidential elections approaching on October 26 and November 23, respectively, many of the country\'s in Tunisiça'
+    segments = [
+      Segment(id=1, content=u'Tunis'), # beginning
+      Segment(id=2, content=u'Tunisia'),
+      Segment(id=3, content=u'legislative and presidential elections'),
+      Segment(id=4, content=u'October 26 and November'),
+      Segment(id=5, content=u'the country'),
+      Segment(id=6, content=u'Tunisiça'),
+      Segment(id=7, content=u'not found at all, problem'),
+    ]
+
+    print helper_annotate(text=contents, segments=segments)
+
+    pass
 
 
 
