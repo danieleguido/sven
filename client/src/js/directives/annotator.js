@@ -14,7 +14,8 @@ angular.module('sven')
         content: '='
       },
       link : function(scope, element, attrs) {
-        element.html(scope.content)
+        element.html(scope.content);
+        $compile(element.contents())(scope);
       }
     }
   })

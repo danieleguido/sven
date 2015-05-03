@@ -58,12 +58,21 @@ def helper_annotate(text, segments):
       's': text[splitpoints[i]:splitpoints[i+1]],
       'l': splitpoints[i],
       'r': splitpoints[i + 1],
-      'links': map(lambda p:[p[0].content, p[0].cluster, p[0].id], filter(lambda p:p[1] <= splitpoints[i] and p[2]>= splitpoints[i + 1], points))
+      'links': map(lambda p:[p[0].content, p[0].cluster, p[0].id, p[0].entity], filter(lambda p:p[1] <= splitpoints[i] and p[2]>= splitpoints[i + 1], points))
     })
 
   for c in chunks:
     if len(c['links']) > 0:
-      annotated = annotated + '<span data-id="' + u' '.join(map(lambda x:x[1], c['links'])) + '">' + c['s'] +  '</span>'
+      entities = filter(lambda p:p[3] is not None, c['links'])
+      if len(entities) > 0:
+        annotated = '%(previous)s<span class="entity" tooltip="%(entity)s" data-id="%(segment_id)s">%(segment)s</span>' % {
+          'previous'   : annotated,
+          'entity'     : u' | '.join(map(lambda p: p[3].content, entities)),
+          'segment_id' : u' | '.join(map(lambda x:x[1], c['links'])),
+          'segment'    : c['s']
+        }
+      else:
+        annotated = annotated + '<span data-id="' + u' '.join(map(lambda x:x[1], c['links'])) + '">' + c['s'] +  '</span>'
     else :
       annotated = annotated + c['s']
 
@@ -431,8 +440,21 @@ def delete_corpus(sender, instance, **kwargs):
 
 
 class Entity(models.Model):
+  FREE   = ''
+  PERSON = 'Per'
+  PLACE  = 'Pla'
+  ORGANISATION = 'Org'
+
+  TYPE_CHOICES = (
+    (PERSON, 'person'),
+    (PLACE, 'place'),
+    (ORGANISATION, 'organisation'),
+  )
+
   content = models.CharField(max_length=128)
-  url     = models.URLField()
+  url     = models.URLField(unique=True)
+  type    = models.CharField(max_length=3, choices=TYPE_CHOICES, default=FREE) 
+
 
 
 #  Modification requested
@@ -455,7 +477,7 @@ class Segment( models.Model):
   lemmata = models.CharField(max_length=128)
   cluster = models.CharField(max_length=128) # index by cluster. Just to not duplicate info , e.g by storing them in a separate table. Later you can group them by cluster.
 
-  entity  = models.ForeignKey(Entity, related_name="segments") # disambiguated entity, alternative to cluster. Indeed the same cluster may have different entity according to the context
+  entity  = models.ForeignKey(Entity, related_name="segments", null=True, blank=True) # disambiguated entity, alternative to cluster. Indeed the same cluster may have different entity according to the context
 
   corpus    = models.ForeignKey(Corpus, related_name="segments") # corpus specific [sic]
   language  = models.CharField(max_length=2, choices=settings.LANGUAGE_CHOICES)
@@ -479,22 +501,6 @@ class Segment( models.Model):
 
   class Meta:
     unique_together = ('content', 'corpus', 'partofspeech')
-
-
-
-class Freebase(models.Model):
-  uid = models.CharField(max_length=64, unique=True)
-  category = models.CharField(max_length=64)
-
-  segments = models.ManyToManyField(Segment, null=True, blank=True)
-
-
-  def json(self, deep=False):
-    d = {
-      'uid': self.uid, # uniqueid
-      'category': self.category
-    }
-    return d
 
 
 
@@ -792,34 +798,50 @@ class Document(models.Model):
     return content
 
 
+  # attach textrazor entity to document segment. The document should have a list of TF
   def autotag(self):
-    '''
-    DEPRECATED as UNUSED
-    Perform autotagging by using alchemyapi.
-    Note: Settings.ALCHEMYAPI_KEY var should be set !
-
-    '''
+    segments = self.segments.all()
+    if segments.count() == 0:
+      return
     if settings.TEXTRAZOR_KEY is not None:
       from distiller import textrazor
       res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=self.text())
-      
-      for ent in res['response']['entities']:
-        print ent
-        if u'type' in ent and u'Person' in ent[u'type']:
-          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['entityId'], 'Person'))
-          self.tags.add(t)
-        if u'type' in ent and u'Place' in ent[u'type']:
-          t, created = Tag.objects.get_or_create(type=Tag.PLACE, name='%s - %s' % (ent['entityId'], 'Place'))
-          self.tags.add(t)
+      # entities found in text
+      for s in segments:
+        candidates = filter(lambda x: len(x[u'wikiLink']) > 0 and x[u'matchedText']==s.content, res['response']['entities'])
+
+        if len(candidates):
+          entity_type = Entity.FREE
+          if u'type' in candidates[0]:
+            
+            if u'Person' in candidates[0][u'type']:
+              entity_type = Entity.PERSON
+            elif u'Place' in candidates[0][u'type']:
+              entity_type = Entity.PLACE
+            elif u'Organisation' in candidates[0][u'type']:
+              entity_type = Entity.ORGANISATION
+
+          entity, exists = Entity.objects.get_or_create(url=candidates[0]['wikiLink'], defaults={'type': entity_type, 'content': candidates[0]['entityId']})
+          s.entity = entity
+          s.save()
+
+
+        # if u'type' in ent and u'Person' in ent[u'type']:
+        #   t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['entityId'], 'Person'))
+        #   self.tags.add(t)
+        # if u'type' in ent and u'Place' in ent[u'type']:
+        #   t, created = Tag.objects.get_or_create(type=Tag.PLACE, name='%s - %s' % (ent['entityId'], 'Place'))
+        #   self.tags.add(t)
 
     elif settings.ALCHEMYAPI_KEY is not None:
       from distiller import alchemyapi
       res = alchemyapi(api_key=settings.ALCHEMYAPI_KEY, text=self.text()[:100000])
       for ent in res['entities'][:5]:
+        pass
         # max 5 entities
-        print ent
-        t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['text'], ent['type']))
-        self.tags.add(t)
+        # print ent
+        # t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name='%s - %s' % (ent['text'], ent['type']))
+        # self.tags.add(t)
     
 
 

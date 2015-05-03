@@ -29,7 +29,6 @@ class HelpersTest(TestCase):
   def test_truncatesmart(self):
     v1 = helper_truncatesmart('This class test helper function in models.py', 25)
     v2 = helper_truncatesmart('This class test helper function in models.py', 125)
-    print len(v1), len(v2), 
     self.assertEqual(len(v1) < 28, True)
     self.assertEqual(len(v2), len('This class test helper function in models.py'))
 
@@ -46,10 +45,38 @@ class HelpersTest(TestCase):
       Segment(id=7, content=u'not found at all, problem'),
     ]
 
-    print helper_annotate(text=contents, segments=segments)
+    helper_annotate(text=contents, segments=segments)
 
-    pass
 
+  def test_disambiguate(self):
+    entities = [{
+      u'endingPos': 3611,
+      u'wikidataId': u'Q643348',
+      u'matchingTokens': [700, 701],
+      u'wikiLink': u'http://en.wikipedia.org/wiki/Habib_Bourguiba',
+      u'entityId': u'Habib Bourguiba',
+      u'entityEnglishId': u'Habib Bourguiba',
+      u'type': [u'Agent', u'Person', u'OfficeHolder'],
+      u'id': 77,
+      u'matchedText': u'Habib Bourguiba'
+    }]
+
+    segments = [
+      Segment(id=1, content=u'Habib Bourguiba'), # beginning
+      Segment(id=2, content=u'Tunisia'),
+    ]
+
+    # entities found in text
+    for s in segments:
+      print s.id
+      candidates = filter(lambda x: u'wikiLink' in x and x[u'matchedText']==s.content, entities)
+      print s.content, candidates
+      if len(candidates):
+        # if entity lik does not exist create entity 
+        #entity, exists = Entity.objects.get_or_create(url=res[0]['wikiLink'], defaults={content: res[0]['entityId']})
+        #s.entity = entity
+        print "found"
+    
 
 
 class OSTest(TestCase):
