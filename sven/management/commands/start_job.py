@@ -353,10 +353,12 @@ class Command(BaseCommand):
     total = job.corpus.documents.count()
     
     for step, doc in enumerate(job.corpus.documents.all()):
+      writer.delete_by_term('path', u'%s' % doc.id)
       writer.add_document(
         title=doc.name,
-        path = u"%s"%doc.id,
-        content=doc.text())
+        path = u'%s' % doc.id,
+        content=doc.text()
+      )
 
       job.document = doc
       job.completion = 1.0 * step/total

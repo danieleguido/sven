@@ -800,14 +800,18 @@ class Document(models.Model):
 
   # attach textrazor entity to document segment. The document should have a list of TF
   def autotag(self):
-    segments = self.segments.all()
+    segments = self.segments
     if segments.count() == 0:
+      logger.debug('autotagging enabled only for already analyzed segments')
       return
+    if segments.filter(entity__isnull=True).count() > 0:
+      logger.debug('autotagging already performed on this document, skipping')
+      return;
     if settings.TEXTRAZOR_KEY is not None:
       from distiller import textrazor
       res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=self.text())
       # entities found in text
-      for s in segments:
+      for s in segments.all():
         candidates = filter(lambda x: len(x[u'wikiLink']) > 0 and x[u'matchedText']==s.content, res['response']['entities'])
 
         if len(candidates):

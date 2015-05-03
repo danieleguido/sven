@@ -51,9 +51,10 @@ class Command(BaseCommand):
     writer = ix.writer() # multi thread cfr. from whoosh.writing import AsyncWriter
 
     for doc in corpus.documents.all():
+      writer.delete_by_term('path', u'%s' % doc.id)
       writer.add_document(
         title=doc.name,
-        path = u"%s"%doc.id,
+        path = u'%s' % doc.id,
         content=doc.text())
     
     writer.commit()
