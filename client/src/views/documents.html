@@ -81,7 +81,7 @@
 </div>
 <div class="filters-wrapper" ng-class="totalItems != corpus.count.documents && totalItems != 0?'active': ''">
   <div class="filters" >
-    <span>{{totalItems}} of {{corpus.count.documents}} documents matching:</span>
+    <span>{{totalItems}} of {{corpus.count.documents}} documents matching:</span>{{filters}}
     <span class="tag filtered" ng-repeat="(key, item) in filtersItems">
       {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
     </span>

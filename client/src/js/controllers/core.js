@@ -150,7 +150,6 @@ angular.module('sven')
               };
             };
           };
-
         }
 
         // otherwise, if there are no jobs running ...
@@ -356,7 +355,8 @@ angular.module('sven')
       $scope.filtersItems[key] = angular.extend({
         filter: filter
       }, item);
-      $scope.$broadcast(API_PARAMS_CHANGED);
+      $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
+      //$scope.$broadcast(API_PARAMS_CHANGED);
     };
 
     $scope.removeFilter = function(key, filter) {
@@ -364,8 +364,8 @@ angular.module('sven')
         delete $scope.filters[key];
         delete $scope.filtersItems[key];
       };
-
-      $scope.$broadcast(API_PARAMS_CHANGED);
+      $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
+      //$scope.$broadcast(API_PARAMS_CHANGED);
     };
 
     /*
@@ -467,6 +467,12 @@ angular.module('sven')
     $scope.$on('$routeUpdate', function(next, current) { 
       $log.debug('coreCtrl', '@routeUpdate', next, current);
       $scope.search = current.params.search || '';
+      try{
+        $scope.filters = JSON.parse(current.params.filters)
+      } catch(e) {
+        $log.error(e)
+      }
+      
       $scope.$broadcast(API_PARAMS_CHANGED);
     });
 
@@ -488,5 +494,17 @@ angular.module('sven')
     var startupParams = $location.search();
     if(startupParams.search)
       $scope.search = startupParams.search;
+    if(startupParams.filters) {
+      var filters = {};
+      try{
+        var filters = JSON.parse(startupParams.filters);
+        $scope.filters = filters;
+      } catch(e) {
+        $log.error(e);
+      }
+      $log.debug("CoreCtrl loading startup filters", filters);
+      
+    }
+      
     //$log.info('corpus id (cookies):', corpusId || 'cookie not set');
   });
