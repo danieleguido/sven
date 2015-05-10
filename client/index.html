@@ -126,6 +126,7 @@
 
                 <div class="filters-wrapper {{hasFilters()? 'active': ''}}">
                   <div class="filters">
+                  filtered by
                     <span ng-if="search.length" class="tag filtered" tooltip="document contains: {{search}}">{{search}} <i class="fa fa-remove" ng-click="removeSearch()"></i></span>
 
                     <span class="tag filtered" tooltip="{{item|humanized : key}}" ng-repeat="(key, item) in filters">

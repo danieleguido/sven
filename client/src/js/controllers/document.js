@@ -78,6 +78,15 @@ angular.module('sven')
       $scope.opened = true;
     };
 
+    // entities
+    $scope.filterByEntity = function(entity) {
+      toast('looking for matching documents, please wait ...', {stayTime: 3500})
+      $scope.changeFilter('segments__entity__content', entity, {
+        path: '/corpus/' + $scope.document.corpus.id + '/documents'
+      });
+
+    }
+
     // tags
     /*
       @param type should be a valid type according to sven.models.Tag, usually 'ac' or 'tm'

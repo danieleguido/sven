@@ -39,7 +39,8 @@ angular
       })
       .when('/document/:id', { // document id
         templateUrl: SVEN_STATIC_URL + '/views/document.html',
-        controller: 'DocumentCtrl'
+        controller: 'DocumentCtrl',
+        reloadOnSearch: false
       })
       .when('/document/:id/edit', { // document id
         templateUrl: SVEN_STATIC_URL + '/views/document.edit.html',

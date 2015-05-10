@@ -65,7 +65,7 @@ def helper_annotate(text, segments):
     if len(c['links']) > 0:
       entities = filter(lambda p:p[3] is not None, c['links'])
       if len(entities) > 0:
-        annotated = '%(previous)s<span class="entity" tooltip="%(entity)s" data-id="%(segment_id)s">%(segment)s</span>' % {
+        annotated = '%(previous)s<span class="entity" tooltip="%(entity)s" data-content="%(entity)s" data-id="%(segment_id)s">%(segment)s</span>' % {
           'previous'   : annotated,
           'entity'     : u' | '.join(map(lambda p: p[3].content, entities)),
           'segment_id' : u' | '.join(map(lambda x:x[1], c['links'])),

@@ -32,7 +32,12 @@ angular.module('sven')
   })
   .filter('humanized', function () {
     return function (input, filterKey) {
-      return input + ' (' + filterKey.split('_').join(' ') + ')'
+
+      return input + ' (' + filterKey.split('_').map(function(d) {
+        if(['content', 'slug', 'segments'].indexOf(d) !== -1)
+          return ''
+        return d
+      }).join(' ') + ')'
       
     };
   })

@@ -350,12 +350,14 @@ angular.module('sven')
     };
 
 
-    $scope.changeFilter = function(key, filter, item) {
+    $scope.changeFilter = function(key, filter, options) {
       $scope.filters[key] = filter;
-      $scope.filtersItems[key] = angular.extend({
-        filter: filter
-      }, item);
-      $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
+      if(options && options.path) {
+        $log.debug('CoreCtrl -~changeFilter() redirect', options.path, $scope.corpus, $scope.getLocationParams())
+        $location.path(options.path).search($scope.getParams())
+      } else {
+        $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
+      }
       //$scope.$broadcast(API_PARAMS_CHANGED);
     };
 
@@ -420,7 +422,9 @@ angular.module('sven')
         return '?' + params.join('&');
       return '';
     }
-
+    /*
+      check if the view has filters
+    */
     $scope.hasFilters = function() {
       return !angular.equals({}, $scope.filters) || $scope.search.trim().length > 0;
     }
