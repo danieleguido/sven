@@ -30,6 +30,12 @@ angular.module('sven')
       return input.replace(/\n\n+/g,'\n\n').split('\n').join('<br/>');
     };
   })
+  .filter('humanized', function () {
+    return function (input, filterKey) {
+      return input + ' (' + filterKey.split('_').join(' ') + ')'
+      
+    };
+  })
   // convert tsv strings into well formatted javascript objects
   .filter('tsv', function() {
     return function(input) {

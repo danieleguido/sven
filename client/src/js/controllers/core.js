@@ -368,6 +368,11 @@ angular.module('sven')
       //$scope.$broadcast(API_PARAMS_CHANGED);
     };
 
+    $scope.removeSearch = function() {
+      $scope.search = '';
+      $location.search('search', null);
+      //$scope.$broadcast(API_PARAMS_CHANGED);
+    };
     /*
       Attach to request params the search query
     */
@@ -467,10 +472,12 @@ angular.module('sven')
     $scope.$on('$routeUpdate', function(next, current) { 
       $log.debug('coreCtrl', '@routeUpdate', next, current);
       $scope.search = current.params.search || '';
-      try{
-        $scope.filters = JSON.parse(current.params.filters)
-      } catch(e) {
-        $log.error(e)
+      if(current.params.filters) {
+        try{
+          $scope.filters = JSON.parse(current.params.filters)
+        } catch(e) {
+          $log.error(e)
+        }
       }
       
       $scope.$broadcast(API_PARAMS_CHANGED);

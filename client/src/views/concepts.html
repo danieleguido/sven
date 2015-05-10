@@ -1,26 +1,4 @@
-<h2>
-  {{localCorpus.name}}
-  
-</h2>
 
-<ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" >
-    
-    <a ng-href="#/corpus/{{corpus.id}}/documents">
-        {{corpus.count.documents}} documents
-    </a>
-  </li>
-  <li role="presentation" class="active">
-    <a ng-href="#/corpus/{{corpus.id}}/concepts">
-        {{corpus.count.clusters}} concepts
-    </a>
-  </li>
-  <li role="presentation">
-    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
-      stopwords list
-    </a>
-  </li>
-</ul>
 
 
 <div class="filters-wrapper" ng-class="totalItems != corpus.count.clusters && totalItems != 0?'active': ''">

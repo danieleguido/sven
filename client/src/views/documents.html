@@ -1,23 +1,4 @@
-<h2>{{localCorpus.name||corpus.name}}</h2>
 
-<ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active">
-    
-    <a ng-href="#/corpus/{{corpus.id}}/documents">
-      {{corpus.count.documents}} documents
-    </a>
-  </li>
-  <li role="presentation">
-    <a ng-href="#/corpus/{{corpus.id}}/concepts">
-      {{corpus.count.clusters}} concepts
-    </a>
-  </li>
-  <li role="presentation">
-    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
-      stopwords list
-    </a>
-  </li>
-</ul>
 
 
 <div class="btn-toolbar" role="toolbar">
@@ -79,14 +60,14 @@
 
   </div>
 </div>
-<div class="filters-wrapper" ng-class="totalItems != corpus.count.documents && totalItems != 0?'active': ''">
+<!-- div class="filters-wrapper" ng-class="totalItems != corpus.count.documents && totalItems != 0?'active': ''">
   <div class="filters" >
     <span>{{totalItems}} of {{corpus.count.documents}} documents matching:</span>{{filters}}
     <span class="tag filtered" ng-repeat="(key, item) in filtersItems">
       {{item.name}} <i class="fa fa-remove" ng-click="removeFilter(key, item.filter)"></i>
     </span>
   </div>
-</div>
+</div -->
 <div class="btn-toolbar" role="toolbar">
     <div class="btn-group" dropdown is-open="orderBy.isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">

@@ -103,8 +103,34 @@
                 <!-- div style="position: fixed; height: 100%; width: 200px; margin-left: -230px; background: #b1b2ab"> 
                    filtering by
                 </div -->
-              
+                <h2>{{localCorpus.name||corpus.name}}</h2>
+
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active">
+                    
+                    <a ng-href="#/corpus/{{corpus.id}}/documents">
+                      {{corpus.count.documents}} documents
+                    </a>
+                  </li>
+                  <li role="presentation">
+                    <a ng-href="#/corpus/{{corpus.id}}/concepts{{search.length?'?':''}}{{search.length? 'search=' + search: ''}}">
+                      {{corpus.count.clusters}} concepts
+                    </a>
+                  </li>
+                  <li role="presentation">
+                    <a ng-href="#/corpus/{{corpus.id}}/stopwords">
+                      stopwords list
+                    </a>
+                  </li>
+                </ul>
+                <span ng-if="search.length" class="tag filtered" tooltip="document contains: {{search}}">{{search}} <i class="fa fa-remove" ng-click="removeSearch()"></i></span>
+
+                <span class="tag filtered" tooltip="{{item|humanized : key}}" ng-repeat="(key, item) in filters">
+                  {{item}} <i class="fa fa-remove" ng-click="removeFilter(key, item)"></i>
+                </span>
+
                 <div class="row" ng-show="!reload_corpora">
+                    
                     <div class="col-lg-12" ng-view>
                         
                         
