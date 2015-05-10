@@ -123,11 +123,16 @@
                     </a>
                   </li>
                 </ul>
-                <span ng-if="search.length" class="tag filtered" tooltip="document contains: {{search}}">{{search}} <i class="fa fa-remove" ng-click="removeSearch()"></i></span>
 
-                <span class="tag filtered" tooltip="{{item|humanized : key}}" ng-repeat="(key, item) in filters">
-                  {{item}} <i class="fa fa-remove" ng-click="removeFilter(key, item)"></i>
-                </span>
+                <div class="filters-wrapper {{hasFilters()? 'active': ''}}">
+                  <div class="filters">
+                    <span ng-if="search.length" class="tag filtered" tooltip="document contains: {{search}}">{{search}} <i class="fa fa-remove" ng-click="removeSearch()"></i></span>
+
+                    <span class="tag filtered" tooltip="{{item|humanized : key}}" ng-repeat="(key, item) in filters">
+                      {{item}} <i class="fa fa-remove" ng-click="removeFilter(key, item)"></i>
+                    </span>
+                  </div>
+                </div>
 
                 <div class="row" ng-show="!reload_corpora">
                     

@@ -421,6 +421,10 @@ angular.module('sven')
       return '';
     }
 
+    $scope.hasFilters = function() {
+      return !angular.equals({}, $scope.filters) || $scope.search.trim().length > 0;
+    }
+
     /*
       Call the right api to execute the desired command. At the same time set $scope.waitingJob to true;
       Cfr tick function.
