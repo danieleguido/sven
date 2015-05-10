@@ -409,6 +409,17 @@ angular.module('sven')
       return params;
     };
 
+    $scope.getLocationParams = function() {
+
+      var params = [];
+      if(!angular.equals({}, $scope.filters))
+        params.push('filters=' + encodeURIComponent(JSON.stringify($scope.filters)));
+      if($scope.search && $scope.search.trim().length)
+        params.push('search=' + encodeURIComponent($scope.search));
+      if(params.length)
+        return '?' + params.join('&');
+      return '';
+    }
 
     /*
       Call the right api to execute the desired command. At the same time set $scope.waitingJob to true;

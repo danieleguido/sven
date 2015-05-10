@@ -108,12 +108,12 @@
                 <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="active">
                     
-                    <a ng-href="#/corpus/{{corpus.id}}/documents">
+                    <a ng-href="#/corpus/{{corpus.id}}/documents{{getLocationParams()}}">
                       {{corpus.count.documents}} documents
                     </a>
                   </li>
                   <li role="presentation">
-                    <a ng-href="#/corpus/{{corpus.id}}/concepts{{search.length?'?':''}}{{search.length? 'search=' + search: ''}}">
+                    <a ng-href="#/corpus/{{corpus.id}}/concepts{{getLocationParams()}}">
                       {{corpus.count.clusters}} concepts
                     </a>
                   </li>
