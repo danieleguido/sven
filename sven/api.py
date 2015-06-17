@@ -879,10 +879,13 @@ def export_corpus_concepts(request, corpus_pk):
     tfidf=Max('tfidf')
   )
 
-  epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
+  # epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
   clusters_objects = []
-  
-  if 'group_by' in epoxy.data:
+  groups_available = None
+  if not 'group_by' in epoxy.data:
+    print clusters.count()
+    clusters_objects = [c for c in clusters]
+  else:
     # available data grouping (translations for MYSQL)
     DATE_GROUPING = {
       'Ym' : "%%Y-%%m",
@@ -937,39 +940,48 @@ def export_corpus_concepts(request, corpus_pk):
         tf=Max('tf'),
         tfidf=Max('tfidf')
       )
-    
-    if groups_available is not None:
-      groups_available = groups_available[0:100]
-      fieldnames = sorted(set([
-        'segment__cluster',
-        'tfidf', 
-        'tf', 
-        'distribution',
-        'content'
-      ] + ['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
-      writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
-      writer.writeheader()
-      #epoxy.meta('query', '%s' % groups.query)
-      # format here your groups
-      epoxy.add('groups', [g for g in groups_available])
-
-      # find the right  matching the group name
-      for cluster in clusters_objects:
-        for g in groups:
-          if g['segment__cluster'] == cluster['segment__cluster']:
-            cluster['%s_tfidf' % g['G']] = g['tfidf']
-            cluster['%s_tf' % g['G']] = g['tf']
-                      
-
-      for cluster in clusters_objects:
-        writer.writerow(cluster)
-
-
-
-
     else:
       epoxy.warning('grouping', 'grouping not recognized, should be one value among these (for tags): %s' % ','.join([t[0] for t in Tag.TYPE_CHOICES])) 
       return epoxy.json()
+    
+  if groups_available is not None:
+    groups_available = groups_available[0:100]
+    fieldnames = sorted(set([
+      'segment__cluster',
+      'tfidf', 
+      'tf', 
+      'distribution',
+      'content'
+    ] + ['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
+  else:
+    fieldnames = sorted(set([
+      'segment__cluster',
+      'tfidf', 
+      'tf', 
+      'distribution',
+      'content'
+    ]))
+  writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
+  writer.writeheader()
+    #epoxy.meta('query', '%s' % groups.query)
+    # format here your groups
+  
+  # find the right  matching the group name
+  for cluster in clusters_objects:
+    if groups_available is not None:
+      for g in groups:
+        if g['segment__cluster'] == cluster['segment__cluster']:
+          cluster['%s_tfidf' % g['G']] = g['tfidf']
+          cluster['%s_tf' % g['G']] = g['tf']
+                  
+
+  for cluster in clusters_objects:
+    writer.writerow(cluster)
+
+
+
+
+    
 
       #epoxy.add('groups', [g.json() for g in set([g['G'] for g in groups])])
   
