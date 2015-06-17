@@ -7,7 +7,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from django.db.models import Q, Count, Min, Max
+from django.db.models import Q, Count, Min, Max, Aggregate
 from django.db import connection, transaction
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
@@ -740,7 +740,7 @@ def corpus_concepts(request, corpus_pk):
     else:
       cluster_filters['document__%s' % key] = value
 
-  print cluster_filters
+  # print cluster_filters
 
   clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
@@ -754,7 +754,8 @@ def corpus_concepts(request, corpus_pk):
   if 'group_by' in epoxy.data:
     # available data grouping (translations for MYSQL)
     DATE_GROUPING = {
-      'Ym' : "%%Y-%%m"
+      'Ym' : "%%Y-%%m",
+      'Ymd' : "%%Y-%%m-%%d"
     }
     epoxy.meta('grouping', epoxy.data['group_by']) 
 
@@ -773,7 +774,7 @@ def corpus_concepts(request, corpus_pk):
         document__corpus=cor,
         segment__status='IN'
       ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
-        select={'G': """DATE_FORMAT(date, "%%Y-%%m")"""}
+        select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING[epoxy.data['group_by']]}
       ).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),
         tf=Max('tf'),
@@ -832,7 +833,159 @@ def corpus_concepts(request, corpus_pk):
   return epoxy.json()
 
 
+
+
 def export_corpus_concepts(request, corpus_pk):
+  '''
+  Export filtered segments for q specified corpus
+  Given by filters params as JSON - as usual, Filters need to be prefixed either with document__ or segment__ prefixes
+  '''
+  epoxy = Epoxy(request)
+  try:
+    cor = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s'%e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+  # translate epoxy filters: prepend document__ to every fields.
+  cluster_filters = {}
+  tags_filters = {}
+
+  for key,value in epoxy.filters.iteritems():
+    if key.startswith('tags__'):
+      cluster_filters['document__%s' % key] = value
+      tags_filters[ key.replace('tags__', '')] = value
+    elif key.startswith('segments__'):
+      cluster_filters[key.replace('segments__', 'document__segments__')] = value
+    else:
+      cluster_filters['document__%s' % key] = value
+
+  import unicodecsv
+  from django.http import HttpResponse
+  
+  if 'plain-text' not in epoxy.data:
+    response = HttpResponse(mimetype='text/csv; charset=utf-8')
+    response['Content-Description'] = "File Transfer";
+    response['Content-Disposition'] = "attachment; filename=%s.concepts.csv" % cor.name 
+  
+  else:
+
+    response = HttpResponse(content_type='text/plain; charset=utf-8')
+
+  # print cluster_filters
+
+  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
+    distribution=Count('document', distinct=True),
+    tf=Max('tf'),
+    tfidf=Max('tfidf')
+  )
+
+  epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
+  clusters_objects = []
+  
+  if 'group_by' in epoxy.data:
+    # available data grouping (translations for MYSQL)
+    DATE_GROUPING = {
+      'Ym' : "%%Y-%%m",
+      'Ymd' : "%%Y-%%m-%%d"
+    }
+    epoxy.meta('grouping', epoxy.data['group_by']) 
+
+
+    if epoxy.data['group_by'] in DATE_GROUPING.keys():
+      #get only clusters related to a dated document...
+      clusters = clusters.exclude(document__date__isnull=True)
+      print epoxy.offset, epoxy.limit
+      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + 1000]]
+  
+      # get all groupin possibilities according to date:
+      groups_available = Document.objects.filter(corpus=cor).extra(
+        select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
+      ).values('G').annotate(distribution=Count('id'))
+      
+      # get groupings e.g value for groups for selected cluster only
+      groups = Document_Segment.objects.filter(
+        document__corpus=cor,
+        segment__status='IN'
+      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+        select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING[epoxy.data['group_by']]}
+      ).order_by().values('G', 'segment__cluster').annotate(
+        distribution=Count('document', distinct=True),
+        tf=Max('tf'),
+        tfidf=Max('tfidf')
+      )
+
+    elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
+      # get only clusters related to a dated document...
+      clusters = clusters.filter(document__tags__type=epoxy.data['group_by'])
+      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+  
+      # get all groupin possibilities according to the selected tag type:
+      groups_available = Tag.objects.filter(
+        tagdocuments__corpus=cor,
+        type=epoxy.data['group_by']
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+        distribution=Count('tagdocuments')
+      )
+      
+      groups = Document_Segment.objects.filter(
+        document__corpus=cor,
+        segment__status=Segment.IN,
+        document__tags__type=epoxy.data['group_by']
+      ).filter(**cluster_filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+        select={'G':'sven_tag.name'}).order_by().values('G', 'segment__cluster').annotate(
+        distribution=Count('document', distinct=True),
+        tf=Max('tf'),
+        tfidf=Max('tfidf')
+      )
+    print u'%s'%groups.query
+    if groups_available is not None:
+      groups_available = groups_available[0:100]
+      fieldnames = sorted(set([
+        'segment__cluster',
+        'tfidf', 
+        'tf', 
+        'distribution',
+        'content'
+      ] + ['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
+      writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
+      writer.writeheader()
+      #epoxy.meta('query', '%s' % groups.query)
+      # format here your groups
+      epoxy.add('groups', [g for g in groups_available])
+
+      # find the right  matching the group name
+      for cluster in clusters_objects:
+        for g in groups:
+          if g['segment__cluster'] == cluster['segment__cluster']:
+            cluster['%s_tfidf' % g['G']] = g['tfidf']
+            cluster['%s_tf' % g['G']] = g['tf']
+                      
+
+      for cluster in clusters_objects:
+        writer.writerow(cluster)
+
+
+
+
+    else:
+      epoxy.warning('grouping', 'grouping not recognized, should be one value among these (for tags): %s' % ','.join([t[0] for t in Tag.TYPE_CHOICES])) 
+      return epoxy.json()
+
+      #epoxy.add('groups', [g.json() for g in set([g['G'] for g in groups])])
+  
+
+  
+  return response  
+  #outputting values
+  # epoxy.add('objects', clusters_objects)
+  # # get global min and global max for clusters
+  # epoxy.meta('bounds', Document_Segment.objects.filter(document__corpus=cor, segment__status='IN').aggregate(max_tf=Max('tf'), min_tf=Min('tf'), max_tfidf=Max('tfidf'), min_tfidf=Min('tfidf')))
+  # # get total number of clusters
+  # epoxy.meta('total_count', clusters.count())
+  
+  # return epoxy.json()
+
+def __export_corpus_concepts(request, corpus_pk):
   '''
   export a huge csv containing all the filtered/sorted concept
   '''
@@ -863,7 +1016,8 @@ def export_corpus_concepts(request, corpus_pk):
   
   fieldnames = clusters[0].keys() + ['content', 'status', 'ordering']
   DATE_GROUPING = {
-    'Ym' : "%%Y-%%m"
+    'Ym' : "%%Y-%%m",
+    'Ymd' : "%%Y-%%m-%%d"
   }
   if 'group_by' in epoxy.data:
     if epoxy.data['group_by'] in DATE_GROUPING.keys():
