@@ -937,7 +937,7 @@ def export_corpus_concepts(request, corpus_pk):
         tf=Max('tf'),
         tfidf=Max('tfidf')
       )
-    print u'%s'%groups.query
+    #print u'%s'%groups.query
     if groups_available is not None:
       groups_available = groups_available[0:100]
       fieldnames = sorted(set([
