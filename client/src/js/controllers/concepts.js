@@ -19,7 +19,7 @@ angular.module('sven')
         {label:'actors', value:'ac'},
         {label:'type of media', value:'tm'},
       ],
-      choice: {label:'actors', value:'ac'}
+      choice: {label:'type of media', value:'tm'}
     };
 
     /*
