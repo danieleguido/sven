@@ -879,7 +879,7 @@ def export_corpus_concepts(request, corpus_pk):
     tfidf=Max('tfidf')
   )
 
-  # epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
+  
   clusters_objects = []
   groups_available = None
   if not 'group_by' in epoxy.data:
@@ -963,9 +963,7 @@ def export_corpus_concepts(request, corpus_pk):
     ]))
   writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
   writer.writeheader()
-    #epoxy.meta('query', '%s' % groups.query)
-    # format here your groups
-  
+    
   # find the right  matching the group name
   for cluster in clusters_objects:
     if groups_available is not None:
