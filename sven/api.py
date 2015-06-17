@@ -920,13 +920,15 @@ def export_corpus_concepts(request, corpus_pk):
     elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
       # get only clusters related to a dated document...
       clusters = clusters.filter(document__tags__type=epoxy.data['group_by'])
-      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.offset + 1000]]
   
       # get all groupin possibilities according to the selected tag type:
       groups_available = Tag.objects.filter(
         tagdocuments__corpus=cor,
         type=epoxy.data['group_by']
-      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
+      ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().extra(
+        select={'G': 'sven_tag.name'}
+      ).values('G', 'name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
       
@@ -946,21 +948,22 @@ def export_corpus_concepts(request, corpus_pk):
     
   if groups_available is not None:
     groups_available = groups_available[0:100]
-    fieldnames = sorted(set([
+    print groups_available
+    fieldnames = [
       'segment__cluster',
       'tfidf', 
       'tf', 
       'distribution',
-      'content'
-    ] + ['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
+      'excude'
+    ] + sorted(set(['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
   else:
-    fieldnames = sorted(set([
+    fieldnames = [
       'segment__cluster',
       'tfidf', 
       'tf', 
       'distribution',
-      'content'
-    ]))
+      'exclude'
+    ]
   writer = unicodecsv.DictWriter(response, fieldnames=fieldnames, delimiter=',', encoding='utf-8')
   writer.writeheader()
     
