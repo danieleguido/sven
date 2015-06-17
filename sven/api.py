@@ -749,8 +749,7 @@ def corpus_concepts(request, corpus_pk):
   )
 
   epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
-
-  clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+  clusters_objects = []
   
   if 'group_by' in epoxy.data:
     # available data grouping (translations for MYSQL)
@@ -760,7 +759,10 @@ def corpus_concepts(request, corpus_pk):
     epoxy.meta('grouping', epoxy.data['group_by']) 
 
     if epoxy.data['group_by'] in DATE_GROUPING.keys():
-      
+      #get only clusters related to a dated document...
+      clusters = clusters.exclude(document__date__isnull=True)
+      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+  
       # get all groupin possibilities according to date:
       groups_available = Document.objects.filter(corpus=cor).extra(
         select={'G': """DATE_FORMAT(date, "%s")""" % DATE_GROUPING[epoxy.data['group_by']]}
@@ -779,9 +781,14 @@ def corpus_concepts(request, corpus_pk):
       )
 
     elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
-      # get all groupin possibilities according to date:
+      # get only clusters related to a dated document...
+      clusters = clusters.filter(document__tags__type=epoxy.data['group_by'])
+      clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
+  
+      # get all groupin possibilities according to the selected tag type:
       groups_available = Tag.objects.filter(
-        tagdocuments__corpus=cor
+        tagdocuments__corpus=cor,
+        type=epoxy.data['group_by']
       ).filter(**tags_filters).prefetch_related('tagdocuments').distinct().values('name', 'id', 'slug').annotate(
         distribution=Count('tagdocuments')
       )
