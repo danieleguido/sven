@@ -874,7 +874,51 @@ text.label {
   font-weight: normal;
 }
 
+#timeline svg{
+  background-color: #d8d8d8;
+}
 
+#timeline .viewer {
+  margin: 0px 150px;
+  width: auto;
+}
+#timeline .tooltip {
+  bottom: 50px;
+  background: transparent;
+  color: white;
+  text-align: center
+}
+
+#timeline .date{
+  position: absolute;
+  width: 110px;
+  top: 20px;
+  font-size: 11px;
+}
+
+#timeline .date.left{
+  left: 30px;
+  text-align: right;
+}
+
+#timeline .date.right{
+  right: 30px;
+  text-align: left;
+}
+
+#timeline path{
+  fill: none;
+  stroke: #555;
+}
+#timeline rect{
+  fill: #555;
+}
+
+#timeline .brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
 
 
 
