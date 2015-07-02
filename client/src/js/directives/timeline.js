@@ -14,6 +14,7 @@
       restrict: 'EA',
       scope: {
         values: '=',
+        onbrush: '&'
       },
       template: '<div class="date left"></div><div class="date right"></div><div class="mouse tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="viewer"></div>',
       link : function(scope, element, attrs) {
@@ -91,13 +92,20 @@
             var extent = δ.brush.extent()
             clearTimeout(δ.brushTimer);
             δ.brushTimer = setTimeout(function(){
+              console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               //console.log(d3.time.format("%Y-%m-%d")(extent[0]))
-              // $location.search({
-              //   from: d3.time.format("%Y-%m-%d")(extent[0]),
-              //   to: d3.time.format("%Y-%m-%d")(extent[1])
-              // });
+              scope.onbrush({
+                keys:[
+                  'date__gte',
+                  'date__lte',
+                ],
+                filters: [
+                  d3.time.format("%Y-%m-%d")(extent[0]),
+                  d3.time.format("%Y-%m-%d")(extent[1])
+                ]
+              });
               scope.$apply();
-            }, 1000)
+            }, 200)
             
             //console.log("brushing babe", δ.brush.extent())
           });
@@ -151,7 +159,6 @@
               ratio = dataset.length /  δ.availableWidth,
               timeExtent = d3.extent(dataset, function(d) {return d.t});
           // set date from extent
-          console.log(timeExtent)
           δ.dateLeft
               .text(δ.timeFormat(new Date(timeExtent[0])));
           δ.dateRight

@@ -351,7 +351,14 @@ angular.module('sven')
 
 
     $scope.changeFilter = function(key, filter, options) {
-      $scope.filters[key] = filter;
+      $log.log('CoreCtrl -~changeFilter()', key, filter)
+      if(typeof key == 'string') {
+        $scope.filters[key] = filter;
+      } else {
+        for(var i in key) {
+          $scope.filters[key[i]] = filter[i];
+        } 
+      }
       if(options && options.path) {
         $log.debug('CoreCtrl -~changeFilter() redirect', options.path, $scope.corpus, $scope.getLocationParams())
         $location.path(options.path).search($scope.getParams())
