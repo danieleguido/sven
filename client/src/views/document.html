@@ -5,16 +5,18 @@
     <div class="big-item document">
       <h2> {{document.name}}</h2>
       <h3>
-        {{document.date| date:'dd MMM yyyy'}}
+        {{document.date| date:'dd MMM yyyy'}} - {{document.language}}, <span class="tag type_of_media" ng-repeat="tag in document.tags.type_of_media" tooltip="type of media: {{tag.name}}">{{tag.name|tag}} </span>
       </h3>
       <p class="minor date-created">uploaded on <b class="minor">{{document.corpus.name}}</b> at {{document.date_created | date:'yyyy MMM dd'}}</p>
       <p class="tags">
-
-        <span class="tag language" tooltip="language {{document.language}}">{{document.language}}</span>
-        <span class="tag type_of_media" ng-repeat="tag in document.tags.type_of_media" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
-        <span class="tag actor" ng-repeat="tag in document.tags.actor" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+        <span ng-if="document.tags.actor.length">
+          actors :
+          <span class="tag actor" ng-repeat="tag in document.tags.actor" tooltip="actor: {{tag.name}}">{{tag.name|tag}} </span>
+        </span>
+        <span ng-if="document.tags.tags.length">
+        tags :
         <span class="tag" ng-repeat="tag in document.tags.tags" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
-
+        </span>
         </p>
       <div ng-if="document.tags.oembed_provider_name">
         <div ng-switch="document.tags.oembed_provider_name.slug">

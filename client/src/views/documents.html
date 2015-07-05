@@ -93,9 +93,10 @@
     </div>
     <div style="margin-left:36px">
       <h4><span>{{doc.date|date:'dd MMM yyyy'}}</span> <a href="#/document/{{doc.id}}">{{doc.name}}</a></h4>
-      <span class="tag type-of-media" ng-repeat="tag in doc.tags.type_of_media" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+      <span class="tag type-of-media" ng-repeat="tag in doc.tags.type_of_media" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}} (type of media)">{{tag.name|tag}} </span>
 
-      <span class="tag actor" ng-repeat="tag in doc.tags.actor" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
+      <span class="tag actor" ng-repeat="tag in doc.tags.actor" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}} (actor)">{{tag.name|tag}} </span>
+      <span class="tag free-tag" ng-repeat="tag in doc.tags.tags" ng-click="changeFilter('tags__slug', tag.slug)" tooltip="{{tag.name}}">{{tag.name|tag}} </span>
       <div class="abstract">
       {{doc.abstract}}
       </div>
