@@ -86,12 +86,12 @@ angular.module('sven')
         url:$scope.document.url
       }
 
-      if($scope.document.__url_type && $scope.document.__url_type.length) {
+      if($scope.document.__url_type && $scope.document.__url_type.id) {
         doc.tags = [
           {
             type: 'tm',
             tags:[
-              $scope.document.__url_type
+              $scope.document.__url_type.name
             ]
           }
         ];

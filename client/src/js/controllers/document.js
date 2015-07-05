@@ -107,6 +107,11 @@ angular.module('sven')
       });
     }
 
+    $scope.suggestTags = function(query) {
+      console.log(arguments, $scope.typesofmedia);
+    return $scope.typesofmedia;
+    };
+
     /*
       SEGMENTS PART 
       ===
