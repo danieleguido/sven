@@ -20,7 +20,7 @@ function toast(message, title, options){
   var settings=$.extend({
     text: "<div>"+(!title?"<h1>"+message+"</h1>":"<h1>"+title+"</h1><p>"+message+"</p>")+"</div>",
     type: "notice",
-    position: "bottom-center",
+    position: "middle-center",
     inEffectDuration: 200,
     outEffectDuration: 200,
     stayTime: 1900

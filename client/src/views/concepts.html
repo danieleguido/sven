@@ -11,11 +11,7 @@
 </div -->
 
 <div class="btn-toolbar" role="toolbar">
-  <div class="btn-group">
-    
-    <!-- <a class="btn btn-default" ng-click="downloadConcepts()" tooltip="download concept list as csv file">download <i class="fa fa-download"></i></a> -->
-
-    <div dropdown is-open="isopen">
+  <div class="btn-group" dropdown is-open="isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
         download <span class="fa fa-angle-down"></span>
       </button>
@@ -34,10 +30,13 @@
         </li>
 
       </ul>
-    </div>
-
-  
   </div>
+  <div class="btn-group">
+  <div class="uploader btn btn-default"  ng-file-select="uploadConcepts($files)" data-multiple="false">
+    <span>import</span> <i class="fa fa-upload"></i>
+  </div>
+  </div>
+  
   <!-- <div class="btn-group">
     <div dropdown is-open="group_by.isopen">
       <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">

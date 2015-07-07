@@ -8,7 +8,7 @@
  * Controller of the svenClientApp
  */
 angular.module('sven')
-  .controller('ConceptsCtrl', function ($scope, $log, $routeParams, ConceptsFactory) {
+  .controller('ConceptsCtrl', function ($scope, $log, $routeParams, $upload, ConceptsFactory) {
     $log.debug('ConceptsCtrl ready');
     $scope.localCorpus = {};
 
@@ -69,6 +69,28 @@ angular.module('sven')
       $scope.changeFilter('segments__cluster', concept_slug, {})
       
     }
+
+    /*
+      Upload concepts via UI.
+      Check that everything is fine, then integrate the csv into the system.
+    */
+    $scope.uploadConcepts = function($files) {
+      $log.debug('ConceptsCtrl -~> uploadConcepts()', $files.length);
+      if($files.length != 1) {
+        toast()
+        return;
+      }
+      $upload.upload({
+        url: SVEN_BASE_URL + '/api/import/corpus/' + $scope.corpus.id + '/concepts', //upload.php script, node.js route, or servlet url
+        file: $files[0]
+      }).then(function(res) {
+        $log.log('ConceptsCtrl -~> uploadConcepts() | succes  ', res);
+      }, function(err){
+        $log.error('ConceptsCtrl -~> uploadConcepts() | error   ', err);
+      }, function(evt){
+        $log.log('ConceptsCtrl -~> uploadConcepts() | progress', evt);
+      });
+    };
     
 
 
@@ -83,7 +105,8 @@ angular.module('sven')
 
     /* considering filters and grouping */
     $scope.downloadConcepts = function(grouping) {
-      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/concepts?' + (grouping?'group_by='+grouping:''), '_blank', '');
+      var params = $scope.getParams()
+      window.open(SVEN_BASE_URL + '/api/export/corpus/' + $routeParams.id + '/concepts?' + (grouping?'group_by='+grouping:'') + '&order_by=' + params.order_by+'&filters=' + params.filters, '_blank', '');
     };
 
     $scope.sync = function() {

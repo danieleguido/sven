@@ -51,7 +51,8 @@ apipatterns = patterns('sven.api',
   url(r'^export/corpus/(?P<corpus_pk>\d+)/segments$', 'export_corpus_segments', name='sven_api_export_corpus_segments'),  # execute a job like management/start.py
   url(r'^export/corpus/(?P<corpus_pk>\d+)/concepts$', 'export_corpus_concepts', name='sven_api_export_corpus_concepts'),  # execute a job like management/start.py
   
-  url(r'^import/corpus/(?P<corpus_pk>\d+)/document$', 'import_corpus_documents', name='sven_api_import_corpus_documents'),  # execute a job like management/start.py
+  url(r'^import/corpus/(?P<corpus_pk>\d+)/concepts$', 'import_corpus_concepts', name='sven_api_import_corpus_concepts'),  # execute the job importconcept management/start.py
+  url(r'^import/corpus/(?P<corpus_pk>\d+)/document$', 'import_corpus_documents', name='sven_api_import_corpus_documents'),  # execute the job importtags management/start.py
   
 
   url(r'^d3/timeline$', 'd3_timeline', name='sven_api_d3_timeline'), # all user corpus timeline. restrict via filters

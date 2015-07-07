@@ -7,8 +7,10 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from django.db.models import Q, Count, Min, Max, Aggregate
+
 from django.db import connection, transaction
+from django.db.models import Q, Count, Min, Max, Aggregate
+from django.db.models.sql.aggregates import Aggregate as SQLAggregate
 
 from glue import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 from glue.api import edit_object
@@ -21,7 +23,23 @@ from sven.models import Corpus, Document, Document_Segment, Profile, Job, Segmen
 
 logger = logging.getLogger("sven")
 
-   
+
+
+# SPECIQL aggregation class for MYSQL
+class SQLConcat(SQLAggregate):
+  name = 'GROUP_CONCAT'
+  sql_function = 'GROUP_CONCAT'
+  sql_template = '%(function)s(DISTINCT %(field)s SEPARATOR "%(separator)s")'
+
+# print cluster_filters
+class GroupConcat(Aggregate):
+  
+
+  def add_to_query(self, query, alias, col, source, is_summary):
+    aggregate = SQLConcat(col, source=source, is_summary=is_summary, **self.extra)
+    query.aggregates[alias] = aggregate
+  
+
 
 def home(request):
   '''
@@ -871,10 +889,12 @@ def export_corpus_concepts(request, corpus_pk):
 
     response = HttpResponse(content_type='text/plain; charset=utf-8')
 
-  # print cluster_filters
+  
+    
 
   clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
+    contents = GroupConcat('segment__content', separator='||'),
     tf=Max('tf'),
     tfidf=Max('tfidf')
   )
@@ -951,14 +971,18 @@ def export_corpus_concepts(request, corpus_pk):
     print groups_available
     fieldnames = [
       'segment__cluster',
+      'contents',
+      'cluster',
       'tfidf', 
       'tf', 
       'distribution',
-      'excude'
+      'exclude'
     ] + sorted(set(['%s_tfidf' % g['G'] for g in groups_available] + ['%s_tf' % g['G'] for g in groups_available]))
   else:
     fieldnames = [
       'segment__cluster',
+      'contents',
+      'cluster',
       'tfidf', 
       'tf', 
       'distribution',
@@ -969,6 +993,8 @@ def export_corpus_concepts(request, corpus_pk):
     
   # find the right  matching the group name
   for cluster in clusters_objects:
+    cluster['cluster'] = cluster['segment__cluster'];
+    cluster['exclude'] = '';
     if groups_available is not None:
       for g in groups:
         if g['segment__cluster'] == cluster['segment__cluster']:
@@ -997,6 +1023,36 @@ def export_corpus_concepts(request, corpus_pk):
   # epoxy.meta('total_count', clusters.count())
   
   # return epoxy.json()
+
+
+def import_corpus_concepts(request, corpus_pk):
+  '''
+  Given a valid csv, change docuemnt values accordingly.
+  This view call the job 'import tags'. Cfr. management/start_job.py script for further information.
+  '''
+  epoxy = Epoxy(request)
+  try:
+    c = Corpus.objects.get(pk=corpus_pk, owners=request.user)
+  except Corpus.DoesNotExist, e:
+    return epoxy.throw_error(error='%s %s'%(corpus_pk, e), code=API_EXCEPTION_DOESNOTEXIST).json() # or you're not allowed to ...
+
+  # the uploaded file
+  if epoxy.is_POST():
+    form = UploadCSVForm(request.POST, request.FILES)
+    if form.is_valid():
+      filepath = c.saveCSV(request.FILES['file'], prefix='concepts')
+      # launch command
+      job = Job.start(corpus=c, command='importconcepts', csv=filepath)
+      if job is not None:
+        epoxy.item(job)
+      else:
+        return epoxy.throw_error(error='a job is already running', code='BUSY').json()
+    else:
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+  else:
+    pass  
+  return epoxy.json()
+
 
 def __export_corpus_concepts(request, corpus_pk):
   '''

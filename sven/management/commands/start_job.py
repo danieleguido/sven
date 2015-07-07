@@ -202,6 +202,26 @@ class Command(BaseCommand):
       logger.info("terminating (loop completed)...")
 
 
+  def _importconcepts(self, job, options):
+    if not options['csv'] or not os.path.exists(options['csv']):
+      logger.debug('%s does not exist', options['csv'])
+      return
+    logger.debug('executing "import concepts" on csv %s' % options['csv'])
+    total = sum(1 for line in open(options['csv']))
+    # stqrt importing here
+    f = open(options['csv'], 'rb')
+    rows = unicodecsv.DictReader(f, encoding='utf-8')
+    #rows = unicodecsv.DictReader(f)
+    # get number of rows
+    logger.debug('%s lines in csv file, starting import' % total)
+    
+    with transaction.atomic():
+
+      for step,row in enumerate(rows):
+        logger.debug('import line %s of %s' % (step, total))
+        Segment.objects.filter(corpus=job.corpus, cluster=row[u'segment__cluster']).update(cluster=row[u'cluster'].strip(), status=(Segment.OUT if len(row[u'cluster'].strip()) == 0 else Segment.IN))
+        
+    self._tfidf(job, options)
 
   def _importtags(self, job, options):
     '''
