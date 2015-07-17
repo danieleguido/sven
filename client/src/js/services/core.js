@@ -46,6 +46,9 @@ angular.module('sven')
         query: {method: 'GET', isArray: false, params: {id:'@id'}},
         save: {method: 'POST', isArray: false, params: {id:'@id'} }
     });
+  })
+  .factory('CorpusVisFactory', function($resource) {
+    return $resource(SVEN_BASE_URL + '/api/:vis/corpus/:id/:model');
   });
 
   

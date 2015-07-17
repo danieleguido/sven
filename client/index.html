@@ -2,7 +2,7 @@
 <html class="no-js">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>sven</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -42,7 +42,7 @@
         <div id="header-wrapper" class="{{status}}">
           <div id="header">
             <div id="menu-toggle" class="fa fa-bars">&nbsp;</div>
-            <h1>SVEN</h1>
+            <h1>SVEN  / {{currentCtrl}}</h1>
           </div>
         </div>
 
@@ -106,22 +106,27 @@
                 <h2>{{localCorpus.name||corpus.name}}</h2>
 
                 <ul class="nav nav-tabs" role="tablist">
-                  <li role="presentation" class="active">
+                  <li role="presentation" class="{{currentCtrl == 'corpusdocuments' ?'active':''}}">
                     
                     <a ng-href="#/corpus/{{corpus.id}}/documents{{getLocationParams()}}">
                       {{corpus.count.documents}} documents
                     </a>
                   </li>
-                  <li role="presentation">
+                  <li role="presentation" class="{{currentCtrl == 'concepts' ?'active':''}}">
                     <a ng-href="#/corpus/{{corpus.id}}/concepts{{getLocationParams()}}">
                       {{corpus.count.clusters}} concepts
                     </a>
                   </li>
-                  <li role="presentation">
+                  <li role="presentation" class="{{currentCtrl == 'network' ?'active':''}}">
+                    <a ng-href="#/corpus/{{corpus.id}}/network{{getLocationParams()}}">
+                      tag network
+                    </a>
+                  </li>
+                  <!-- <li role="presentation">
                     <a ng-href="#/corpus/{{corpus.id}}/stopwords">
                       stopwords list
                     </a>
-                  </li>
+                  </li> -->
                 </ul>
 
                 <div class="filters-wrapper {{hasFilters()? 'active': ''}}">
@@ -137,10 +142,11 @@
 
                 <div class="row" ng-show="!reload_corpora">
                     
-                    <div class="col-lg-12" ng-view>
+                    <div class="col-sm-12" ng-view>
                         
                         
                     </div>
+                    
 
                 </div>
 
@@ -262,7 +268,8 @@
     <script src="{{STATIC_URL}}/js/lib/ng-tags-input.js"></script>
     <script src="{{STATIC_URL}}/js/lib/d3.min.js"></script>
 
-
+    <script type="text/javascript" src="{{STATIC_URL}}/js/lib/sigma.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}/js/lib/sigma.layout.forceAtlas2.min.js"></script>
     
     <script src="{{STATIC_URL}}/js/app.js"></script>
     <script src="{{STATIC_URL}}/js/filters.js"></script>
@@ -271,6 +278,7 @@
     <script src="{{STATIC_URL}}/js/controllers/concepts.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/index.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/modals.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/network.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/document.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/profile.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/facets.js"></script>
@@ -280,6 +288,7 @@
     <script src="{{STATIC_URL}}/js/directives/matrix.js"></script>
     <script src="{{STATIC_URL}}/js/directives/timeline.js"></script>
     <script src="{{STATIC_URL}}/js/directives/annotator.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/sigma.js"></script>
     <!-- script src="{{STATIC_URL}}/js/controllers/main.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/about.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/documents.js"></script>

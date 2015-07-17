@@ -33,8 +33,6 @@ class SQLConcat(SQLAggregate):
 
 # print cluster_filters
 class GroupConcat(Aggregate):
-  
-
   def add_to_query(self, query, alias, col, source, is_summary):
     aggregate = SQLConcat(col, source=source, is_summary=is_summary, **self.extra)
     query.aggregates[alias] = aggregate
@@ -1517,27 +1515,56 @@ def graph_corpus_tags(request, corpus_pk):
   corpus tags as nodes-edges value
   '''
   epoxy = Epoxy(request)
-  epoxy.add('nodes', [t.json() for t in Tag.objects.filter(tagdocuments__corpus__pk=corpus_pk).distinct()])
-  
   cursor = connection.cursor()
-  # NODES
   cursor.execute("""
-    SELECT t.id, t.name, t.slug, COUNT(*) as distribution
-      FROM sven_tag t
-    JOIN sven_document_tags dt
-      ON t.id=dt.tag_id
-    WHERE dt.document_id IN (
-      SELECT d.id FROM sven_document as d WHERE d.corpus_id=%(corpus_pk)s
-    ) GROUP BY t.id 
-    """ % {
+    SELECT t1.name as source, t2.name as target, t1.id as source_id, t2.id as target_id, COUNT(DISTINCT td1.document_id) as weight
+      FROM 
+        sven_tag t1
+          JOIN sven_document_tags td1
+            ON t1.id = td1.tag_id
+          JOIN sven_document d1
+            ON d1.id = td1.document_id,
+        sven_tag t2
+          JOIN sven_document_tags td2
+            ON t2.id = td2.tag_id
+          JOIN sven_document d2
+            ON d2.id = td2.document_id
+    WHERE d1.corpus_id = %(corpus_pk)s
+      AND d2.corpus_id = %(corpus_pk)s 
+      AND t1.id != t2.id
+      AND td1.document_id = td2.document_id
+    GROUP BY source, target
+    ORDER BY weight DESC
+    LIMIT 500
+  """ % {
     'corpus_pk': corpus_pk
   })
-  epoxy.add('nodes', [{
-    'id':'d%s' % r[0],
-    'label': r[1],
-    'size': r[3]
-  } for i,r in enumerate(cursor.fetchall())])
-
+  
+  edges = {}
+  nodes = {}
+  for row in cursor:
+    # our graph node id
+    edge_id = '.'.join(sorted([str(row[2]), str(row[3])]))
+    if edge_id in edges:
+      continue
+    nodes[int(row[2])] = {
+      'id': int(row[2]),
+      'name': row[0]
+    }
+    nodes[int(row[3])] = {
+      'id': int(row[3]),
+      'name': row[1]
+    }
+    edges[edge_id] = {
+      'id':      edge_id,
+      'source':  int(row[2]),
+      'target':  int(row[3]),
+      'weight':  int(row[4])
+    }  
+  
+  epoxy.add('nodes', nodes.values())
+  epoxy.add('edges', edges.values())
+  
   return epoxy.json()
 
 

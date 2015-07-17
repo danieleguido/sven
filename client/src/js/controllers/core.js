@@ -491,7 +491,12 @@ angular.module('sven')
       $scope.reload_corpora = true;
       toast('activating corpus ...', {stayTime: 5000});
     }
-
+    /*
+    
+      Events listeners
+      ----
+    
+    */
     /*
       handle reoute update, e.g on search
     */
@@ -538,6 +543,10 @@ angular.module('sven')
       $log.debug("CoreCtrl loading startup filters", filters);
       
     }
-      
+    
+    $scope.$on('$routeChangeSuccess', function(e, r) {
+      $log.log('CoreCtrl @routeChangeSuccess', r.$$route.controller);
+      $scope.currentCtrl = (r.$$route.controller || 'index').toLowerCase().replace('ctrl', '');
+    });
     //$log.info('corpus id (cookies):', corpusId || 'cookie not set');
   });
