@@ -57,6 +57,7 @@ apipatterns = patterns('sven.api',
 
   url(r'^d3/timeline$', 'd3_timeline', name='sven_api_d3_timeline'), # all user corpus timeline. restrict via filters
   url(r'^graph/corpus/(?P<corpus_pk>\d+)/tags$', 'graph_corpus_tags', name='sven_api_graph_corpus_tags'),
+  url(r'^graph/corpus/(?P<corpus_pk>\d+)/concept$', 'graph_corpus_concepts', name='sven_api_graph_corpus_concepts'),
 
   url(r'^login', 'require_login', name='sven_api_require_login'),
   url(r'^.*$', 'not_found', name='sven_api_not_found'),

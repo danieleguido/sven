@@ -1568,6 +1568,53 @@ def graph_corpus_tags(request, corpus_pk):
   return epoxy.json()
 
 
+@login_required(login_url='/api/login')
+def graph_corpus_concepts(request, corpus_pk):
+  '''
+  corpus tags as nodes-edges value
+  '''
+  epoxy = Epoxy(request)
+  cursor = connection.cursor()
+  cursor.execute("""
+    SELECT s1.cluster, s2.cluster, COUNT(*) AS w
+      FROM sven_document_segment t1
+      INNER JOIN sven_document_segment t2 
+      ON (t1.document_id=t2.document_id AND t1.segment_id<t2.segment_id)
+      INNER JOIN sven_segment s1 ON t1.segment_id = s1.id 
+      INNER JOIN sven_segment s2 ON t2.segment_id = s2.id
+      GROUP BY s1.cluster,
+      s2.cluster
+      ORDER BY w DESC LIMIT 100
+  """ % {
+    'corpus_pk': corpus_pk
+  })
+  
+  edges = {}
+  nodes = {}
+  for row in cursor:
+    # our graph node id
+    edge_id = '.'.join(sorted([row[0], row[1]]))
+    if edge_id in edges:
+      continue
+    nodes[row[0]] = {
+      'id': row[0],
+      'name': row[0]
+    }
+    nodes[row[0]] = {
+      'id': row[1],
+      'name': row[1]
+    }
+    edges[edge_id] = {
+      'id':      edge_id,
+      'source':  row[0],
+      'target':  row[1],
+      'weight':  int(row[2])
+    }  
+  
+  epoxy.add('nodes', nodes.values())
+  epoxy.add('edges', edges.values())
+  
+  return epoxy.json()
 
 
 def helper_get_available_documents(request, corpus=None):
