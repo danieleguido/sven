@@ -23,6 +23,10 @@ from sven.models import Corpus, Document, Document_Segment, Profile, Job, Segmen
 
 logger = logging.getLogger("sven")
 
+DATE_GROUPING = {
+  'Ym' : "%%Y-%%m",
+  'Ymd' : "%%Y-%%m-%%d"
+}
 
 
 # SPECIQL aggregation class for MYSQL
@@ -786,7 +790,7 @@ def corpus_concepts(request, corpus_pk):
       ).values('G').annotate(distribution=Count('id'))
       
       # get groupings e.g value for groups for selected cluster only
-      groups = Document_Segment.objects.filter(
+      groups = Document_Segment.objects.exclude(document__date__isnull=True).filter(
         document__corpus=cor,
         segment__status='IN'
       ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
@@ -905,10 +909,7 @@ def export_corpus_concepts(request, corpus_pk):
     clusters_objects = [c for c in clusters]
   else:
     # available data grouping (translations for MYSQL)
-    DATE_GROUPING = {
-      'Ym' : "%%Y-%%m",
-      'Ymd' : "%%Y-%%m-%%d"
-    }
+    
     epoxy.meta('grouping', epoxy.data['group_by']) 
 
 
@@ -1021,6 +1022,49 @@ def export_corpus_concepts(request, corpus_pk):
   # epoxy.meta('total_count', clusters.count())
   
   # return epoxy.json()
+
+
+def stream_corpus_concepts(request, corpus_pk):
+  '''
+  draw stream (based on group stress.)
+  '''
+  epoxy = Epoxy(request)
+  # get group availability with current filters.
+  groups_available = Document.objects.exclude(date__isnull=True).filter(corpus__pk=corpus_pk).extra(
+        select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
+      ).values('G').annotate(distribution=Count('id'),date=Max('date'))
+  
+  for g in groups_available:
+
+    # for each group, get the list of top concept according to the current orderby.
+    groups = Document_Segment.objects.filter(
+      document__date=g['date'],
+      document__corpus__pk=corpus_pk,
+      segment__status='IN'
+    ).filter(
+      **epoxy.filters
+    ).extra(
+      select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
+    ).order_by(
+      *epoxy.order_by
+    ).values('G', 'segment__cluster').annotate(
+      distribution=Count('document', distinct=True),
+      contents = GroupConcat('segment__content', separator='||'),
+      tf=Max('tf'),
+      tfidf=Max('tfidf')
+    )[:epoxy.limit]
+
+    g['values'] = [d for d in groups]
+
+
+
+  # limit per 
+  # epoxy.add('cols', [g for g in groups])
+
+
+  epoxy.add('groups', [g for g in groups_available])
+
+  return epoxy.json()
 
 
 def import_corpus_concepts(request, corpus_pk):

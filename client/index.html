@@ -114,12 +114,17 @@
                   </li>
                   <li role="presentation" class="{{currentCtrl == 'concepts' ?'active':''}}">
                     <a ng-href="#/corpus/{{corpus.id}}/concepts{{getLocationParams()}}">
-                      {{corpus.count.clusters}} concepts
+                      {{corpus.count.clusters}} concepts list
                     </a>
                   </li>
                   <li role="presentation" class="{{currentCtrl == 'network' ?'active':''}}">
                     <a ng-href="#/corpus/{{corpus.id}}/network{{getLocationParams()}}">
-                      tag network
+                      network of tags
+                    </a>
+                  </li>
+                  <li role="presentation" class="{{currentCtrl == 'timeline' ?'active':''}}">
+                    <a ng-href="#/corpus/{{corpus.id}}/timeline{{getLocationParams()}}">
+                      concepts timeline
                     </a>
                   </li>
                   <!-- <li role="presentation">
@@ -282,6 +287,7 @@
     <script src="{{STATIC_URL}}/js/controllers/document.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/profile.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/facets.js"></script>
+    <script src="{{STATIC_URL}}/js/controllers/stream.js"></script>
     <script src="{{STATIC_URL}}/js/services/core.js"></script>
     <script src="{{STATIC_URL}}/js/services/documents.js"></script>
     <script src="{{STATIC_URL}}/js/services/concepts.js"></script>

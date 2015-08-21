@@ -70,6 +70,20 @@ angular
         templateUrl: SVEN_STATIC_URL + '/views/concepts.html',
         controller: 'ConceptsCtrl'
       })
+      .when('/corpus/:id/timeline', {
+        templateUrl: SVEN_STATIC_URL + '/views/stream.html',
+        controller: 'StreamCtrl',
+        resolve: {
+          concepts: function(ConceptsFactory, $route) { // @todo:  CorpusVisFactory
+            // http://localhost:8000/api/corpus/1/concept?filters=%7B%7D&group_by=tm&limit=50&offset=0&order_by=%5B%22-tf%22%5D
+            return ConceptsFactory.get({
+              id: $route.current.params.id,
+              vis:   'graph',
+              model: 'tags'
+            }).$promise;
+          }
+        }
+      })
       .when('/corpus/:id/network', {
         templateUrl: SVEN_STATIC_URL + '/views/network.html',
         controller: 'NetworkCtrl',
