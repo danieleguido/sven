@@ -920,6 +920,57 @@ text.label {
   shape-rendering: crispEdges;
 }
 
+#stream svg {
+  background-color: #f8f8f8;
+}
+#stream text {
+  font-size: 11px;
+  font-weight: normal;
+  fill: #969696;
+  -webkit-transition: fill .3s cubic-bezier(0.65, 0.05, 0.36, 1); /* Changed here */ 
+     -moz-transition: fill .3s cubic-bezier(0.65, 0.05, 0.36, 1);
+       -o-transition: fill .3s cubic-bezier(0.65, 0.05, 0.36, 1);
+          transition: fill .3s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+#stream .row:hover text, #stream .row.active text  {
+  fill: #000000;
+  cursor: pointer;
+
+}
+
+#stream text.col-label {
+  font-weight: bold;
+}
+
+#stream .col:hover text.col-label{
+  fill: #000000;
+}
+
+#stream .col rect.context {
+  fill: #f8f8f8;
+}
+
+#stream .lines path {
+  fill: none;
+  stroke: #bdbdbd;
+  -webkit-transition: stroke .23s cubic-bezier(0.65, 0.05, 0.36, 1); /* Changed here */ 
+     -moz-transition: stroke .23s cubic-bezier(0.65, 0.05, 0.36, 1);
+       -o-transition: stroke .23s cubic-bezier(0.65, 0.05, 0.36, 1);
+          transition: stroke .23s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+#stream .lines.active path.line{
+  stroke: #000000;
+}
+#stream .lines path.dline {
+  fill: none;
+  stroke: #e8e8e8;
+}
+
+#stream .lines.active path.dline{
+  stroke: #000000;
+}
 
 
 #milkyway{

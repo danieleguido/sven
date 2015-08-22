@@ -41,6 +41,18 @@ angular.module('sven')
       
     };
   })
+  .filter('truncate', function(){
+    return function truncate(text, maxLength, delimiter, overflow) {
+      delimiter = delimiter || "...";
+      overflow = overflow || false;
+      var ret = text;
+      if (ret.length > maxLength) {
+        var breakpoint = overflow ? maxLength + ret.substr(maxLength).indexOf(" ") : ret.substr(0, maxLength).lastIndexOf(" ");
+        ret = ret.substr(0, breakpoint) + delimiter;
+      }
+      return ret;
+    }
+  })
   // convert tsv strings into well formatted javascript objects
   .filter('tsv', function() {
     return function(input) {

@@ -122,7 +122,7 @@
                       network of tags
                     </a>
                   </li>
-                  <li role="presentation" class="{{currentCtrl == 'timeline' ?'active':''}}">
+                  <li role="presentation" class="{{currentCtrl == 'stream' ?'active':''}}">
                     <a ng-href="#/corpus/{{corpus.id}}/timeline{{getLocationParams()}}">
                       concepts timeline
                     </a>
@@ -295,6 +295,7 @@
     <script src="{{STATIC_URL}}/js/directives/timeline.js"></script>
     <script src="{{STATIC_URL}}/js/directives/annotator.js"></script>
     <script src="{{STATIC_URL}}/js/directives/sigma.js"></script>
+    <script src="{{STATIC_URL}}/js/directives/stream.js"></script>
     <!-- script src="{{STATIC_URL}}/js/controllers/main.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/about.js"></script>
     <script src="{{STATIC_URL}}/js/controllers/documents.js"></script>

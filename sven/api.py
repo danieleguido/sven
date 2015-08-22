@@ -1034,6 +1034,8 @@ def stream_corpus_concepts(request, corpus_pk):
         select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
       ).values('G').annotate(distribution=Count('id'),date=Max('date'))
   
+  #get number of groups
+
   for g in groups_available:
 
     # for each group, get the list of top concept according to the current orderby.
@@ -1056,14 +1058,7 @@ def stream_corpus_concepts(request, corpus_pk):
 
     g['values'] = [d for d in groups]
 
-
-
-  # limit per 
-  # epoxy.add('cols', [g for g in groups])
-
-
-  epoxy.add('groups', [g for g in groups_available])
-
+  epoxy.add('objects', [g for g in groups_available])
   return epoxy.json()
 
 

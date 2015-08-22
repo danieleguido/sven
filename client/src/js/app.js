@@ -74,12 +74,12 @@ angular
         templateUrl: SVEN_STATIC_URL + '/views/stream.html',
         controller: 'StreamCtrl',
         resolve: {
-          concepts: function(ConceptsFactory, $route) { // @todo:  CorpusVisFactory
+          concepts: function(CorpusVisFactory, $route) { // @todo:  CorpusVisFactory
             // http://localhost:8000/api/corpus/1/concept?filters=%7B%7D&group_by=tm&limit=50&offset=0&order_by=%5B%22-tf%22%5D
-            return ConceptsFactory.get({
+            return CorpusVisFactory.get({
               id: $route.current.params.id,
-              vis:   'graph',
-              model: 'tags'
+              vis:   'stream',
+              model: 'concept'
             }).$promise;
           }
         }
