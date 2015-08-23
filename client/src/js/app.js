@@ -97,6 +97,19 @@ angular
           }
         }
       })
+      .when('/corpus/:id/coocc', {
+        templateUrl: SVEN_STATIC_URL + '/views/network.html',
+        controller: 'NetworkCtrl',
+        resolve: {
+          graph: function(CorpusVisFactory, $route) {
+            return CorpusVisFactory.get({
+              id: $route.current.params.id,
+              vis:   'network',
+              model: 'concept'
+            }).$promise;
+          }
+        }
+      })
       .when('/corpus/:id/documents', {
         templateUrl: SVEN_STATIC_URL + '/views/documents.html',
         controller: 'CorpusDocumentsCtrl',

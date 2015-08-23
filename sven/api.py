@@ -1062,6 +1062,84 @@ def stream_corpus_concepts(request, corpus_pk):
   return epoxy.json()
 
 
+
+def network_corpus_concepts(request, corpus_pk):
+  '''
+
+  '''
+  import networkx as nx
+  from networkx.readwrite import json_graph
+  from networkx.algorithms import bipartite
+
+  epoxy = Epoxy(request)
+
+  #  get the list of concepts along with their connections
+  segments = Document_Segment.objects.filter(
+    document__corpus__pk=corpus_pk,
+    segment__status='IN'
+  ).filter(
+    **epoxy.filters
+  ).values(
+    'segment__cluster',
+    'segment__content',
+    'document__pk',
+    'tf'
+  ).order_by('segment__cluster')[:1000]
+
+  G = nx.Graph()
+
+  clusters = {}
+  edges    = {}
+
+  for s in segments:
+    source = s['segment__cluster']
+    target = s['document__pk']
+
+    G.add_node(target, bipartite=0)
+    G.add_node(source, bipartite=1)
+
+    G.node[source]['name'] = s['segment__cluster']
+
+    if G.has_edge(source, target):
+      G[source][target]['weight'] += 1
+    else: # new edge. add with weight=1
+      G.add_edge(source, target, weight=1)
+
+  segments = [];
+
+  def jaccard(G, u, v):
+    unbrs = set(G[u])
+    vnbrs = set(G[v])
+    return 1-float(len(unbrs & vnbrs)) / len(unbrs | vnbrs)
+
+  bottom_nodes, top_nodes = bipartite.sets(G)
+  G1 = bipartite.generic_weighted_projected_graph(G, top_nodes, weight_function=jaccard)
+
+  #   if s['segment__cluster'] not in clusters:
+  #     clusters[s['segment__cluster']] = []
+  #   clusters[s['segment__cluster']].append(s)
+
+  # # clean segments
+  # segments = [];
+
+  # # get edge index
+  # for k, collection in clusters.iteritems():
+  #   for cluster in collection:
+  epoxy.meta('total_count', {
+    'nodes': G1.number_of_nodes(),
+    'edges': G1.number_of_edges()
+  })
+  j = json_graph.node_link_data (G1)
+  epoxy.add('edges', j['links'])
+  epoxy.add('nodes', j['nodes'])
+
+  # calculate cooccurrences
+
+
+  return epoxy.json()
+
+
+
 def import_corpus_concepts(request, corpus_pk):
   '''
   Given a valid csv, change docuemnt values accordingly.
