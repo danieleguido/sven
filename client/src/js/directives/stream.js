@@ -86,6 +86,7 @@ angular.module('sven')
         
         // resize svg crop rect to match values
         s.svg.attr("height", s.spacing.headerheight + 50 * s.spacing.rowheight)
+        s.svg.attr("width", s.spacing.gutter + values.length * (s.spacing.colwidth + s.spacing.gutter))
       }
 
       s.draw = function() {
@@ -337,8 +338,8 @@ angular.module('sven')
         console.log('   ', 'resize')
         clearTimeout(s.timers.resize);
         s.timers.resize = setTimeout(function() {
-          s.width = s.viewer[0][0].clientWidth;
-          s.draw();
+          // s.width = s.viewer[0][0].clientWidth;
+          // s.draw();
         }, 200);
       }
     };
@@ -362,7 +363,7 @@ angular.module('sven')
           $log.log('::stream n. nodes ', values.length);
           s.load(values);
           // computate min and max
-          s.resize()
+          s.draw()
         });
 
         // listener on resize
