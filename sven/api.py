@@ -1073,6 +1073,7 @@ def network_corpus_concepts(request, corpus_pk):
 
   epoxy = Epoxy(request)
 
+
   #  get the list of concepts along with their connections
   segments = Document_Segment.objects.filter(
     document__corpus__pk=corpus_pk,
@@ -1084,7 +1085,7 @@ def network_corpus_concepts(request, corpus_pk):
     'segment__content',
     'document__pk',
     'tf'
-  ).order_by('segment__cluster')[:1000]
+  ).order_by('-tf')[:1000]
 
   G = nx.Graph()
 
@@ -1112,7 +1113,8 @@ def network_corpus_concepts(request, corpus_pk):
     vnbrs = set(G[v])
     return 1-float(len(unbrs & vnbrs)) / len(unbrs | vnbrs)
 
-  bottom_nodes, top_nodes = bipartite.sets(G)
+  # bottom_nodes, top_nodes = bipartite.sets(G)
+  top_nodes = set(n for n,d in G.nodes(data=True) if d['bipartite']==1)
   G1 = bipartite.generic_weighted_projected_graph(G, top_nodes, weight_function=jaccard)
 
   #   if s['segment__cluster'] not in clusters:
