@@ -30,7 +30,7 @@ angular.module('sven')
 
       s.viewer = d3.select('#stream .viewer');
       
-      s.width = s.viewer[0][0].clientWidth;
+      // s.width = s.viewer[0][0].clientWidth;
 
       s.svg    = s.viewer
                   .append("svg")
@@ -112,7 +112,7 @@ angular.module('sven')
 
       s.drawBounds = function() {
         console.log('   ', 'drawBounds', s.width)
-        s.svg.attr('width', s.width);
+        // s.svg.attr('width', s.width);
       }
 
       s.drawPlayground = function() {
