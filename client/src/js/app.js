@@ -105,7 +105,7 @@ angular
             return CorpusVisFactory.get({
               id: $route.current.params.id,
               vis:   'network',
-              model: 'concept'
+              model: $route.current.params.between == 'document'? 'document': 'concept'
             }).$promise;
           }
         }

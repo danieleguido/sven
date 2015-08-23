@@ -1063,7 +1063,7 @@ def stream_corpus_concepts(request, corpus_pk):
 
 
 
-def network_corpus_concepts(request, corpus_pk):
+def network_corpus(request, corpus_pk, model):
   '''
 
   '''
@@ -1073,6 +1073,7 @@ def network_corpus_concepts(request, corpus_pk):
 
   epoxy = Epoxy(request)
 
+  BIPARTITE_SET = 1 if model == 'concept' else 0
 
   #  get the list of concepts along with their connections
   segments = Document_Segment.objects.filter(
@@ -1084,6 +1085,7 @@ def network_corpus_concepts(request, corpus_pk):
     'segment__cluster',
     'segment__content',
     'document__pk',
+    'document__name',
     'tf'
   ).order_by('-tf')[:1000]
 
@@ -1099,7 +1101,10 @@ def network_corpus_concepts(request, corpus_pk):
     G.add_node(target, bipartite=0)
     G.add_node(source, bipartite=1)
 
-    G.node[source]['name'] = s['segment__cluster']
+    if BIPARTITE_SET == 1:
+      G.node[source]['name'] = s['segment__cluster']
+    else :
+      G.node[target]['name'] = s['document__name']
 
     if G.has_edge(source, target):
       G[source][target]['weight'] += 1
@@ -1114,7 +1119,7 @@ def network_corpus_concepts(request, corpus_pk):
     return 1-float(len(unbrs & vnbrs)) / len(unbrs | vnbrs)
 
   # bottom_nodes, top_nodes = bipartite.sets(G)
-  top_nodes = set(n for n,d in G.nodes(data=True) if d['bipartite']==1)
+  top_nodes = set(n for n,d in G.nodes(data=True) if d['bipartite']== BIPARTITE_SET)
   G1 = bipartite.generic_weighted_projected_graph(G, top_nodes, weight_function=jaccard)
 
   #   if s['segment__cluster'] not in clusters:
@@ -1139,6 +1144,7 @@ def network_corpus_concepts(request, corpus_pk):
 
 
   return epoxy.json()
+
 
 
 
