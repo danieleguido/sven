@@ -349,32 +349,90 @@ angular.module('sven')
       $scope.$broadcast(API_PARAMS_CHANGED);
     };
 
+    $scope.changeDateFilter = function (keys, filters) {
+      $log.log('CoreCtrl -~changeDateFilter()', keys, filters);
+      var t = {
+        start: 'date__gte',
+        end: 'date__lte'
+      }
+      // set filters
+      for(var i in keys) {
+        $scope.filters[t[keys[i]]] = filters[i];
+      } 
+      // reload locations
+      $location.search(angular.extend(angular.copy($location.search()), {
+        start: filters[0],
+        end: filters[1]
+      }));
+
+
+    }
+
+    var t = {
+        start: 'date__gte',
+        end: 'date__lte'
+      },
+      _t = {
+        date__gte: 'start',
+        date__lte: 'end'
+      };
 
     $scope.changeFilter = function(key, filter, options) {
-      $log.log('CoreCtrl -~changeFilter()', key, filter)
+      $log.log('CoreCtrl -~changeFilter()', key, filter);
+      
+
       if(typeof key == 'string') {
-        $scope.filters[key] = filter;
+        if(t[key])
+          $scope.filters[t[key]] = filter;
+        else
+          $scope.filters[key] = filter;
       } else {
         for(var i in key) {
-          $scope.filters[key[i]] = filter[i];
+        // console.log(t[key], key[i])
+          if(t[key[i]])
+            $scope.filters[t[key[i]]] = filter[i];
+          else
+            $scope.filters[key[i]] = filter[i];
         } 
       }
       if(options && options.path) {
         $log.debug('CoreCtrl -~changeFilter() redirect', options.path, $scope.corpus, $scope.getLocationParams())
         $location.path(options.path).search($scope.getParams())
       } else {
-        $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
+        $location.search($scope.getTranslatedFilters());
       }
       //$scope.$broadcast(API_PARAMS_CHANGED);
     };
 
+    // load from search params
+    $scope.setFilters = function(filters) {
+      for(var i in filters) {
+        if(t[i])
+          $scope.filters[t[i]] = filters[i];
+        else
+          $scope.filters[t[i]] = filters[i];
+      }
+    }
+
+    $scope.getTranslatedFilters = function() {
+      var _filters = angular.copy($scope.filters),
+          filters = {};
+      for(var i in _filters) {
+        if(_t[i])
+          filters[_t[i]] = _filters[i]
+        else
+          filters[i] = _filters[i]
+      }
+      return filters;
+    } 
+
     $scope.removeFilter = function(key, filter) {
+      $log.log('CoreCtrl -> removeFilter', key)
       if($scope.filters[key] == filter) {
         delete $scope.filters[key];
         delete $scope.filtersItems[key];
       };
-      $location.search('filters', JSON.stringify(angular.copy($scope.filters)));
-      //$scope.$broadcast(API_PARAMS_CHANGED);
+      $location.search($scope.getTranslatedFilters());
     };
 
     $scope.removeSearch = function() {
@@ -410,7 +468,7 @@ angular.module('sven')
       var params = angular.extend({
         offset: $scope.limit * ($scope.page - 1),
         limit: $scope.limit,
-        filters: JSON.stringify(angular.copy($scope.filters)),
+        filters: JSON.stringify($scope.filters),
         order_by: JSON.stringify($scope.orderBy.choice.value.split('|'))
       }, params);
       if($scope.search.trim().length)
@@ -421,8 +479,11 @@ angular.module('sven')
     $scope.getLocationParams = function() {
 
       var params = [];
-      if(!angular.equals({}, $scope.filters))
-        params.push('filters=' + encodeURIComponent(JSON.stringify($scope.filters)));
+      if(!angular.equals({}, $scope.filters)) {
+        var filters = angular.copy($scope.getTranslatedFilters());
+        for(var i in filters)
+          params.push(i + '=' + encodeURIComponent(filters[i]));
+      }
       if($scope.search && $scope.search.trim().length)
         params.push('search=' + encodeURIComponent($scope.search));
       if(params.length)
@@ -532,17 +593,20 @@ angular.module('sven')
     var startupParams = $location.search();
     if(startupParams.search)
       $scope.search = startupParams.search;
-    if(startupParams.filters) {
-      var filters = {};
-      try{
-        var filters = JSON.parse(startupParams.filters);
-        $scope.filters = filters;
-      } catch(e) {
-        $log.error(e);
-      }
-      $log.debug("CoreCtrl loading startup filters", filters);
+    // set filters qs real filters
+    $scope.setFilters(startupParams);
+
+    // if(startupParams.filters) {
+    //   var filters = {};
+    //   try{
+    //     var filters = JSON.parse(startupParams.filters);
+    //     $scope.filters = filters;
+    //   } catch(e) {
+    //     $log.error(e);
+    //   }
+    //   $log.debug("CoreCtrl loading startup filters", filters);
       
-    }
+    // }
     
     $scope.$on('$routeChangeSuccess', function(e, r) {
       $log.log('CoreCtrl @routeChangeSuccess', r.$$route.controller);

@@ -91,20 +91,13 @@ angular.module('sven')
 
       s.draw = function() {
         console.log('   ', 'draw', s.width)
-        // draw boundaries
-        s.drawBounds();
-        
         // draw elements playground
         s.drawPlayground();
 
         //
         s.drawLines()
-
         s.drawRows();
-        
         s.drawlabels();
-
-        
       }
 
       
@@ -119,15 +112,24 @@ angular.module('sven')
         
         // load cols data
         s.cols = s.svg.selectAll('.col')
-            .data(s.values, function(d, i) {
+            .data(s.values, function (d, i) {
+              console.log('key', d.G)
               return d.G; // the group
             })
 
+        s.cols.exit()
+          .remove()
         // create columns
         var _cols = s.cols.enter()
           .append("g")
             .attr('class', 'col')
             .attr({
+              transform: function (d, i) {
+                return 'translate(' + (s.spacing.gutter +(i * (s.spacing.colwidth + s.spacing.gutter))) + ', 0)';    
+              }
+            })
+
+        s.cols.attr({
               transform: function (d, i) {
                 return 'translate(' + (s.spacing.gutter +(i * (s.spacing.colwidth + s.spacing.gutter))) + ', 0)';    
               }
@@ -189,7 +191,14 @@ angular.module('sven')
               return d.segment__cluster
             }); // discontinuous line
 
+        s.lines.attr('data-g', function (d) {
+                return d.segment__cluster
+              }); 
 
+        s.lines
+          .exit()
+            .remove()
+        
         _lines
           .append('path')
             .attr('class', 'line');

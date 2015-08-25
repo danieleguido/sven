@@ -1029,8 +1029,17 @@ def stream_corpus_concepts(request, corpus_pk):
   draw stream (based on group stress.)
   '''
   epoxy = Epoxy(request)
+  #remap filters
+  filters = {}
+  for key,value in epoxy.filters.iteritems():
+    if key.startswith('tags__'):
+      filters['document__%s' % key] = value
+    elif key.startswith('segments__'):
+      filters[key.replace('segments__', 'document__segments__')] = value
+    else:
+      filters['document__%s' % key] = value
   # get group availability with current filters.
-  groups_available = Document.objects.exclude(date__isnull=True).filter(corpus__pk=corpus_pk).extra(
+  groups_available = Document.objects.exclude(date__isnull=True).filter(corpus__pk=corpus_pk).filter(**epoxy.filters).extra(
         select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
       ).values('G').annotate(distribution=Count('id'),date=Max('date'))
   
@@ -1044,11 +1053,11 @@ def stream_corpus_concepts(request, corpus_pk):
       document__corpus__pk=corpus_pk,
       segment__status='IN'
     ).filter(
-      **epoxy.filters
+      **filters
     ).extra(
       select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
     ).order_by(
-      *epoxy.order_by
+      '-tf'
     ).values('G', 'segment__cluster').annotate(
       distribution=Count('document', distinct=True),
       contents = GroupConcat('segment__content', separator='||'),
@@ -1075,12 +1084,23 @@ def network_corpus(request, corpus_pk, model):
 
   BIPARTITE_SET = 1 if model == 'concept' else 0
 
+  #remap filters
+  filters = {}
+  for key,value in epoxy.filters.iteritems():
+    if key.startswith('tags__'):
+      filters['document__%s' % key] = value
+    elif key.startswith('segments__'):
+      filters[key.replace('segments__', 'document__segments__')] = value
+    else:
+      filters['document__%s' % key] = value
+
+
   #  get the list of concepts along with their connections
   segments = Document_Segment.objects.filter(
     document__corpus__pk=corpus_pk,
     segment__status='IN'
   ).filter(
-    **epoxy.filters
+    **filters
   ).values(
     'segment__cluster',
     'segment__content',

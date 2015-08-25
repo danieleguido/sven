@@ -96,8 +96,8 @@
               //console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               scope.onbrush({
                 keys:[
-                  'date__gte',
-                  'date__lte',
+                  'start',
+                  'end',
                 ],
                 filters: [
                   d3.time.format("%Y-%m-%d")(extent[0]),

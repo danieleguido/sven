@@ -73,6 +73,7 @@ angular
       .when('/corpus/:id/timeline', {
         templateUrl: SVEN_STATIC_URL + '/views/stream.html',
         controller: 'StreamCtrl',
+        reloadOnSearch: false,
         resolve: {
           concepts: function(CorpusVisFactory, $route) { // @todo:  CorpusVisFactory
             // http://localhost:8000/api/corpus/1/concept?filters=%7B%7D&group_by=tm&limit=50&offset=0&order_by=%5B%22-tf%22%5D
@@ -87,6 +88,7 @@ angular
       .when('/corpus/:id/network', {
         templateUrl: SVEN_STATIC_URL + '/views/network.html',
         controller: 'NetworkCtrl',
+
         resolve: {
           graph: function(CorpusVisFactory, $route) {
             return CorpusVisFactory.get({
@@ -100,6 +102,7 @@ angular
       .when('/corpus/:id/coocc', {
         templateUrl: SVEN_STATIC_URL + '/views/network.html',
         controller: 'NetworkCtrl',
+        reloadOnSearch: false,
         resolve: {
           graph: function(CorpusVisFactory, $route) {
             return CorpusVisFactory.get({

@@ -99,8 +99,11 @@ angular.module('sven')
           if(!graph || !graph.nodes)
             return;
           stop();
-          // random positions
           
+          // filter edges
+          graph.edges = graph.edges.filter(function (d) {
+            return d.weight > 0
+          });
           
           // $log.log('::sigma --> brand new nodes', graph.nodes.map(function(d) {
           //   return d.id
@@ -110,8 +113,10 @@ angular.module('sven')
           si.graph.clear().read(graph);
           
           // exit
-          if(si.graph.nodes().length == 0)
+          if(si.graph.nodes().length == 0) {
+            si.refresh();
             return;
+          }
           // calculate a default duration 
           layoutDuration = Math.max(Math.min(4* si.graph.nodes().length * si.graph.edges().length, maxlayoutDuration),minlayoutDuration)
           $log.log('::sigma n. nodes', si.graph.nodes().length, ' n. edges', si.graph.edges().length, 'runninn layout atlas for', layoutDuration/1000, 'seconds')
@@ -122,12 +127,14 @@ angular.module('sven')
           //     authority = {min: -Infinity, max: Infinity};
           
           // $log.log('::sigma authority', authority)
+
+
           // local Degree for size
           si.graph.nodes().forEach(function(n) {
             // if(authority.max > 0)
             //   n.size = 1 + (stats[n.id].authority/(authority.max-authority.min))*6
             // else
-            console.log(n)
+            // console.log(n)
             n.x = Math.random()*50;
             n.y = Math.random()*50;
             n.color = colors[n.type] || "#353535"
