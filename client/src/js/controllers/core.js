@@ -397,9 +397,11 @@ angular.module('sven')
       }
       if(options && options.path) {
         $log.debug('CoreCtrl -~changeFilter() redirect', options.path, $scope.corpus, $scope.getLocationParams())
-        $location.path(options.path).search($scope.getParams())
+        $location.path(options.path).search(angular.extend(angular.copy($location.search()),
+          $scope.getTranslatedFilters()))
       } else {
-        $location.search($scope.getTranslatedFilters());
+        $location.search(angular.extend(angular.copy($location.search()),
+          $scope.getTranslatedFilters()))
       }
       //$scope.$broadcast(API_PARAMS_CHANGED);
     };
