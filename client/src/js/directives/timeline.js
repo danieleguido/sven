@@ -14,9 +14,10 @@
       restrict: 'EA',
       scope: {
         values: '=',
+        filters : '=',
         onbrush: '&'
       },
-      template: '<div class="date left"></div><div class="date right"></div><div class="mouse tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="viewer"></div>',
+      template: '<div class="brushdate left "></div><div class="brushdate right "></div><div class="date left "></div><div class="date right "></div><div class="mouse tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="viewer"></div>',
       link : function(scope, element, attrs) {
         
         var δ = { css:{}, ƒ:{}};
@@ -37,12 +38,16 @@
         δ.ƒ.y = d3.scale.sqrt()
             .range([30, 0]);
         
+
+
         δ.init = function() {
           δ.viewer      = d3.select('#timeline .viewer');
           δ.tooltip     = d3.select('#timeline .tooltip');
           δ.tooltipText = d3.select('#timeline .tooltip-inner');
           δ.dateLeft    = d3.select('#timeline .date.left');
           δ.dateRight   = d3.select('#timeline .date.right');
+          δ.brushDateLeft    = d3.select('#timeline .brushdate.left');
+          δ.brushDateRight   = d3.select('#timeline .brushdate.right');
               
           δ.brush       = d3.svg.brush().x(δ.ƒ.x);
           
@@ -69,14 +74,16 @@
               .attr("class", "context")
               .attr("transform", "translate(" + δ.padding.v + "," + δ.padding.h/2 + ")"),                
           
-          δ.context.append("g")
+          δ.gBrush = δ.context.append("g")
               .attr("class", "x brush")
-              .call(δ.brush)
-                .selectAll("rect")
+              .call(δ.brush);
+
+           δ.gBrush.selectAll("rect")
                   .attr({
                     y: 0,
                     height: δ.dimensions.h - δ.padding.h
                   });
+
           
           δ.area = d3.svg.area()
               //.interpolate("monotone")
@@ -89,10 +96,22 @@
               .y1(30);
           
           δ.brush.on("brush", function() {
-            var extent = δ.brush.extent()
+            var extent = δ.brush.extent();
+            // commento
+            console.log('::timeline ', extent[0])
+            if(typeof extent[0] == 'object') {
+              δ.brushDateLeft.style({
+                left: δ.ƒ.x(extent[0]) + 50
+              }).text(d3.time.format("%B %d, %Y")(extent[0]));
+              δ.brushDateRight.style({
+                left: δ.ƒ.x(extent[1]) + 110 + 50
+              }).text(d3.time.format("%B %d, %Y")(extent[1]));
+            }
+
             clearTimeout(δ.brushTimer);
             δ.brushTimer = setTimeout(function(){
-              console.log(d3.time.format("%Y-%m-%d")(extent[0]))
+              console.log(':: timeline', extent)
+              // console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               //console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               scope.onbrush({
                 keys:[
@@ -100,12 +119,12 @@
                   'end',
                 ],
                 filters: [
-                  d3.time.format("%Y-%m-%d")(extent[0]),
-                  d3.time.format("%Y-%m-%d")(extent[1])
+                  d3.time.format("%Y-%m-%d")(new Date(extent[0])),
+                  d3.time.format("%Y-%m-%d")(new Date(extent[1]))
                 ]
               });
               scope.$apply();
-            }, 200)
+            }, 450)
             
             //console.log("brushing babe", δ.brush.extent())
           });
@@ -120,6 +139,7 @@
             δ.pointer.style({'opacity': 0})
           });
           
+
           δ.timeFormat = d3.time.format("%B %d, %Y");
           
           δ.svg.on("mousemove", function(){
@@ -145,8 +165,16 @@
         };
         
         
+        δ.extent = function(extension) {
+          δ.gBrush.call(δ.brush.extent(extension));
+          δ.gBrush.call(δ.brush.event);
+        }
+        
         δ.draw = function() {
           clearTimeout(δ.resizeTimer);
+          if(!δ.viewer)
+            return;
+
           δ.availableWidth = δ.viewer[0][0].clientWidth;
           var parseDate = d3.time.format("%Y-%m-%d").parse;
           var dataset = angular.copy(scope.values).map(function (d) {
@@ -165,8 +193,14 @@
               .text(δ.timeFormat(new Date(timeExtent[1])));
           
           
-          $log.log('::timeline -> draw() w:', δ.availableWidth, ' r:', ratio);
+          $log.log('::timeline -> draw() w:', δ.availableWidth, ' r:', ratio, scope.filters);
           
+          // transform filters in other filters.
+          var extension = [
+            scope.filters.from? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): timeExtent[0],
+            scope.filters.to? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): timeExtent[1]
+          ]
+
           //
           δ.svg.attr("width", δ.availableWidth)
           δ.ƒ.x = d3.time.scale()
@@ -175,7 +209,9 @@
           δ.ƒ.x.domain(timeExtent);
           δ.ƒ.y.domain(d3.extent(dataset, function(d) {return d.weight}));
           
-          δ.brush.x(δ.ƒ.x);
+          δ.brush.x(δ.ƒ.x).extent(timeExtent);
+          
+          δ.extent(extension)
           δ.stream
             .attr("d", δ.area(dataset));
         };
@@ -193,6 +229,14 @@
           
         });
         
+
+        scope.$watch('filters', function (filters) {
+          if(filters) {
+            $log.log('::timeline filters:',filters);
+            δ.draw();
+          }
+        })
+
         angular.element($window).bind('resize', function() {
           clearTimeout(δ.resizeTimer);
           δ.resizeTimer = setTimeout(δ.draw, 200);

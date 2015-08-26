@@ -886,7 +886,8 @@ text.label {
   bottom: 50px;
   background: transparent;
   color: white;
-  text-align: center
+  text-align: center;
+  font-size:11px;
 }
 
 #timeline .date{
@@ -902,6 +903,26 @@ text.label {
 }
 
 #timeline .date.right{
+  right: 30px;
+  text-align: left;
+}
+
+#timeline .brushdate{
+  /*display: none;*/
+  position: absolute;
+  width: 110px;
+  bottom: 30px;
+  font-size: 11px;
+  font-weight: bold
+  /*background: rgba(216,216,216, 1);*/
+}
+
+#timeline .brushdate.left{
+  left: 30px;
+  text-align: right;
+}
+
+#timeline .brushdate.right{
   right: 30px;
   text-align: left;
 }

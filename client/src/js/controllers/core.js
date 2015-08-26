@@ -565,14 +565,13 @@ angular.module('sven')
     */
     $scope.$on('$routeUpdate', function(next, current) { 
       $log.debug('coreCtrl', '@routeUpdate', next, current);
-      $scope.search = current.params.search || '';
-      if(current.params.filters) {
-        try{
-          $scope.filters = JSON.parse(current.params.filters)
-        } catch(e) {
-          $log.error(e)
-        }
-      }
+      
+      var startupParams = $location.search();
+      if(startupParams.search)
+        $scope.search = startupParams.search;
+      // set filters qs real filters
+      $scope.setFilters(startupParams);
+
       
       $scope.$broadcast(API_PARAMS_CHANGED);
     });
