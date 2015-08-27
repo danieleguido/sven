@@ -96,9 +96,10 @@
     background:  #eee;
     bottom: 0px;
     right: 0px;
-    left: 270px;
+    /*left: 270px;*/
+    left: 0px;
     height: 50px;
-    
+    z-index: 1001;
     -webkit-transition: left 0.38s ease-in-out;
     -moz-transition: left 0.38s ease-in-out;
     -o-transition: left 0.38s ease-in-out;

@@ -564,7 +564,7 @@ angular.module('sven')
       handle reoute update, e.g on search
     */
     $scope.$on('$routeUpdate', function(next, current) { 
-      $log.debug('coreCtrl', '@routeUpdate', next, current);
+      $log.debug('coreCtrl', '@routeUpdate (cfr timeline)');
       
       var startupParams = $location.search();
       if(startupParams.search)

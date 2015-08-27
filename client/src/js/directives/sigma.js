@@ -478,6 +478,8 @@ angular.module('sven')
           var color = "#d4d4d4",
               prefix = settings('prefix') || '';
 
+          if(edge.weight == 0)
+            return;
           context.strokeStyle = edge.discard? '#d4d4d4' : scale(edge.weight||1)//color;
           context.lineWidth = 1//edge.discard? 1: 2;//edge[prefix + 'weight'] || edge.weight || 1;
           context.beginPath();

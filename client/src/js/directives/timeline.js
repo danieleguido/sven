@@ -98,7 +98,8 @@
           δ.brush.on("brush", function() {
             var extent = δ.brush.extent();
             // commento
-            console.log('::timeline ', extent[0])
+            // console.log('::timeline @brush', new Date(extent[0]))
+             // d3.time.format("%B %d, %Y")(extent[0]))
             if(typeof extent[0] == 'object') {
               δ.brushDateLeft.style({
                 left: δ.ƒ.x(extent[0]) + 50
@@ -110,7 +111,7 @@
 
             clearTimeout(δ.brushTimer);
             δ.brushTimer = setTimeout(function(){
-              console.log(':: timeline', extent)
+              // console.log('::timeline @brush, timer end', extent)
               // console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               //console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               scope.onbrush({
@@ -197,8 +198,8 @@
           
           // transform filters in other filters.
           var extension = [
-            scope.filters.from? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): timeExtent[0],
-            scope.filters.to? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): timeExtent[1]
+            scope.filters.date__gte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): timeExtent[0],
+            scope.filters.date__lte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): timeExtent[1]
           ]
 
           //
@@ -230,9 +231,10 @@
         });
         
 
-        scope.$watch('filters', function (filters) {
-          if(filters) {
-            $log.log('::timeline filters:',filters);
+        scope.$on(API_PARAMS_CHANGED, function (e) {
+          $log.log('::timeline filters:', scope.filters)
+          if(scope.filters) {
+            $log.log('::timeline -~draw()');
             δ.draw();
           }
         })
