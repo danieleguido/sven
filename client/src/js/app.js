@@ -117,7 +117,7 @@ angular
             return CorpusVisFactory.get(angular.extend({
               id: $route.current.params.id,
               vis:   'network',
-              model: $route.current.params.between
+              model: $route.current.params.between || 'concept'
             }, {
               filters: JSON.stringify(filters)
             })).$promise;
