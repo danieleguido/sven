@@ -105,11 +105,22 @@ angular
         reloadOnSearch: false,
         resolve: {
           graph: function(CorpusVisFactory, $route) {
-            return CorpusVisFactory.get({
+            // load filters, if any are provided.
+            console.log('netword',$route.current)
+            var filters = {};
+            if($route.current.params.start)
+              filters.date__gte=$route.current.params.start
+
+            if($route.current.params.end)
+              filters.date__lte=$route.current.params.end
+            
+            return CorpusVisFactory.get(angular.extend({
               id: $route.current.params.id,
               vis:   'network',
-              model: $route.current.params.between == 'document'? 'document': 'concept'
-            }).$promise;
+              model: $route.current.params.between
+            }, {
+              filters: JSON.stringify(filters)
+            })).$promise;
           }
         }
       })

@@ -29,6 +29,7 @@ angular.module('sven')
         toggleMenu: '&togglemenu'
       },
       link : function(scope, element, attrs) {
+
         /*
           Sigma addons
           ---
@@ -48,13 +49,21 @@ angular.module('sven')
         // Creating sigma instance
         var timeout,
             
+            tooltip = {
+              tip: $("#tooltip-sigma"),
+              el: $("#tooltip-sigma-label"),
+              isVisible: false,
+              text: ''
+            },
+
             IS_RUNNING     = 'RUNNING',
             IS_STOPPED     = 'STOPPED',
         
             layoutDuration    = 10000, // 10 sec default
             minlayoutDuration = 4500,
             maxlayoutDuration = 25000, 
-            
+            doNotDisplayEdges = false,
+
             labels = {
               nodes: {},
               sorting: [], 
@@ -160,11 +169,11 @@ angular.module('sven')
           $log.log('::sigma n. nodes', si.graph.nodes().length, ' n. edges', si.graph.edges().length, 'runninn layout atlas for', layoutDuration/1000, 'seconds')
           
           si.graph.nodes().forEach(function(n) {
-            
+            n.label = n.label || n.name;
             n.color = colors[n.type] || "#353535";
             n.x = n.x || Math.random()*50
             n.y = n.y || Math.random()*50
-            n.size = Math.sqrt(si.graph.degree(n.id));
+            n.size = Math.sqrt(si.graph.degree(n.id)) * 2;
           });
           if(graph.nodes.length > 50) {
             si.settings('labelThreshold', 3.5);
@@ -176,6 +185,8 @@ angular.module('sven')
             si.settings('labelSize', 'fixed');
           }
           
+          doNotDisplayEdges = si.graph.edges().length > 500;
+
           //if(!previousGraph)
             
           $log.log('::sigma force atlas starting in .35s')
@@ -245,6 +256,8 @@ angular.module('sven')
           });
           scope.lookup = true;
           scope.$apply();
+
+          // 
           // refresh the view
           si.refresh();
           //zoomout();
@@ -259,9 +272,51 @@ angular.module('sven')
           //   );
         });
         
-        si.bind('clickEdge', function(e) {
-          console.log('overEdge', e.data, e)
+
+        /*
+          listener overNode
+          on mouseover, draw the related tooltip in the correct position.
+          We use the renderer since the tooltip is relqtive to sigma parent element.
+        */
+        si.bind('overNode', function(e) {
+          // console.log(e.data.node, tooltip.el)
+          if(tooltip.timer)
+            clearTimeout(tooltip.timer);
+
+          tooltip.tip.css({
+            top: e.data.node['renderer1:y'],
+            left: e.data.node['renderer1:x']
+          });
+
+          if(tooltip.text != e.data.node.name)
+            tooltip.el.text(e.data.node.name);
+          if(!tooltip.isVisible) {
+            tooltip.el.css({
+              opacity: 1
+            });
+
+          }
+          tooltip.isVisible = true;
+
+        });
+
+        /*
+          listener outNode
+        */
+        si.bind('outNode', function(e) {
+          if(!tooltip.isVisible)
+            return;
+          if(tooltip.timer)
+            clearTimeout(tooltip.timer);
+          tooltip.timer = setTimeout(function() {
+            tooltip.el.css({
+              opacity: 0
+            });
+          }, 210);
+          
+          tooltip.isVisible = false;
         })
+
         
         si.bind('clickStage', function(e) {
           $('body').trigger('sigma.clickStage');
@@ -394,7 +449,7 @@ angular.module('sven')
           context.arc(
             node[prefix + 'x'],
             node[prefix + 'y'],
-            node[prefix + 'size'] + 2,
+            node[prefix + 'size'],
             0,
             Math.PI * 2,
             true
@@ -475,6 +530,9 @@ angular.module('sven')
           
         */
         sigma.canvas.edges.def = function(edge, source, target, context, settings) {
+
+          if(doNotDisplayEdges)
+            return;
           var color = "#d4d4d4",
               prefix = settings('prefix') || '';
 
@@ -531,12 +589,44 @@ angular.module('sven')
             Math.round(node[prefix + 'y'] + fontSize / 3)
           );
         };
-        
         /*
           sigma canvas labels HOVER renderer
           
         */
-        sigma.canvas.hovers.sdef = function(node, context, settings) {
+        sigma.canvas.hovers.def = function(node, context, settings) {
+          // console.log('hehe', context)
+          var prefix = settings('prefix') || '';
+          
+          context.fillStyle = node.discard? "rgba(0,0,0, .21)": "rgba(255,255,255, .81)";
+        
+          context.beginPath();
+          context.arc(
+            node[prefix + 'x'],
+            node[prefix + 'y'],
+            node[prefix + 'size']+3,
+            0,
+            Math.PI * 2,
+            true
+          );
+          
+          context.fill();
+          context.closePath();
+          
+          if( node[prefix + 'size']) {
+            context.fillStyle = "#151515";
+            context.beginPath();
+            context.arc(
+              node[prefix + 'x'],
+              node[prefix + 'y'],
+              3,
+              0,
+              Math.PI * 2,
+              true
+            );
+            context.fill();
+            context.closePath();
+          }
+          return;
           var x,
               y,
               w,

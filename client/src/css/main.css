@@ -503,6 +503,26 @@ li.spacer{
   display: none;
 }
 
+/*
+  Special pointer for sigma
+*/
+#tooltip-sigma{
+  pointer-events:none; 
+  position: absolute;
+  width: 200px;
+  margin-left: -100px;
+  background: transparent;
+  text-align: center;
+  /*transition: opacity .3s;*/
+}
+
+#tooltip-sigma-label{
+  position: relative;
+  background: #383838;
+  display: inline-block;
+  opacity: 0;
+}
+
 .nav{
   margin-bottom: 10px;
   border-bottom: 1px solid #eee;
@@ -1009,7 +1029,7 @@ text.label {
 }
 
 #milkyway.filtered {
-  top: 190px;
+  top: 245px;
 }
 
 #milkyway #playground{
