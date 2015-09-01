@@ -13,6 +13,11 @@ angular.module('sven')
     // $scope.graph = graph
     $scope.concepts = concepts.objects;
 
+    $scope.filter = function(concept) {
+      $log.info('StreamCtrl -> filter()', arguments);
+      $scope.changeFilter('concept', concept)
+    }
+
     $scope.$on(API_PARAMS_CHANGED, function(){
       $log.info('StreamCtrl @API_PARAMS_CHANGED', $scope.getParams());
       CorpusVisFactory.get(angular.extend({

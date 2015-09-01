@@ -8,7 +8,7 @@
  */
 angular.module('sven')
   .directive('stream', function($log, $window, $filter) {
-    var Stream = function() {
+    var Stream = function(options) {
       var s = this;
       // main vars
       s.svg;
@@ -27,6 +27,9 @@ angular.module('sven')
         headerheight: 54
       }
 
+      s.click = options.click || function() {
+        $log.warning('::stream configure click')
+      };
 
       s.viewer = d3.select('#stream .viewer');
       
@@ -40,7 +43,7 @@ angular.module('sven')
       s.$viewer = $('#stream .viewer')
         .on('mouseenter', '.row', function(e) {
           var _focus = e.currentTarget.__data__.segment__cluster;
-          console.log('data-id', e.currentTarget.__data__.segment__cluster, $('[data-g="'+ s.focus + '"]').length);
+          // $log.log('::stream mouseenter, data-id', e.currentTarget.__data__.segment__cluster, $('[data-g="'+ s.focus + '"]').length);
           if(s.previousfocus && s.previousfocus != s.focus) {
             $('.row[data-g="'+ s.previousfocus + '"]').attr('class', 'row')
             $('.row[data-g="'+ _focus + '"]').attr('class', 'row active')
@@ -57,6 +60,12 @@ angular.module('sven')
           $('.row[data-g="'+ s.previousfocus + '"]').attr('class', 'row');
           $('.lines[data-g="'+ s.previousfocus + '"]').attr('class', 'lines')
           s.previousfocus = undefined;
+        })
+        .on('click', '.row', function(e) {
+          $log.log('::stream', e.currentTarget.__data__.segment__cluster);
+          s.click({
+            concept: e.currentTarget.__data__.segment__cluster
+          })
         })
       // add special mask definitions
 
@@ -303,9 +312,10 @@ angular.module('sven')
       }
 
       s.drawlabels = function() {
+
         s.cols.selectAll('text.col-label')
           .text(function (d) {
-            return d.G
+            return d3.time.format("%B %d, %Y")(d3.time.format("%Y-%m-%d").parse(d.G))
           });
 
         s.rows.selectAll('text.row-label')
@@ -358,12 +368,15 @@ angular.module('sven')
       template: '<div class="mouse tooltip">...</div><div class="viewer"></div>',
       restrict: 'E',
       scope: {
-        values: '='
+        values: '=',
+        click: '&'
       },
       link: function postLink (scope, element, attrs) {
         $log.log('::stream init with values', scope.values.length);
 
-        var s = new Stream();
+        var s = new Stream({
+          click: scope.click
+        });
 
 
         scope.$watch('values', function (values) {
