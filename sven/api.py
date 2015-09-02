@@ -1106,7 +1106,8 @@ def network_corpus(request, corpus_pk, model):
     'segment__content',
     'document__pk',
     'document__name',
-    'tf'
+    'tf',
+    'tfidf'
   ).order_by('-tf')[:1000]
 
   G = nx.Graph()
@@ -1123,6 +1124,8 @@ def network_corpus(request, corpus_pk, model):
 
     if BIPARTITE_SET == 1:
       G.node[source]['name'] = s['segment__cluster']
+      G.node[source]['tf']   = max(0, s['tf'])
+      G.node[source]['tfidf']   = max(0, s['tfidf'])
     else :
       G.node[target]['name'] = s['document__name']
 

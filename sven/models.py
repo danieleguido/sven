@@ -907,7 +907,7 @@ class Document(models.Model):
       with transaction.atomic():
         tags = [t.strip() for t in filter(None,parts.group('tags').split('-'))]
         for tag in tags:
-          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag)
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag.lower())
           self.tags.add(t)
     # sven magic way to understand filename: from rights-policy-advocacy_EN_20140417_PC230 to doc
     

@@ -52,6 +52,10 @@ def distill(content="",language="en", stopwords=EN_STOPWORDS, query='NP'):
       text = pattern.nl.Text( pattern.nl.parse(content, lemmata=True))
     elif language == "fr":
       text = pattern.fr.Text( pattern.fr.parse(content, lemmata=True))
+    elif language == "it":
+      text = pattern.it.Text( pattern.it.parse(content, lemmata=True))
+    elif language == "es":
+      text = pattern.es.Text( pattern.es.parse(content, lemmata=True))
     else:
       text = pattern.en.Text( pattern.en.parse(content, lemmata=True))
   except UnicodeWarning, e:
