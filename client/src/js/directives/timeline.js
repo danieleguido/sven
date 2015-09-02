@@ -97,6 +97,9 @@
           
           δ.brush.on("brush", function() {
             var extent = δ.brush.extent();
+            console.log(extent[0], extent[1])
+            if(!extent[0] || !extent[1])
+              return;
             // commento
             // console.log('::timeline @brush', new Date(extent[0]))
              // d3.time.format("%B %d, %Y")(extent[0]))
@@ -114,6 +117,7 @@
               // console.log('::timeline @brush, timer end', extent)
               // console.log(d3.time.format("%Y-%m-%d")(extent[0]))
               //console.log(d3.time.format("%Y-%m-%d")(extent[0]))
+              
               scope.onbrush({
                 keys:[
                   'start',
@@ -167,6 +171,9 @@
         
         
         δ.extent = function(extension) {
+          
+          if(!extension[0] || !extension[1])
+            return;
           δ.gBrush.call(δ.brush.extent(extension));
           δ.gBrush.call(δ.brush.event);
         }
@@ -187,6 +194,8 @@
               }),
               ratio = dataset.length /  δ.availableWidth,
               timeExtent = d3.extent(dataset, function(d) {return d.t});
+          if(!timeExtent[0] || !timeExtent[1])
+            return;
           // set date from extent
           δ.dateLeft
               .text(δ.timeFormat(new Date(timeExtent[0])));
