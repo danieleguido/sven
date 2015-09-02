@@ -1,5 +1,21 @@
 'use strict';
 
+/*
+  Sigma addons
+  ---
+  thanks to @jacomyal (it need to be added before creating any new instance)
+*/
+sigma.classes.graph.addMethod('neighbors', function (nodeId) {
+  var k,
+      neighbors = {},
+      index     = this.allNeighborsIndex[nodeId] || {};
+
+  for (k in index)
+    neighbors[k] = this.nodesIndex[k];
+  neighbors[nodeId] = this.nodesIndex[nodeId];
+  return neighbors;
+});
+
 /**
  * @ngdoc overview
  * @name sven
@@ -30,21 +46,7 @@ angular.module('sven')
       },
       link : function(scope, element, attrs) {
 
-        /*
-          Sigma addons
-          ---
-          thanks to @jacomyal (it need to be added before creating any new instance)
-        */
-        sigma.classes.graph.addMethod('neighbors', function (nodeId) {
-          var k,
-              neighbors = {},
-              index     = this.allNeighborsIndex[nodeId] || {};
-
-          for (k in index)
-            neighbors[k] = this.nodesIndex[k];
-          neighbors[nodeId] = this.nodesIndex[nodeId];
-          return neighbors;
-        });
+        
         
         // Creating sigma instance
         var timeout,
@@ -169,11 +171,12 @@ angular.module('sven')
           $log.log('::sigma n. nodes', si.graph.nodes().length, ' n. edges', si.graph.edges().length, 'runninn layout atlas for', layoutDuration/1000, 'seconds')
           
           si.graph.nodes().forEach(function(n) {
+            console.log(n)
             n.label = n.label || n.name;
             n.color = colors[n.type] || "#353535";
             n.x = n.x || Math.random()*50
             n.y = n.y || Math.random()*50
-            n.size = Math.sqrt(si.graph.degree(n.id)) * 2;
+            n.size = n.tfidf || n.tf || Math.sqrt(si.graph.degree(n.id)) * 2;
           });
           if(graph.nodes.length > 50) {
             si.settings('labelThreshold', 3.5);

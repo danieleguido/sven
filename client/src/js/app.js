@@ -111,6 +111,9 @@ angular
             if($route.current.params.start)
               filters.date__gte=$route.current.params.start
 
+            if($route.current.params.tag)
+              filters.tags__slug=$route.current.params.tag
+
             if($route.current.params.end)
               filters.date__lte=$route.current.params.end
             

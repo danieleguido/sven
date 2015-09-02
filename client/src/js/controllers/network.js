@@ -11,6 +11,7 @@ angular.module('sven')
   .controller('NetworkCtrl', function ($scope, $log, $routeParams, $location, graph, CorpusVisFactory) {
     $log.debug('NetworkCtrl ready', $routeParams);
 
+    $scope.measure = 'tf';
     // watchers
     $scope.$watch('between', function (between) {
       if(between == 'document' || between == 'concept') {
@@ -48,5 +49,5 @@ angular.module('sven')
     };
 
     $scope.sync(graph);
-    $scope.between = $routeParams.between;
+    $scope.between = $routeParams.between || 'concept';
   })

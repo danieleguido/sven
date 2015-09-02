@@ -37,7 +37,13 @@
     <!-- Add your site or application content here -->
     {% block page%}
     {% verbatim %}
+
+
     <div id="wrapper" ng-cloak ng-controller="CoreCtrl">
+        <div id="uploading" ng-show="uploadingQueue">
+          <div id="uploading-rail" style="width:{{(uploadingLoaded / uploadingTotal)*100}}%">
+          </div>
+        </div>
         <!-- header -->
         <div id="header-wrapper" class="{{status}}">
           <div id="header">
@@ -103,7 +109,7 @@
                 <!-- div style="position: fixed; height: 100%; width: 200px; margin-left: -230px; background: #b1b2ab"> 
                    filtering by
                 </div -->
-                <h2>{{localCorpus.name||corpus.name}}</h2>
+                <h2>{{localCorpus.name||corpus.name}} <span ng-if="uploadingQueue" id="uploading-label">uploading: {{uploadingQueued - uploadingQueue}} / {{uploadingQueued}}</span></h2>
 
                 <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="{{currentCtrl == 'corpusdocuments' ?'active':''}}">

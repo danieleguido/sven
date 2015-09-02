@@ -371,12 +371,14 @@ angular.module('sven')
     var t = {
         start: 'date__gte',
         end: 'date__lte',
-        concept: 'segments__cluster'
+        concept: 'segments__cluster',
+        tag: 'tags__slug'
       },
       _t = {
         date__gte: 'start',
         date__lte: 'end',
-        segments__cluster: 'concept'
+        tags__slug: 'tag',
+        segments__cluster: 'concept',
       };
 
     $scope.changeFilter = function(key, filter, options) {
