@@ -1,15 +1,16 @@
 <div class="btn-toolbar" role="toolbar">
   <div class="btn-group">
-        <label class="btn btn-default" ng-model="between" btn-radio="'document'" uncheckable> documents</label>
-        <label class="btn btn-default" ng-model="between" btn-radio="'concept'" uncheckable>concepts</label>
-        <label class="btn btn-default" ng-model="between" btn-radio="'tag'" uncheckable>tags</label>
+        <label class="btn btn-default" ng-model="between" btn-radio="'document'" > documents</label>
+        <label class="btn btn-default" ng-model="between" btn-radio="'concept'" >concepts</label>
+        <label class="btn btn-default" ng-model="between" btn-radio="'tag'" >tags</label>
     </div>
-  <div class="btn-group">
+  <!-- <div class="btn-group" tooltip='change node size according to specific concept metrics'>
         <label class="btn btn-default" ng-model="measure" btn-radio="'tf'" uncheckable> frequence</label>
         <label class="btn btn-default" ng-model="measure" btn-radio="'tfidf'" uncheckable>specificity</label>
-    </div>
+        <label class="btn btn-default" ng-model="measure" btn-radio="'degree'" uncheckable>degree {{measure}}</label>
+    </div> -->
 </div>
 <div id="tooltip-sigma">
   <div id="tooltip-sigma-label" class="mouse tooltip"></div>
 </div>
-<div sigma graph="graph" id="milkyway" class="{{hasFilters()? 'filtered': ''}}"></div>
+<div sigma graph="graph" id="milkyway" measure="measure" class="{{hasFilters()? 'filtered': ''}}"></div>

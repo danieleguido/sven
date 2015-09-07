@@ -616,7 +616,7 @@ angular.module('sven')
     // }
     
     $scope.$on('$routeChangeSuccess', function(e, r) {
-      $log.log('CoreCtrl @routeChangeSuccess', r.$$route.controller);
+      $log.log('CoreCtrl @routeChangeSuccess - controller:', r.$$route.controller);
       $scope.currentCtrl = (r.$$route.controller || 'index').toLowerCase().replace('ctrl', '');
     });
     //$log.info('corpus id (cookies):', corpusId || 'cookie not set');

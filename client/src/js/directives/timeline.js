@@ -96,6 +96,8 @@
               .y1(30);
           
           δ.brush.on("brush", function() {
+            return; 
+            
             var extent = δ.brush.extent();
             console.log(extent[0], extent[1])
             if(!extent[0] || !extent[1])

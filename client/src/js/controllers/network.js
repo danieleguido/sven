@@ -13,11 +13,13 @@ angular.module('sven')
 
     $scope.measure = 'tf';
     // watchers
-    $scope.$watch('between', function (between) {
-      if(between == 'document' || between == 'concept') {
-        $location.search('between', between);
-        $log.info('NetworkCtrl @between', between);
+    $scope.$watch('between', function (between, previous) {
       
+      if(between == previous)
+        return;
+      if((between == 'document' || between == 'concept')) {
+        $location.search('between', between);
+        $log.info('NetworkCtrl @between - value:', between);
       }
     });
 
@@ -49,5 +51,8 @@ angular.module('sven')
     };
 
     $scope.sync(graph);
+    
+
     $scope.between = $routeParams.between || 'concept';
+    $scope.measure = $routeParams.measure || 'tf';
   })

@@ -41,6 +41,7 @@ angular.module('sven')
         graph: '=',
         tips: '=',
         controller: '=',
+        measure: '=', // node property name to be used in order to size the nodes
         redirect: '&',
         toggleMenu: '&togglemenu'
       },
@@ -138,6 +139,23 @@ angular.module('sven')
           if(v=='sigma')
             stop();
         });
+        // whenever nodesize changes, check that the graph exists, then resize nodes according to nodesize property name
+        scope.$watch('measure', function (v) {
+          $log.log('::sigma @measure changed', v);
+          if(si.graph.nodes().length == 0)
+            return;
+
+          stop();
+          si.graph.nodes().forEach(function (n) {
+            if(v == 'degree')
+              n.size = Math.sqrt(si.graph.degree(n.id)) * 2;
+            else
+              n.size = n[v] || 1
+          });
+          si.refresh();
+          play();
+        });
+
         
         /*
           Watch: current graph
@@ -171,12 +189,12 @@ angular.module('sven')
           $log.log('::sigma n. nodes', si.graph.nodes().length, ' n. edges', si.graph.edges().length, 'runninn layout atlas for', layoutDuration/1000, 'seconds')
           
           si.graph.nodes().forEach(function(n) {
-            console.log(n)
+            // console.log(n)
             n.label = n.label || n.name;
             n.color = colors[n.type] || "#353535";
             n.x = n.x || Math.random()*50
             n.y = n.y || Math.random()*50
-            n.size = n.tfidf || n.tf || Math.sqrt(si.graph.degree(n.id)) * 2;
+            n.size = n[scope.measure] ||  1;
           });
           if(graph.nodes.length > 50) {
             si.settings('labelThreshold', 3.5);
@@ -197,7 +215,7 @@ angular.module('sven')
             rescale();
             si.refresh();
             play(); 
-          }, 350)
+          }, 150)
           
         });
         

@@ -106,7 +106,7 @@ angular
         resolve: {
           graph: function(CorpusVisFactory, $route) {
             // load filters, if any are provided.
-            console.log('netword',$route.current)
+            // console.log('netword',$route.current.params)
             var filters = {};
             if($route.current.params.start)
               filters.date__gte=$route.current.params.start
