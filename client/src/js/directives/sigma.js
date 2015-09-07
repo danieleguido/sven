@@ -31,11 +31,13 @@ angular.module('sven')
       template: ''+
         '<div id="playground"></div>' +
         '<div id="tips" ng-if="tips.length > 0"><div>{{tips}}</div></div>' +
-        '<div id="commands">' +
-          '<div class="action {{status==\'RUNNING\'? \'bounceIn animated\': \'\'}}" ng-click="togglePlay()"><i class="fa fa-{{status==\'RUNNING\' ? \'stop\': \'play\'}}"></i></div>' +
-          '<div class="action" ng-click="rescale()"><i class="fa fa-dot-circle-o"></i></div>' +
-          '<div class="action" ng-click="zoomin()"><i class="fa fa-plus"></i></div>' +
-          '<div class="action" ng-click="zoomout()"><i class="fa fa-minus"></i></div>' +
+        '<div id="commands" class="{{isNeighborhoodVisible?\'lookup\':\'\'}}">' +
+          '<div tooltip-placement="left" tooltip="view all nodes" tooltip-append-to-body="true" class="action {{isNeighborhoodVisible? \'bounceIn animated\': \'bounceOut animated\'}}" ng-click="toggleLookup()"><i class="fa fa-eye"></i></div>' +
+          
+          '<div tooltip-placement="left" tooltip="play/stop layout algorithm" tooltip-append-to-body="true"  class="action {{status==\'RUNNING\'? \'bounceIn animated\': \'\'}}" ng-click="togglePlay()"><i class="fa fa-{{status==\'RUNNING\' ? \'stop\': \'play\'}}"></i></div>' +
+          '<div tooltip-placement="left" tooltip="zoom back to the whole network" tooltip-append-to-body="true"  class="action" ng-click="rescale()"><i class="fa fa-dot-circle-o"></i></div>' +
+          '<div tooltip-placement="left" tooltip="zoom in" tooltip-append-to-body="true" class="action" ng-click="zoomin()"><i class="fa fa-plus"></i></div>' +
+          '<div tooltip-placement="left" tooltip="zoom out" tooltip-append-to-body="true" class="action" ng-click="zoomout()"><i class="fa fa-minus"></i></div>' +
         '</div>',
       scope:{
         graph: '=',
@@ -47,8 +49,6 @@ angular.module('sven')
       },
       link : function(scope, element, attrs) {
 
-        
-        
         // Creating sigma instance
         var timeout,
             
@@ -66,6 +66,7 @@ angular.module('sven')
             minlayoutDuration = 4500,
             maxlayoutDuration = 25000, 
             doNotDisplayEdges = false,
+            
 
             labels = {
               nodes: {},
@@ -104,7 +105,7 @@ angular.module('sven')
         
         // set theinitial status
         scope.status = IS_STOPPED;
-        scope.lookup = false;
+        scope.isNeighborhoodVisible = false;
         
         // create the main camera and specify 'canvas'
         si.addRenderer({
@@ -214,7 +215,9 @@ angular.module('sven')
           timers.play = setTimeout(function(){
             rescale();
             si.refresh();
-            play(); 
+            play();
+            scope.status = IS_RUNNING
+            scope.$apply() 
           }, 150)
           
         });
@@ -264,7 +267,7 @@ angular.module('sven')
             id: e.data.node.id,
             captor: e.data.captor
           })
-          
+
           // calculate the node do keep
           var toKeep = si.graph.neighbors(e.data.node.id);
            
@@ -275,7 +278,7 @@ angular.module('sven')
           si.graph.edges().forEach(function (e) {
             e.discard = !(toKeep[e.source] && toKeep[e.target])
           });
-          scope.lookup = true;
+          scope.isNeighborhoodVisible = true;
           scope.$apply();
 
           // 
@@ -401,9 +404,9 @@ angular.module('sven')
           si.graph.edges().forEach(function (e) {
             e.discard = false
           });
-          scope.lookup = false;
+          scope.isNeighborhoodVisible = false;
           // refresh the view
-          rescale()
+          // rescale()
           si.refresh();
         }
         /*
@@ -414,7 +417,7 @@ angular.module('sven')
           clearTimeout(timeout);
           timeout = setTimeout(function() {
             stop();
-            scope.$apply();
+            scope.$apply(); // outside of the scope
           }, layoutDuration);
           
           scope.status = IS_RUNNING;
@@ -551,14 +554,16 @@ angular.module('sven')
           
         */
         sigma.canvas.edges.def = function(edge, source, target, context, settings) {
-
-          if(doNotDisplayEdges)
+          if(edge.discard)
+            return;
+          if(!scope.isNeighborhoodVisible && doNotDisplayEdges)
             return;
           var color = "#d4d4d4",
               prefix = settings('prefix') || '';
 
           if(edge.weight == 0)
             return;
+
           context.strokeStyle = edge.discard? '#d4d4d4' : scale(edge.weight||1)//color;
           context.lineWidth = 1//edge.discard? 1: 2;//edge[prefix + 'weight'] || edge.weight || 1;
           context.beginPath();
@@ -584,7 +589,7 @@ angular.module('sven')
           if(node.discard)
             return;
           
-          if (size < settings('labelThreshold'))
+          if (size < settings('labelThreshold') && !scope.isNeighborhoodVisible)
             return;
 
           if (!node.label || typeof node.label !== 'string')
@@ -593,10 +598,13 @@ angular.module('sven')
           if(node['renderer1:x'] < 0 || node['renderer1:y'] < 0)
             return;
           
-          // if(node.label == 'Jacques Delors')console.log('visiblelag', node['renderer1:x'], node['renderer1:y'])
-          fontSize = (settings('labelSize') === 'fixed') ?
-            settings('defaultLabelSize') :
-            settings('labelSizeRatio') * size;
+          if(scope.isNeighborhoodVisible) {
+            fontSize = settings('defaultLabelSize')
+          } else {
+            fontSize = (settings('labelSize') === 'fixed') ?
+              settings('defaultLabelSize') :
+              settings('labelSizeRatio') * size;
+          }
 
           context.font = (settings('fontStyle') ? settings('fontStyle') + ' ' : '') +
             fontSize + 'px ' + settings('font');

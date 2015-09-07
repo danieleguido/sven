@@ -500,9 +500,10 @@ li.spacer{
   text-align: center;
   /* background: #383838; */
   color: white;
-  transition: opacity .3s;
+  transition: opacity .15s;
   padding: 4px 7px;
   border-radius:2px;
+  font-size: 12px;
 }
 
 .tooltip.mouse{
@@ -1070,10 +1071,12 @@ text.label {
   right: 10px;
   bottom: 10px;
   width: 30px;
-  height: 120px;
-  background: #fff;
+  height: 150px;
+  background: #e8e8e8;
   z-index: 2;
 }
+
+
 
 #milkyway #commands .action{
   width: 30px;
