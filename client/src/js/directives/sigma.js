@@ -189,7 +189,10 @@ angular.module('sven')
           layoutDuration = Math.max(Math.min(4* si.graph.nodes().length * si.graph.edges().length, maxlayoutDuration),minlayoutDuration)
           $log.log('::sigma n. nodes', si.graph.nodes().length, ' n. edges', si.graph.edges().length, 'runninn layout atlas for', layoutDuration/1000, 'seconds')
           
-          si.graph.nodes().forEach(function(n) {
+          si.graph.edges().forEach(function (e) {
+            e.size = e.weight;
+          })
+          si.graph.nodes().forEach(function (n) {
             // console.log(n)
             n.label = n.label || n.name;
             n.color = colors[n.type] || "#353535";
@@ -427,7 +430,7 @@ angular.module('sven')
             linLogMode: true,
             startingIterations : 10,
             gravity : 1,
-            edgeWeightInfluence : 1
+            edgeWeightInfluence : 10
           });
           $log.debug('::sigma -> play()')
         }

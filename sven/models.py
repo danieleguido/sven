@@ -207,7 +207,7 @@ class Corpus(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
 
   owners = models.ManyToManyField(User, related_name="corpora")
-  watchers = models.ManyToManyField(User, related_name="corpora_watched", null=True, blank=True)
+  watchers = models.ManyToManyField(User, related_name="corpora_watched",  blank=True)
 
 
   def get_path(self):

@@ -108,6 +108,10 @@ angular
             // load filters, if any are provided.
             // console.log('netword',$route.current.params)
             var filters = {};
+            var between = $route.current.params.between;
+            if(['document', 'concept', 'tag'].indexOf(between) == -1)
+              between = 'concept';
+
             if($route.current.params.start)
               filters.date__gte=$route.current.params.start
 
@@ -120,7 +124,7 @@ angular
             return CorpusVisFactory.get(angular.extend({
               id: $route.current.params.id,
               vis:   'network',
-              model: $route.current.params.between || 'concept'
+              model: between
             }, {
               filters: JSON.stringify(filters)
             })).$promise;

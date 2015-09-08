@@ -17,7 +17,7 @@ angular.module('sven')
       
       if(between == previous)
         return;
-      if((between == 'document' || between == 'concept')) {
+      if(between == 'document' || between == 'concept' || between == 'tag') {
         $location.search('between', between);
         $log.info('NetworkCtrl @between - value:', between);
       }
@@ -26,10 +26,13 @@ angular.module('sven')
     $scope.$on(API_PARAMS_CHANGED, function(){
       $log.info('NetworkCtrl @API_PARAMS_CHANGED', $routeParams.between, $scope.getParams());
       var between = $routeParams.between;
+      if(['document', 'concept', 'tag'].indexOf(between) == -1) {
+        return;
+      }
       CorpusVisFactory.get(angular.extend({
         id: $routeParams.id,
         vis:   'network',
-        model: between == 'document'? 'document': 'concept'
+        model: between
       }, $scope.getParams()), function (graph) {
         $scope.sync(graph);
       })

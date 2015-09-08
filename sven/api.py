@@ -20,6 +20,9 @@ from sven.forms import LoginForm, CorpusForm, DocumentForm, CorpusSegmentForm, P
 from sven.models import helper_truncatesmart
 from sven.models import Corpus, Document, Document_Segment, Profile, Job, Segment, Tag, helper_get_document_path
 
+import networkx as nx
+from networkx.readwrite import json_graph
+from networkx.algorithms import bipartite
 
 logger = logging.getLogger("sven")
 
@@ -41,6 +44,13 @@ class GroupConcat(Aggregate):
     aggregate = SQLConcat(col, source=source, is_summary=is_summary, **self.extra)
     query.aggregates[alias] = aggregate
   
+
+def jaccard(G, u, v):
+  # given a graph G, calculate the jaccard distance u-v
+  unbrs = set(G[u])
+  vnbrs = set(G[v])
+  return 1-float(len(unbrs & vnbrs)) / len(unbrs | vnbrs)
+
 
 
 def home(request):
@@ -1076,9 +1086,7 @@ def network_corpus(request, corpus_pk, model):
   '''
 
   '''
-  import networkx as nx
-  from networkx.readwrite import json_graph
-  from networkx.algorithms import bipartite
+  
 
   epoxy = Epoxy(request)
 
@@ -1123,9 +1131,10 @@ def network_corpus(request, corpus_pk, model):
     G.add_node(source, bipartite=1)
 
     if BIPARTITE_SET == 1:
-      G.node[source]['name'] = s['segment__cluster']
-      G.node[source]['tf']   = max(0, s['tf'])
-      G.node[source]['tfidf']   = max(0, s['tfidf'])
+      G.node[source]['name']     = s['segment__cluster']
+      G.node[source]['contents'] = s['segment__content']
+      G.node[source]['tf']       = max(0, s['tf'])
+      G.node[source]['tfidf']    = max(0, s['tfidf'])
     else :
       G.node[target]['name'] = s['document__name']
 
@@ -1136,11 +1145,7 @@ def network_corpus(request, corpus_pk, model):
 
   segments = [];
 
-  def jaccard(G, u, v):
-    unbrs = set(G[u])
-    vnbrs = set(G[v])
-    return 1-float(len(unbrs & vnbrs)) / len(unbrs | vnbrs)
-
+  
   # bottom_nodes, top_nodes = bipartite.sets(G)
   top_nodes = set(n for n,d in G.nodes(data=True) if d['bipartite']== BIPARTITE_SET)
   G1 = bipartite.generic_weighted_projected_graph(G, top_nodes, weight_function=jaccard)
@@ -1168,6 +1173,62 @@ def network_corpus(request, corpus_pk, model):
 
   return epoxy.json()
 
+
+
+def network_corpus_tag(request, corpus_pk):
+  # as network_corpus, but tag to tag jaccard similarity
+  # with filters
+  epoxy = Epoxy(request)
+  
+  fragments = Document.objects.filter(
+    corpus__pk=corpus_pk
+  ).filter(
+    **epoxy.filters
+  ).values(
+    'tags__slug',
+    'tags__name',
+    'pk',
+    'name'
+  )
+
+  G = nx.Graph()
+
+  clusters = {}
+  edges    = {}
+
+  for s in fragments:
+    if s['tags__slug'] is None:
+      continue
+    source = s['pk']
+    target = s['tags__slug']
+
+    G.add_node(target, bipartite=0)
+    G.add_node(source, bipartite=1)
+
+    G.node[source]['name'] = s['name']
+    G.node[target]['name'] = s['tags__name']
+    G.node[target]['f'] = G.node[target]['f']+1 if 'f' in G.node[target] else 1
+    G.node[target]['tf'] = math.sqrt(G.node[target]['f']) * 2
+
+    if G.has_edge(source, target):
+      G[source][target]['weight'] += 1
+    else: # new edge. add with weight=1
+      G.add_edge(source, target, weight=1)
+
+  fragments = [];
+
+  
+  # bottom_nodes, top_nodes = bipartite.sets(G)
+  top_nodes = set(n for n,d in G.nodes(data=True) if d['bipartite']== 0)
+  G1 = bipartite.generic_weighted_projected_graph(G, top_nodes, weight_function=jaccard)
+
+  epoxy.meta('total_count', {
+    
+  })
+  j = json_graph.node_link_data (G1)
+  epoxy.add('edges', j['links'])
+  epoxy.add('nodes', j['nodes'])
+  return epoxy.json()
 
 
 

@@ -60,7 +60,7 @@ apipatterns = patterns('sven.api',
   url(r'^graph/corpus/(?P<corpus_pk>\d+)/concept$', 'graph_corpus_concepts', name='sven_api_graph_corpus_concepts'),
   url(r'^stream/corpus/(?P<corpus_pk>\d+)/concept$', 'stream_corpus_concepts', name='sven_api_stream_corpus_concepts'),
   url(r'^network/corpus/(?P<corpus_pk>\d+)/(?P<model>concept|document)$', 'network_corpus', name='sven_api_network_corpus'),
-  
+  url(r'^network/corpus/(?P<corpus_pk>\d+)/tag$', 'network_corpus_tag', name='sven_api_network_corpus_tag'),
 
   url(r'^login', 'require_login', name='sven_api_require_login'),
   url(r'^.*$', 'not_found', name='sven_api_not_found'),
