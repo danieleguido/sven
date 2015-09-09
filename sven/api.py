@@ -1131,12 +1131,14 @@ def network_corpus(request, corpus_pk, model):
     G.add_node(source, bipartite=1)
 
     if BIPARTITE_SET == 1:
-      G.node[source]['name']     = s['segment__cluster']
-      G.node[source]['contents'] = s['segment__content']
+      G.node[source]['name']     = s['segment__content']
+      G.node[source]['type']     = 'segments__cluster'
+      G.node[source]['cluster'] = s['segment__cluster']
       G.node[source]['tf']       = max(0, s['tf'])
       G.node[source]['tfidf']    = max(0, s['tfidf'])
     else :
       G.node[target]['name'] = s['document__name']
+      G.node[target]['type'] = 'document'
 
     if G.has_edge(source, target):
       G[source][target]['weight'] += 1
@@ -1206,6 +1208,8 @@ def network_corpus_tag(request, corpus_pk):
     G.add_node(source, bipartite=1)
 
     G.node[source]['name'] = s['name']
+    G.node[source]['type'] = 'document'
+    G.node[target]['type'] = 'tags__slug'
     G.node[target]['name'] = s['tags__name']
     G.node[target]['f'] = G.node[target]['f']+1 if 'f' in G.node[target] else 1
     G.node[target]['tf'] = math.sqrt(G.node[target]['f']) * 2

@@ -25,11 +25,87 @@ sigma.classes.graph.addMethod('neighbors', function (nodeId) {
  * directive to show a grapgh of nodes and edges thanks to @Yomguithereal!!! 
  */
 angular.module('sven')
+  .directive('gmasp', function ($log, $location) {
+    return {
+      restrict : 'A',
+      template: ''+ 
+        '<div class="gasp {{enabled?\'enabled\':\'disabled\'}}"><div class="inner {{target.type||\'\'}}">'+ 
+          '<span class="text" ng-if="target.type == \'document\'" ><i>selected</i>: ' + 
+            '<a href="{{href}}">{{label}}<a>' + 
+          '</span>' + 
+          '<span class="text" ng-if="target.type == \'segments__cluster\'" ><i>concept</i>&nbsp;' + 
+            '<b ng-click="applyFilter()">{{label}}<b>' + 
+          '</span>' + 
+          '<span class="text" ng-if="target.type == \'tags__slug\'" ><i>tag</i>&nbsp;' + 
+            '<b ng-click="applyFilter()">{{label}}<b>' + 
+          '</span>' + 
+          '<span class="text" ng-if="target.type == \'edge\'">'+
+            '<i class="fa fa-circle {{left.type}}"></i> &#8594; <i class="fa fa-circle {{right.type}}"></i> {{left.label}} &#8594; ' +
+            '{{right.label}} </span>' + 
+          // '<div class="action-group">'+
+          //   '<a class="action slide {{target.type == \'node\'? \'enabled\': \'disabled\'}}" href="{{href}}" title="visit" data-action="link" tooltip="{{linkto}}">'+
+          //     '<span class="fa fa-link"></span></a>'+
+          //   '<a class="action queue" tooltip="add to your current playlist" data-action="queue">'+
+          //     '<span class="fa fa-play-circle-o"></span></a>' +
+            
+          // '</div>' +
+        '</div></div>',
+      scope:{
+        target : '='
+      },
+      link : function(scope, element, attrs) {
+        var _gasp = $(element[0]); // gasp instance;
+        scope.enabled = false;
+        $log.log('::gmasp ready');
+        
+        scope.applyFilter = function () {
+          $log.log('::gmasp applyFilter()');
+          scope.$parent.changefilters({
+            key: scope.target.type,
+            value: scope.target.data.node.id
+          })
+        }
+
+        // enable / disable gasp instance
+        scope.$watch('target', function(v) {
+          $log.log('::gmasp @target - value:', v);
+          if(!v || !v.type) {
+            // make it NOT visible
+            scope.enabled = false;
+            return;
+          }
+          // handle label according to target type (node or edge)
+          if(v.type=='document') {
+            scope.href  = '#/document/' + v.data.node.id;
+            scope.label = v.data.node.label;
+            scope.type = v.data.node.type;
+          } else if(v.type=='segments__cluster'){
+            scope.label = v.data.node.label;
+            scope.filter = {
+              key: v.data.node.type,
+              value: v.data.node.cluster
+            }
+          } else if(v.type=='tags__slug') {
+            scope.label = v.data.node.label;
+            scope.filter = {
+              key: v.data.node.type,
+              value: v.data.node.id
+            }
+          }
+          // make it visible
+          scope.enabled = true;
+          
+        })
+      }
+    }
+  })
+
   .directive('sigma', function($log, $location) {
     return {
       restrict : 'A',
       template: ''+
         '<div id="playground"></div>' +
+        '<div gmasp target="target"></div>' + 
         '<div id="tips" ng-if="tips.length > 0"><div>{{tips}}</div></div>' +
         '<div id="commands" class="{{isNeighborhoodVisible?\'lookup\':\'\'}}">' +
           '<div tooltip-placement="left" tooltip="view all nodes" tooltip-append-to-body="true" class="action {{isNeighborhoodVisible? \'bounceIn animated\': \'bounceOut animated\'}}" ng-click="toggleLookup()"><i class="fa fa-eye"></i></div>' +
@@ -45,9 +121,12 @@ angular.module('sven')
         controller: '=',
         measure: '=', // node property name to be used in order to size the nodes
         redirect: '&',
-        toggleMenu: '&togglemenu'
+        toggleMenu: '&togglemenu',
+        changefilters: '&'
       },
       link : function(scope, element, attrs) {
+
+        scope.target = {};
 
         // Creating sigma instance
         var timeout,
@@ -281,22 +360,17 @@ angular.module('sven')
           si.graph.edges().forEach(function (e) {
             e.discard = !(toKeep[e.source] && toKeep[e.target])
           });
+
+          // add the link (or provide the filter, if it is enabled)
+          scope.target = {
+            data: e.data,
+            type: e.data.node.type
+          };
           scope.isNeighborhoodVisible = true;
           scope.$apply();
 
-          // 
-          // refresh the view
           si.refresh();
-          //zoomout();
-          // recenter
-          // sigma.misc.animation.camera(
-          //     si.cameras.main,
-          //     {
-          //       x: e.data.node['read_cammain:x'],
-          //       y: e.data.node['read_cammain:y'],
-          //     },
-          //     {duration: 250}
-          //   );
+          
         });
         
 
@@ -309,10 +383,10 @@ angular.module('sven')
           // console.log(e.data.node, tooltip.el)
           if(tooltip.timer)
             clearTimeout(tooltip.timer);
-
+          console.log(e)
           tooltip.tip.css({
-            top: e.data.node['renderer1:y'],
-            left: e.data.node['renderer1:x']
+            top: e.data.captor.clientY, //e.data.node['renderer1:y'],
+            left: e.data.captor.clientX// e.data.node['renderer1:x']
           });
 
           if(tooltip.text != e.data.node.name)
