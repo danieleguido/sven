@@ -547,8 +547,10 @@ li.spacer{
 }
 
 #tooltip-sigma .wrapper{
-  position:absolute;
+  position: absolute;
   bottom: 50px;
+  width: 200px;
+  text-align: center;
 }
 
 #tooltip-sigma-label{

@@ -425,6 +425,7 @@ angular.module('sven')
     $scope.getTranslatedFilters = function() {
       var _filters = angular.copy($scope.filters),
           filters = {};
+
       for(var i in _filters) {
         if(_t[i])
           filters[_t[i]] = _filters[i]
@@ -440,7 +441,8 @@ angular.module('sven')
         delete $scope.filters[key];
         delete $scope.filtersItems[key];
       };
-      $location.search($scope.getTranslatedFilters());
+      $location.search(_t[key], null);
+      //$location.search($scope.getTranslatedFilters());
     };
 
     $scope.removeSearch = function() {
