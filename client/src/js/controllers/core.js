@@ -413,7 +413,7 @@ angular.module('sven')
     // load from search params
     $scope.setFilters = function(filters) {
       for(var i in filters) {
-        if(['between'].indexOf(i) != -1)
+        if(['between', 'search'].indexOf(i) != -1)
           continue;
         if(t[i])
           $scope.filters[t[i]] = filters[i];

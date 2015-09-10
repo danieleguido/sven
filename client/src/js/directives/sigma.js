@@ -34,10 +34,10 @@ angular.module('sven')
             '<a href="{{href}}">{{label}}</a>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'segments__cluster\'" ><i>concept</i>&nbsp;' + 
-            '<b>{{label}}<b>' + 
+            '<b>{{label}}</b>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'tags__slug\'" ><i>tag</i>&nbsp;' + 
-            '<b >{{label}}<b>' + 
+            '<b >{{label}}</b>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'edge\'">'+
             '<i class="fa fa-circle {{left.type}}"></i> &#8594; <i class="fa fa-circle {{right.type}}"></i> {{left.label}} &#8594; ' +

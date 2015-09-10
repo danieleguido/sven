@@ -1057,7 +1057,7 @@ text.label {
   top: 200px;
   left: 270px;
   right: 30px;
-  bottom: 50px;
+  bottom: 65px;
   background: #e8e8e8;
   -webkit-transition: left .3s cubic-bezier(0.65, 0.05, 0.36, 1); /* Changed here */ 
      -moz-transition: left .3s cubic-bezier(0.65, 0.05, 0.36, 1);
@@ -1137,7 +1137,7 @@ text.label {
 
 #milkyway .gasp .inner{
   background-color: #d8d8d8;
-    color: white;
+
     display: inline-block;
     height: 40px;
     margin-top: 10px;
@@ -1160,7 +1160,6 @@ text.label {
   display: inline-block;
   line-height: 40px;
   width: 40px;
-  color: white;
   overflow: hidden;
     -webkit-transition: transform .3s cubic-bezier(0.65, 0.05, 0.36, 1); /* Changed here */ 
      -moz-transition: transform .3s cubic-bezier(0.65, 0.05, 0.36, 1);
