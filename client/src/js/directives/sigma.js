@@ -31,17 +31,25 @@ angular.module('sven')
       template: ''+ 
         '<div class="gasp {{enabled?\'enabled\':\'disabled\'}}"><div class="inner {{target.type||\'\'}}">'+ 
           '<span class="text" ng-if="target.type == \'document\'" ><i>selected</i>: ' + 
-            '<a href="{{href}}">{{label}}<a>' + 
+            '<a href="{{href}}">{{label}}</a>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'segments__cluster\'" ><i>concept</i>&nbsp;' + 
-            '<b ng-click="applyFilter()">{{label}}<b>' + 
+            '<b>{{label}}<b>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'tags__slug\'" ><i>tag</i>&nbsp;' + 
-            '<b ng-click="applyFilter()">{{label}}<b>' + 
+            '<b >{{label}}<b>' + 
           '</span>' + 
           '<span class="text" ng-if="target.type == \'edge\'">'+
             '<i class="fa fa-circle {{left.type}}"></i> &#8594; <i class="fa fa-circle {{right.type}}"></i> {{left.label}} &#8594; ' +
             '{{right.label}} </span>' + 
+          '<div class="action-group">'+
+            '<a ng-if="target.type != \'document\'" ng-click="applyFilter()" class="action" tooltip="filter by">'+
+              '<span class="fa fa-filter"></span>' + 
+            '</a>' +
+            '<a ng-if="target.type == \'document\'" href="{{href}}" class="action" tooltip="visit document page">'+
+              '<span class="fa fa-link"></span>' + 
+            '</a>' +
+          '</div>' +
           // '<div class="action-group">'+
           //   '<a class="action slide {{target.type == \'node\'? \'enabled\': \'disabled\'}}" href="{{href}}" title="visit" data-action="link" tooltip="{{linkto}}">'+
           //     '<span class="fa fa-link"></span></a>'+
@@ -253,6 +261,8 @@ angular.module('sven')
              si.refresh();
             return;
           }
+
+
             
           
           // refresh the scale for edge color, calculated the extent weights of the edges
@@ -296,9 +306,11 @@ angular.module('sven')
           $log.log('::sigma force atlas starting in .35s')
           timers.play = setTimeout(function(){
             rescale();
-            si.refresh();
+            scope.target = {}
+            scope.toggleLookup();
             play();
-            scope.status = IS_RUNNING
+            
+            scope.status = IS_RUNNING;
             scope.$apply() 
           }, 150)
           

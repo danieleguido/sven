@@ -25,10 +25,12 @@ angular.module('sven')
 
     $scope.$on(API_PARAMS_CHANGED, function(){
       $log.info('NetworkCtrl @API_PARAMS_CHANGED', $routeParams.between, $scope.getParams());
-      var between = $routeParams.between;
+      var between = $routeParams.between || 'concept';
       if(['document', 'concept', 'tag'].indexOf(between) == -1) {
         return;
       }
+      $scope.freeze = 'sigma';
+      
       CorpusVisFactory.get(angular.extend({
         id: $routeParams.id,
         vis:   'network',
@@ -50,7 +52,9 @@ angular.module('sven')
         d.target = isNaN(d.target)? d.target : graph.nodes[d.target].id
         return d
       })
-      $scope.graph = graph
+      $scope.graph = graph;
+
+      $scope.freeze = 'none';
     };
 
     $scope.sync(graph);
