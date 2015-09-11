@@ -800,34 +800,41 @@ class Document(models.Model):
 
   # attach textrazor entity to document segment. The document should have a list of TF
   def autotag(self):
-    segments = self.segments
-    if segments.count() == 0:
-      logger.debug('autotagging enabled only for already analyzed segments')
-      return
-    if segments.filter(entity__isnull=False).count() > 0:
-      logger.debug('autotagging already performed on this document, skipping')
-      return;
+    # segments = self.segments
+    # if segments.count() == 0:
+    #   logger.debug('autotagging enabled only for already analyzed segments')
+    #   return
+    # if segments.filter(entity__isnull=False).count() > 0:
+    #   logger.debug('autotagging already performed on this document, skipping')
+    #   return;
     if settings.TEXTRAZOR_KEY is not None:
       from distiller import textrazor
       res = textrazor(api_key=settings.TEXTRAZOR_KEY, text=self.text())
+      candidates = filter(lambda x: len(x[u'wikiLink']) > 0 and x[u'type'] and len(x[u'type']) > 0, res['response']['entities'])
+      
+      for entity in candidates:
+        if u'type' in entity:
+          
+          print entity
+
       # entities found in text
-      for s in segments.all():
-        candidates = filter(lambda x: len(x[u'wikiLink']) > 0 and x[u'matchedText']==s.content, res['response']['entities'])
+      # for s in segments.all():
+      #   candidates = filter(lambda x: len(x[u'wikiLink']) > 0 and x[u'matchedText']==s.content, res['response']['entities'])
 
-        if len(candidates):
-          entity_type = Entity.FREE
-          if u'type' in candidates[0]:
+      #   if len(candidates):
+      #     entity_type = Entity.FREE
+      #     if u'type' in candidates[0]:
             
-            if u'Person' in candidates[0][u'type']:
-              entity_type = Entity.PERSON
-            elif u'Place' in candidates[0][u'type']:
-              entity_type = Entity.PLACE
-            elif u'Organisation' in candidates[0][u'type']:
-              entity_type = Entity.ORGANISATION
+      #       if u'Person' in candidates[0][u'type']:
+      #         entity_type = Entity.PERSON
+      #       elif u'Place' in candidates[0][u'type']:
+      #         entity_type = Entity.PLACE
+      #       elif u'Organisation' in candidates[0][u'type']:
+      #         entity_type = Entity.ORGANISATION
 
-          entity, exists = Entity.objects.get_or_create(url=candidates[0]['wikiLink'], defaults={'type': entity_type, 'content': candidates[0]['entityId']})
-          s.entity = entity
-          s.save()
+      #     entity, exists = Entity.objects.get_or_create(url=candidates[0]['wikiLink'], defaults={'type': entity_type, 'content': candidates[0]['entityId']})
+      #     s.entity = entity
+      #     s.save()
 
 
         # if u'type' in ent and u'Person' in ent[u'type']:
@@ -922,6 +929,24 @@ def delete_corpus(sender, instance, **kwargs):
 
 
 
+class Document_Entity(models.Model):
+  document = models.ForeignKey(Document)
+  entity   = models.ForeignKey(Entity)
+
+  tf = models.FloatField(default=0) # term normalized frequency of the stemmed version of the segment
+  tfidf = models.FloatField(default=0) # inversed term calculated according to the document 
+
+  splitpoints = models.TextField() # mapping of entiities on document text
+  #via the stemmed version
+  def json(self, deep=False):
+    d = {}
+    return d
+
+  class Meta:
+    unique_together = ("entity", "document")
+
+
+
 class Job(models.Model):
   STARTED = 'BOO'
   RUNNING = 'RUN'
@@ -939,7 +964,7 @@ class Job(models.Model):
 
   pid = models.CharField(max_length=32)
   cmd = models.TextField()
-  corpus = models.ForeignKey(Corpus, unique=True, related_name='job')
+  corpus = models.OneToOneField(Corpus, related_name='job')
   document = models.ForeignKey(Document, null=True, blank=True) # current working on document...
 
   status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=STARTED)

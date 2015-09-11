@@ -1425,7 +1425,7 @@ def export_corpus_documents(request, corpus_pk):
   from django.http import HttpResponse
 
   if 'plain-text' not in request.REQUEST:
-    response = HttpResponse(mimetype='text/csv; charset=utf-8')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Description'] = "File Transfer";
     response['Content-Disposition'] = "attachment; filename=%s.documents.csv" % c.name 
   
