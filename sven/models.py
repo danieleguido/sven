@@ -302,7 +302,7 @@ class Corpus(models.Model):
 
     try:
       d.update({
-      'jobs': [j.json() for j in self.job.all()]
+      'jobs': [self.job.json()]
       })
     except Document.DoesNotExist,e:
       logger.exception(e)

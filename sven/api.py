@@ -80,6 +80,7 @@ def notification(request):
   tags = Tag.objects.filter(type=Tag.TYPE_OF_MEDIA)
 
   epoxy.queryset(corpora)
+  
   try:
     epoxy.add('jobs', [j.json() for j in jobs])
   except Document.DoesNotExist, e:
