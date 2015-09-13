@@ -929,21 +929,21 @@ def delete_corpus(sender, instance, **kwargs):
 
 
 
-class Document_Entity(models.Model):
-  document = models.ForeignKey(Document)
-  entity   = models.ForeignKey(Entity)
+# class Document_Entity(models.Model):
+#   document = models.ForeignKey(Document)
+#   entity   = models.ForeignKey(Entity)
 
-  tf = models.FloatField(default=0) # term normalized frequency of the stemmed version of the segment
-  tfidf = models.FloatField(default=0) # inversed term calculated according to the document 
+#   tf = models.FloatField(default=0) # term normalized frequency of the stemmed version of the segment
+#   tfidf = models.FloatField(default=0) # inversed term calculated according to the document 
 
-  splitpoints = models.TextField() # mapping of entiities on document text
-  #via the stemmed version
-  def json(self, deep=False):
-    d = {}
-    return d
+#   splitpoints = models.TextField() # mapping of entiities on document text
+#   #via the stemmed version
+#   def json(self, deep=False):
+#     d = {}
+#     return d
 
-  class Meta:
-    unique_together = ("entity", "document")
+#   class Meta:
+#     unique_together = ("entity", "document")
 
 
 
