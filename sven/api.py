@@ -80,7 +80,8 @@ def notification(request):
   tags = Tag.objects.filter(type=Tag.TYPE_OF_MEDIA)
 
   epoxy.queryset(corpora)
-  
+  # print [j.json() for j in corpora]
+
   try:
     epoxy.add('jobs', [j.json() for j in jobs])
   except Document.DoesNotExist, e:
@@ -1431,7 +1432,7 @@ def export_corpus_documents(request, corpus_pk):
     response['Content-Disposition'] = "attachment; filename=%s.documents.csv" % c.name 
   
   else:
-    response = HttpResponse(mimetype='text/plain; charset=utf-8')
+    response = HttpResponse(content_type='text/plain; charset=utf-8')
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
   writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')

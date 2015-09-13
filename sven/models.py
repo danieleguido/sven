@@ -302,12 +302,10 @@ class Corpus(models.Model):
 
     try:
       d.update({
-      'jobs': [self.job.json()]
+        'jobs': [self.job.json()]
       })
-    except Document.DoesNotExist,e:
-      logger.exception(e)
+    except Job.DoesNotExist, e:
       pass
-
     # raw query to ge count. Probably there should be a better place :D
     # note that DISTINCT ON FIeld is not supported by mysql backend ...
     cursor = connection.cursor()
@@ -964,7 +962,7 @@ class Job(models.Model):
 
   pid = models.CharField(max_length=32)
   cmd = models.TextField()
-  corpus = models.OneToOneField(Corpus, related_name='job')
+  corpus = models.OneToOneField(Corpus, null=True, related_name='job')
   document = models.ForeignKey(Document, null=True, blank=True) # current working on document...
 
   status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=STARTED)
