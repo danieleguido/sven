@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import subprocess, logging, math, langid, json
+import os, subprocess, logging, math, langid, json
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
@@ -777,13 +777,16 @@ def corpus_concepts(request, corpus_pk):
   clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
     tf=Max('tf'),
-    tfidf=Max('tfidf')
+    tfidf=Max('tfidf'),
+    contents = GroupConcat('segment__content', separator='||'),
   )
 
-  epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
   clusters_objects = []
   
   if 'group_by' in epoxy.data:
+    groups_available = None
+    epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
+  
     # available data grouping (translations for MYSQL)
     DATE_GROUPING = {
       'Ym' : "%%Y-%%m",
@@ -854,6 +857,9 @@ def corpus_concepts(request, corpus_pk):
       epoxy.warning('grouping', 'grouping not recognized, should be one value among these (for tags): %s' % ','.join([t[0] for t in Tag.TYPE_CHOICES])) 
     
       #epoxy.add('groups', [g.json() for g in set([g['G'] for g in groups])])
+
+  else:
+    clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]
 
   #outputting values
   epoxy.add('objects', clusters_objects)
@@ -1435,9 +1441,28 @@ def export_corpus_documents(request, corpus_pk):
     response = HttpResponse(content_type='text/plain; charset=utf-8')
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
-  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
+  writer = unicodecsv.writer(response, delimiter='\t', encoding='utf-8')
   # write headers
-  writer.writerow([u'key', u'name', u'date', u'language'] + [u'%s' % label for t,label in Tag.TYPE_CHOICES] )
+  headers = [
+    u'key',
+    u'slug',
+    u'mimetype',
+    u'title_en',
+    u'title_fr',
+    u'caption_en',
+    u'caption_fr',
+    u'languages',
+    u'viaf_id',
+    u'doi',
+    u'date',
+    u'start_date',
+    u'end_date',
+    u'url',
+    u'url_en',
+    u'url_fr'
+  ]+  [u'%s' % label for t,label in Tag.TYPE_CHOICES]
+  
+  writer.writerow(headers)
   
   for doc in docs:
     tags = {u'%s' % tag_type:[] for tag_type,tag_label in Tag.TYPE_CHOICES}
@@ -1445,10 +1470,27 @@ def export_corpus_documents(request, corpus_pk):
     for tag in doc.tags.all():
       if u'%s' % tag.type in tags:
         tags[u'%s' % tag.type].append(tag.name)
-    row = [doc.id, doc.name, doc.date.strftime('%Y-%m-%d') if doc.date is not None else None, doc.language]
+    row = [
+      doc.id,
+      doc.slug,
+      doc.mimetype,
+      doc.name,
+      '', 
+      doc.abstract,
+      '',
+      doc.language,
+      '',
+      '',
+      doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
+      doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
+      doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
+      doc.url,
+      os.path.join(doc.corpus.slug, os.path.basename(doc.raw.url)),
+      ''
+    ]
 
     for tag_type,tag_label in Tag.TYPE_CHOICES:
-      row.append(','.join(tags[tag_type])) # comma separated
+      row.append(u','.join(tags[tag_type])) # comma separated
 
     writer.writerow(row)
 

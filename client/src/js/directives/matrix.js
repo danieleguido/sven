@@ -148,7 +148,7 @@ angular.module('sven')
                 }
               })
               .text(function(d) {
-                return d.segment__cluster || '...'
+                return d.contents.length? d.contents.split('||')[0]:''
               });
 
           rows
@@ -173,7 +173,7 @@ angular.module('sven')
 
           // create (or update) group names
           var headers = svg.selectAll('.column')
-                .data(scope.groups, function (d, i) {
+                .data(scope.groups || [], function (d, i) {
                   //console.log('group',d);
                   return i;
                 })
@@ -207,6 +207,8 @@ angular.module('sven')
           var cols = rows
             .selectAll('.measure')
               .data(function(d) {
+                if(!scope.groups)
+                  return [];
                 return scope.groups.map(function(g) {
                   var _g = {
                     slug:  g.slug,
@@ -275,7 +277,7 @@ angular.module('sven')
 
           // resize svg to show all the stuffs
           svg.attr({
-            width: marginLeft + colspacing*(scope.groups.length + 1),
+            width: marginLeft + colspacing*((scope.groups || []).length + 1),
             height: marginTop + lineHeight*(scope.data.length + 1)
           })
         

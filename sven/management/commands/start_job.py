@@ -296,17 +296,23 @@ class Command(BaseCommand):
 
 
   def _harvest(self, job, options):
-    from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS
+    from sven.distiller import distill, EN_STOPWORDS, FR_STOPWORDS, NL_STOPWORDS, IT_STOPWORDS
 
     logger.debug('executing "harvest"...')
     
     docs = job.corpus.documents.all()
     total = docs.count()
 
-    logger.debug('corpus %s contains %s documents' % (job.corpus, total))
+    logger.debug('corpus %s: contains %s documents' % (job.corpus, total))
 
     # ratio of this specific for loop in completion
     score = 1.0
+
+    # clean segments
+    Segment.objects.filter(corpus=job.corpus).delete()
+    logger.debug('corpus %(corpus)s: deleting segments', {
+        'corpus': job.corpus
+    })
 
     for step, doc in enumerate(docs):
       #print doc.name, doc.text()
@@ -325,13 +331,20 @@ class Command(BaseCommand):
         stopwords = FR_STOPWORDS
       elif doc.language == settings.NL:
         stopwords = NL_STOPWORDS
+      elif doc.language == settings.IT:
+        stopwords = IT_STOPWORDS
       else:
         stopwords = EN_STOPWORDS
 
       segments = distill(content, language=language, stopwords=stopwords)
       #print segments
+      
 
       with transaction.atomic():
+        
+        
+        
+
         for i,(match, lemmata, tf, wf) in enumerate(segments):
           seg, created = Segment.objects.get_or_create(corpus=job.corpus, partofspeech=Segment.NP, content=match[:128], defaults={
             'lemmata':  lemmata[:128],

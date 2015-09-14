@@ -16,11 +16,13 @@ angular.module('sven')
     $scope.group_by = {
       is_open: false,
       choices: [
+        {label:'-', value: false},
         {label:'actors', value:'ac'},
         {label:'type of media', value:'tm'},
-      ],
-      choice: {label:'type of media', value:'tm'}
-    };
+      ]
+    }
+
+    $scope.group_by.choice =  $scope.group_by.choices[0]
 
     /*
       group_by set
@@ -110,12 +112,16 @@ angular.module('sven')
     };
 
     $scope.sync = function() {
+      var params = $scope.getParams({
+            id: $routeParams.id
+          });
+
+      if($scope.group_by.choice.value) 
+        params.group_by = $scope.group_by.choice.value;
+
       $routeParams.id && ConceptsFactory.query(
-        $scope.getParams({
-          id:$routeParams.id,
-          group_by: $scope.group_by.choice.value
-        }), function(data){
-          console.log(data); // pagination needed
+        params, function(data){
+          // console.log(data); // pagination needed
           $scope.totalItems = data.meta.total_count;
           $scope.bounds     = data.meta.bounds;
           $scope.groups     = data.groups;
