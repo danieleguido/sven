@@ -229,7 +229,7 @@ class Corpus(models.Model):
     '''
     return the absolute path of the saved csv file to be associated with import command
     '''
-    filename = os.path.join(self.get_csv_path(), '%s.%s.csv' % (prefix,datetime.now().isoformat()))
+    filename = os.path.join(self.get_csv_path(), '%s.%s.csv' % (prefix,datetime.now().strftime("%Y-%m-%d-%H%S")))
     with open(filename, 'wb+') as destination:
       for chunk in f.chunks():
         destination.write(chunk)
