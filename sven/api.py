@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, subprocess, logging, math, langid, json
+import re, os, subprocess, logging, math, langid, json
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
@@ -1441,25 +1441,19 @@ def export_corpus_documents(request, corpus_pk):
     response = HttpResponse(content_type='text/plain; charset=utf-8')
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
-  writer = unicodecsv.writer(response, delimiter='\t', encoding='utf-8')
+  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
   # write headers
   headers = [
     u'key',
     u'slug',
     u'mimetype',
-    u'title_en',
-    u'title_fr',
-    u'caption_en',
-    u'caption_fr',
-    u'languages',
-    u'viaf_id',
-    u'doi',
+    u'name',
+    u'abtract',
     u'date',
     u'start_date',
     u'end_date',
     u'url',
     u'url_en',
-    u'url_fr'
   ]+  [u'%s' % label for t,label in Tag.TYPE_CHOICES]
   
   writer.writerow(headers)
@@ -1475,9 +1469,8 @@ def export_corpus_documents(request, corpus_pk):
       doc.slug,
       doc.mimetype,
       doc.name,
-      '', 
-      doc.abstract,
-      '',
+      doc.name,
+      re.sub(r'[\n\r]', ' ', doc.abstract),
       doc.language,
       '',
       '',
@@ -1486,7 +1479,6 @@ def export_corpus_documents(request, corpus_pk):
       doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
       doc.url,
       os.path.join(doc.corpus.slug, os.path.basename(doc.raw.url)),
-      ''
     ]
 
     for tag_type,tag_label in Tag.TYPE_CHOICES:

@@ -314,9 +314,18 @@ class Corpus(models.Model):
         COUNT(distinct s.`cluster`)
       FROM sven_segment s INNER JOIN sven_document_segment ds
         ON s.id = ds.segment_id
-      WHERE corpus_id=%s
-    ''', [self.id])
+      WHERE corpus_id=%s AND s.status =%s
+    ''', [self.id, Segment.IN])
     d['count']['clusters'] = cursor.fetchone()[0]
+    
+    cursor.execute('''
+      SELECT
+        COUNT(distinct s.`cluster`)
+      FROM sven_segment s INNER JOIN sven_document_segment ds
+        ON s.id = ds.segment_id
+      WHERE corpus_id=%s AND s.status =%s
+    ''', [self.id, Segment.OUT])
+    d['count']['clusters_excluded'] = cursor.fetchone()[0]
 
     if deep:
       # loading tags for venn diagram

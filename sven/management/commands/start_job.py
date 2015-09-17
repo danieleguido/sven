@@ -219,7 +219,7 @@ class Command(BaseCommand):
 
       for step,row in enumerate(rows):
         logger.debug('import line %s of %s' % (step, total))
-        Segment.objects.filter(corpus=job.corpus, cluster=row[u'segment__cluster']).update(cluster=row[u'cluster'].strip(), status=(Segment.OUT if len(row[u'cluster'].strip()) == 0 else Segment.IN))
+        Segment.objects.filter(corpus=job.corpus, cluster=row[u'segment__cluster']).update(cluster=row[u'cluster'].strip(), status=(Segment.OUT if len(row[u'exclude'].strip()) > 0 else Segment.IN))
         
     self._tfidf(job, options)
 
@@ -238,15 +238,16 @@ class Command(BaseCommand):
     total = sum(1 for line in open(options['csv']))
 
     f = open(options['csv'], 'rb')
-    rows = unicodecsv.DictReader(f, encoding='utf-8')
+    rows = unicodecsv.DictReader(f, encoding='utf-8', delimiter=',')
     #rows = unicodecsv.DictReader(f)
     # get number of rows
     logger.debug('%s lines in csv file, starting import' % total)
       
     for step,row in enumerate(rows):
       logger.debug('import line %s of %s' % (step, total))
-      name = row['name'] # change document title (it has to be a complete csv export !!!!)
-      language = row['language'][:2]
+      logger.debug(row)
+      name = row[u'name'] # change document title (it has to be a complete csv export !!!!)
+      language = row[u'languages'][:2] #first language only
 
       job.completion = 1.0*step/total
       

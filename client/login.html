@@ -12,7 +12,7 @@
       <form role="form" method="POST" action="{% url 'sven_login' %}">
         <div class="form-group">
           <label for="id_login_username">username</label>
-          <input type="text" class="form-control" id="id_login_username" autofocus="autofocus" name="username" placeholder="username e.g daniele" >
+          <input type="text" class="form-control" id="id_login_username" autofocus="autofocus" name="username" placeholder="username" >
         </div>
 
         <div class="form-group">
@@ -23,7 +23,7 @@
          <input type="hidden" value="{{ next }}" name="next" />
     {% csrf_token %}
         <button class="btn btn-block btn-primary" ng-click="login()">LOGIN <i class="fa fa-unlock"></i></button>
-        {{next}}{{error}}
+        {{error}}
       </div>
       </form>
     </div>
