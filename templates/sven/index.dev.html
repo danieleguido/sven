@@ -13,8 +13,8 @@
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic|Source+Code+Pro' rel='stylesheet' type='text/css'>
 
     {% if DEBUG %}
-    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}/less/style.less" />
-    <script src="{{ STATIC_URL }}/js/libs/less-1.7.0.min.js" type="text/javascript"></script>
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/style.less" />
+    <script src="{{ STATIC_URL }}js/libs/less-1.7.0.min.js" type="text/javascript"></script>
   {% else %}
 
   {% endif %}
@@ -77,7 +77,7 @@
             {%verbatim%}{{ctrl}}{%endverbatim%}
           </li>
           <li ng-repeat="corpus in items" ng-class="selected_corpus_id == corpus.id? 'selected': ''">
-            <div ng-include="'{{ STATIC_URL }}/partials/corpus.thumb.html'">
+            <div ng-include="'{{ STATIC_URL }}partials/corpus.thumb.html'">
 
             </div>
             
@@ -105,21 +105,21 @@
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
       {% else %}
-      <script src="{{ STATIC_URL }}/js/libs/angular.min.js"></script>
-      <script src="{{ STATIC_URL }}/js/libs/angular-route.min.js"></script>
-      <script src="{{ STATIC_URL }}/js/libs/angular-resource.min.js"></script>
-      <script src="{{ STATIC_URL }}/js/libs/angular-animate.min.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular.min.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular-route.min.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular-resource.min.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular-animate.min.js"></script>
 
       {% endif %}
-      <script src="{{ STATIC_URL }}/js/libs/angular-ui-bootstrap-tpls.min.js"></script>
-      <script src="{{ STATIC_URL }}/js/libs/angular-file-upload.min.js"></script>
-    <script src="{{ STATIC_URL }}/js/app.js"></script>
-    <script src="{{ STATIC_URL }}/js/services.js"></script>
-    <script src="{{ STATIC_URL }}/js/controllers.js"></script>
-    <script src="{{ STATIC_URL }}/js/filters.js"></script>
-    <script src="{{ STATIC_URL }}/js/directives.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular-ui-bootstrap-tpls.min.js"></script>
+      <script src="{{ STATIC_URL }}js/libs/angular-file-upload.min.js"></script>
+    <script src="{{ STATIC_URL }}js/app.js"></script>
+    <script src="{{ STATIC_URL }}js/services.js"></script>
+    <script src="{{ STATIC_URL }}js/controllers.js"></script>
+    <script src="{{ STATIC_URL }}js/filters.js"></script>
+    <script src="{{ STATIC_URL }}js/directives.js"></script>
     {% else %}
-    <script src="{{ STATIC_URL }}/js/sven.min.js"></script>
+    <script src="{{ STATIC_URL }}js/sven.min.js"></script>
     {% endif %}
 
   </body>

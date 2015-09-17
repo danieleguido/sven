@@ -22,56 +22,56 @@ angular
   .config(function ($routeProvider, $httpProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: SVEN_STATIC_URL + '/views/index.html',
+        templateUrl: SVEN_STATIC_URL + 'views/index.html',
         controller: 'IndexCtrl'
       })
       .when('/about', {
-        templateUrl: SVEN_STATIC_URL + '/views/about.html',
+        templateUrl: SVEN_STATIC_URL + 'views/about.html',
         controller: 'AboutCtrl'
       })
       .when('/documents', {
-        templateUrl: SVEN_STATIC_URL + '/views/documents.html',
+        templateUrl: SVEN_STATIC_URL + 'views/documents.html',
         controller: 'DocumentsCtrl'
       })
       .when('/documents/new', {
-        templateUrl: SVEN_STATIC_URL + '/views/documents.new.html',
+        templateUrl: SVEN_STATIC_URL + 'views/documents.new.html',
         controller: 'DocumentsCtrl'
       })
       .when('/document/:id', { // document id
-        templateUrl: SVEN_STATIC_URL + '/views/document.html',
+        templateUrl: SVEN_STATIC_URL + 'views/document.html',
         controller: 'DocumentCtrl',
         reloadOnSearch: false
       })
       .when('/document/:id/edit', { // document id
-        templateUrl: SVEN_STATIC_URL + '/views/document.edit.html',
+        templateUrl: SVEN_STATIC_URL + 'views/document.edit.html',
         controller: 'DocumentCtrl'
       })
       .when('/document/:id/text', { // document id
-        templateUrl: SVEN_STATIC_URL + '/views/document.text.html',
+        templateUrl: SVEN_STATIC_URL + 'views/document.text.html',
         controller: 'DocumentCtrl'
       })
       .when('/concepts', {
-        templateUrl: SVEN_STATIC_URL + '/views/concepts.html',
+        templateUrl: SVEN_STATIC_URL + 'views/concepts.html',
         controller: 'ConceptsCtrl'
       })
       .when('/concept', {
-        templateUrl: SVEN_STATIC_URL + '/views/concept.html',
+        templateUrl: SVEN_STATIC_URL + 'views/concept.html',
         controller: 'ConceptCtrl'
       })
       .when('/profile', {
-        templateUrl: SVEN_STATIC_URL + '/views/profile.html',
+        templateUrl: SVEN_STATIC_URL + 'views/profile.html',
         controller: 'ProfileCtrl'
       })
       .when('/corpus/:id', {
-        templateUrl: SVEN_STATIC_URL + '/views/corpus.html',
+        templateUrl: SVEN_STATIC_URL + 'views/corpus.html',
         controller: 'CorpusCtrl'
       })
       .when('/corpus/:id/concepts', {
-        templateUrl: SVEN_STATIC_URL + '/views/concepts.html',
+        templateUrl: SVEN_STATIC_URL + 'views/concepts.html',
         controller: 'ConceptsCtrl'
       })
       .when('/corpus/:id/timeline', {
-        templateUrl: SVEN_STATIC_URL + '/views/stream.html',
+        templateUrl: SVEN_STATIC_URL + 'views/stream.html',
         controller: 'StreamCtrl',
         reloadOnSearch: false,
         resolve: {
@@ -86,7 +86,7 @@ angular
         }
       })
       .when('/corpus/:id/network', {
-        templateUrl: SVEN_STATIC_URL + '/views/network.html',
+        templateUrl: SVEN_STATIC_URL + 'views/network.html',
         controller: 'NetworkCtrl',
 
         resolve: {
@@ -100,7 +100,7 @@ angular
         }
       })
       .when('/corpus/:id/coocc', {
-        templateUrl: SVEN_STATIC_URL + '/views/network.html',
+        templateUrl: SVEN_STATIC_URL + 'views/network.html',
         controller: 'NetworkCtrl',
         reloadOnSearch: false,
         resolve: {
@@ -132,20 +132,20 @@ angular
         }
       })
       .when('/corpus/:id/documents', {
-        templateUrl: SVEN_STATIC_URL + '/views/documents.html',
+        templateUrl: SVEN_STATIC_URL + 'views/documents.html',
         controller: 'CorpusDocumentsCtrl',
         reloadOnSearch: false
       })
       .when('/corpus/:id/documents/new', {
-        templateUrl: SVEN_STATIC_URL + '/views/documents.new.html',
+        templateUrl: SVEN_STATIC_URL + 'views/documents.new.html',
         controller: 'CorpusDocumentsCtrl'
       })
       .when('/corpus/:id/stopwords', {
-        templateUrl: SVEN_STATIC_URL + '/views/stopwords.html',
+        templateUrl: SVEN_STATIC_URL + 'views/stopwords.html',
         controller: 'StopwordsCtrl'
       })
       .when('/corpus/:id/search/:query', {
-        templateUrl: SVEN_STATIC_URL + '/views/search.html',
+        templateUrl: SVEN_STATIC_URL + 'views/search.html',
         controller: 'SearchCtrl'
       })
       .otherwise({
