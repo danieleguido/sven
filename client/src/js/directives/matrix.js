@@ -26,7 +26,7 @@ angular.module('sven')
             colspacing = maxRadius * 6,
             lineHeight = 28,
             marginTop = 160,
-            marginLeft = 200; // labels excluded.
+            marginLeft = 240; // labels excluded.
 
 
 
@@ -111,6 +111,15 @@ angular.module('sven')
               .attr('transform', transformationMatrix)
           
           blocks
+            .append('rect')
+              .attr({
+                x: 0,
+                y: -lineHeight,
+                height: lineHeight,
+                width: (marginLeft + ((scope.groups || []).length + 1)*colspacing)
+              })
+              
+          blocks
             .append('text')
               .attr({
                 x: 40,
@@ -139,7 +148,9 @@ angular.module('sven')
           rows
             .exit()
               .remove()
-
+          
+          rows.select('rect')
+            .attr('width',  (marginLeft + ((scope.groups || []).length + 1)*colspacing) )
           rows
             .select('text')
               .attr({
@@ -297,6 +308,7 @@ angular.module('sven')
         })
         element.on('click', '.block text', function(e) {
           console.log('filterconcepts', $(e.target).attr('slug'));
+          toast('filtering ...')
           scope.filterconcepts({
             cluster: $(e.target).attr('slug')
           })

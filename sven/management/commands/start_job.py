@@ -216,10 +216,16 @@ class Command(BaseCommand):
     logger.debug('%s lines in csv file, starting import' % total)
     
     with transaction.atomic():
-
+      
       for step,row in enumerate(rows):
-        logger.debug('import line %s of %s' % (step, total))
+        job.completion = 1.0*step/total
+        job.save()
+        
         Segment.objects.filter(corpus=job.corpus, cluster=row[u'segment__cluster']).update(cluster=row[u'cluster'].strip(), status=(Segment.OUT if len(row[u'exclude'].strip()) > 0 else Segment.IN))
+        sid = transaction.savepoint()
+        if(step % 50 == 0):
+          logger.debug('import line %s of %s' % (step, total))
+          transaction.savepoint_commit(sid)
         
     self._tfidf(job, options)
 

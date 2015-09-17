@@ -946,7 +946,7 @@ def export_corpus_concepts(request, corpus_pk):
       groups = Document_Segment.objects.filter(
         document__corpus=cor,
         segment__status='IN'
-      ).filter(**epoxy.filters).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
+      ).filter(segment__cluster__in=[c['segment__cluster'] for c in clusters_objects]).extra(
         select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING[epoxy.data['group_by']]}
       ).order_by().values('G', 'segment__cluster').annotate(
         distribution=Count('document', distinct=True),

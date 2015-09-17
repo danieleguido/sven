@@ -999,6 +999,17 @@ text.label {
   shape-rendering: crispEdges;
 }
 
+#matrix g.block text {
+  font-size: 12px;
+}
+
+#matrix g.block rect {
+  fill: #f8f8f8;
+}
+#matrix g.block:hover rect{
+  fill: white;
+}
+
 #stream svg {
   background-color: #f8f8f8;
 }

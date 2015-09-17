@@ -52,7 +52,8 @@ angular
       })
       .when('/concepts', {
         templateUrl: SVEN_STATIC_URL + 'views/concepts.html',
-        controller: 'ConceptsCtrl'
+        controller: 'ConceptsCtrl',
+        reloadOnSearch: false
       })
       .when('/concept', {
         templateUrl: SVEN_STATIC_URL + 'views/concept.html',
