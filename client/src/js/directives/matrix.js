@@ -9,7 +9,15 @@
 angular.module('sven')
   .directive('matrix', function() {
     return {
-      template: '<div class="mouse tooltip">...</div><div class="viewer"></div>',
+      template: ''+ 
+      '<div class="mouse tooltip">'+
+      '  <div class="tooltip-inner">' + 
+      '    <div class="tooltip-title"></div>' + 
+      '    <div class="tooltip-group"></div>' + 
+      '    <div class="tooltip-measures"></div>' + 
+      '  </div>'+ 
+      '</div>' + 
+      '<div class="viewer"></div>',
       restrict: 'EA',
       scope: {
         data: '=',
@@ -21,6 +29,13 @@ angular.module('sven')
         filterconcepts: '&'
       },
       link: function postLink (scope, element, attrs) {
+        var tooltip = d3.select("#matrix div.tooltip.mouse"),
+            tooltip_title = tooltip.select(".tooltip-title"),
+            tooltip_group = tooltip.select(".tooltip-group"),
+            tooltip_measures = tooltip.select(".tooltip-measures"),
+            tooltip_is_visible = false,
+            tooltip_id;
+
         var minRadius  = 1,
             maxRadius  = 10,
             colspacing = maxRadius * 6,
@@ -33,7 +48,24 @@ angular.module('sven')
         var svg = d3.select('.viewer')
           .append("svg")
           .attr("height", 500)
-          .attr("width", 500);
+          .attr("width", 500)
+          .on("mousemove", function(d, e) {
+            var pos = d3.mouse(this)
+            if(!tooltip_is_visible)
+              tooltip.style({
+                opacity: 1
+              });
+            tooltip.style({
+              transform: "translate(" + pos[0] + "px, "+ pos[1]+ "px)"
+            })
+            tooltip_is_visible = true;
+          })
+          .on('mouseout', function() {
+                tooltip_is_visible = false;
+                tooltip.style({
+                  opacity: 0
+                })
+              })
 
         // create labels
         // appending labels
@@ -54,6 +86,7 @@ angular.module('sven')
             'class': 'header',
             'text-anchor': 'middle'
           })
+          
 
         // svg
         //   .append("text")
@@ -109,6 +142,23 @@ angular.module('sven')
                 return 'block ' + (d.status || '');
               })
               .attr('transform', transformationMatrix)
+              .on('mouseover', function(d) {
+
+                if(d.segment__cluster != tooltip_id) {
+                  var text = d.contents.split('||').pop();
+                  tooltip_title.text(text + ' ('+ d.segment__cluster+ ')')
+                  tooltip_measures.text(d.tf + '(tf) - '+ d.tfidf + '(tfidf)');
+                }
+                tooltip_id = d.segment__cluster;
+
+              })
+              .on('mouseout', function() {
+                tooltip_is_visible = false;
+                tooltip.style({
+                  opacity: 0
+                })
+              })
+              
           
           blocks
             .append('rect')

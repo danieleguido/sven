@@ -506,8 +506,8 @@ li.spacer{
   font-size: 12px;
 }
 
-.tooltip.mouse{
-  background: #383838;
+.tooltip .mouse{
+  /*background: #383838;*/
 }
 
 .tooltip.mouse h4{

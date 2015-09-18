@@ -393,6 +393,7 @@ angular.module('sven')
       } else {
         for(var i in key) {
         // console.log(t[key], key[i])
+
           if(t[key[i]])
             $scope.filters[t[key[i]]] = filter[i];
           else
@@ -442,6 +443,13 @@ angular.module('sven')
         delete $scope.filtersItems[key];
       };
       $location.search(_t[key], null);
+      //$location.search($scope.getTranslatedFilters());
+    };
+
+    $scope.removeFilters = function(keys, filters) {
+      $log.log('CoreCtrl -> removeFilters', keys, filters)
+      for(var i in keys)
+        $scope.removeFilter(keys[i], filters[i]);
       //$location.search($scope.getTranslatedFilters());
     };
 

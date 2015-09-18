@@ -15,12 +15,20 @@
       scope: {
         values: '=',
         filters : '=',
-        onbrush: '&'
+        onbrush: '&',
+        onclean: '&'
       },
       template: '<div class="brushdate left "></div><div class="brushdate right "></div><div class="date left "></div><div class="date right "></div><div class="mouse tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div><div class="viewer"></div>',
       link : function(scope, element, attrs) {
         
-        var tim = { css:{}, ƒ:{}};
+        var tim = {
+              css:{},
+              fn:{
+                asDay: d3.time.format("%B %d, %Y"),
+                asMonth: d3.time.format("%Y-%m"),
+                asYear: d3.time.format("%Y")
+              }
+            };
         
         tim.padding = {
           v: 10,
@@ -32,10 +40,10 @@
           h: 50  
         };
         
-        tim.ƒ.x = d3.time.scale()
+        tim.fn.x = d3.time.scale()
             .range([tim.padding.h * 2, tim.dimensions.w - tim.padding.h * 2]);
-        tim.ƒ.x.domain([0, 100]);
-        tim.ƒ.y = d3.scale.sqrt()
+        tim.fn.x.domain([0, 100]);
+        tim.fn.y = d3.scale.sqrt()
             .range([30, 0]);
         
 
@@ -49,7 +57,7 @@
           tim.brushDateLeft    = d3.select('#timeline .brushdate.left');
           tim.brushDateRight   = d3.select('#timeline .brushdate.right');
               
-          tim.brush       = d3.svg.brush().x(tim.ƒ.x);
+          tim.brush       = d3.svg.brush().x(tim.fn.x);
           
           tim.svg     = tim.viewer
             .append("svg")
@@ -88,31 +96,115 @@
           tim.area = d3.svg.area()
               //.interpolate("monotone")
               .x(function (d) {
-                return tim.ƒ.x(d.t);
+                return tim.fn.x(d.t);
               })
               .y0(function (d) {
-                return tim.ƒ.y(d.weight);
+                return tim.fn.y(d.weight);
               })
               .y1(30);
           
+          tim.evaluate = function() {
+            if(!tim.timeExtent)
+              return false
+            if(!scope.filters.date__gte && !scope.filters.date__lte) {
+              tim.clear();
+              return false
+              
+            }
+            // evaluate scope .filters agains the current timeExtension and decide if thiere is the need for updating
+            var left = scope.filters.date__gte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): tim.timeExtent[0],
+                right = scope.filters.date__lte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): tim.timeExtent[1],
+                proceed = left != tim.left || right != tim.right;
+                
+            tim.left = left;
+            tim.right = right;
+            $log.log('::timeline evaluate -tochange:', proceed)
+            return proceed;
+          }
+
+          tim.clear = function() {
+            tim.gBrush.call(tim.brush.clear());
+            tim.drawDates()
+          }
+
+          tim.drawDates = function (extent) {
+            if(!extent) {
+              tim.brushDateLeft.style({
+                visibility: 'hidden'
+              });
+              tim.brushDateRight.style({
+                visibility: 'hidden'
+              });
+              return;
+            }
+            if(typeof extent[0] == 'object') {
+                tim.brushDateLeft.style({
+                visibility: 'visible',
+                // transform: 'translateX(' + (tim.fn.x(extent[0]) + 50) +'px)'
+              }).text(tim.fn.asDay(extent[0]));
+            } else if(typeof extent[0] == 'number') {
+                tim.brushDateLeft.style({
+                visibility: 'visible',
+                // transform: 'translateX(' + (tim.fn.x(extent[0]) + 50) +'px)'
+              }).text(tim.fn.asDay(new Date(extent[0])));
+            } else {
+              tim.brushDateLeft.style({
+                visibility: 'hidden'
+              });
+            }
+          
+            if(typeof extent[1] == 'object') {
+              tim.brushDateRight.style({
+                visibility: 'visible',
+               // transform: 'translateX(' + (tim.fn.x(extent[1]) + 110 + 50) +'px)'
+              }).text(tim.fn.asDay(extent[1]));
+            } else if(typeof extent[1] == 'number') {
+              tim.brushDateRight.style({
+                visibility: 'visible',
+               // transform: 'translateX(' + (tim.fn.x(extent[1]) + 110 + 50) +'px)'
+              }).text(tim.fn.asDay(new Date(extent[1])));
+            } else {
+              tim.brushDateRight.style({
+                visibility: 'hidden'
+              });
+            }
+          }
+        
+          tim.brush.on("brush", function() {
+            var extent  = tim.brush.extent();
+            tim.drawDates(extent);
+          });
+
           tim.brush.on("brushend", function() {
-            return; 
-            
-            var extent = tim.brush.extent();
-            console.log(extent[0], extent[1])
+            var extent  = tim.brush.extent(),
+                left    = +extent[0],
+                right   = +extent[1];
+            $log.log('::timeline @brushend, ', left, right);
+            if(left == right) {
+              $log.log('::timeline @brushend, click on the timeline just clear the things');
+              tim.clear();
+              scope.onclean({
+                keys: ['date__gte','date__lte'], 
+                filters: [ 
+                  d3.time.format("%Y-%m-%d")(new Date(extent[0])),
+                  d3.time.format("%Y-%m-%d")(new Date(extent[1]))
+                ]
+              })
+              scope.$apply();
+              return;
+            }
+            // extent cover the whole timespan
+            if(left == tim.timeExtent[0] && right == tim.timeExtent[1]) {
+              $log.log('::timeline @brushend, maximum timespan, clear filters');
+              tim.clear();
+              return;
+            }
+            $log.log('::timeline @brushend, visualize dates');
+
             if(!extent[0] || !extent[1])
               return;
-            // commento
-            // console.log('::timeline @brush', new Date(extent[0]))
-             // d3.time.format("%B %d, %Y")(extent[0]))
-            if(typeof extent[0] == 'object') {
-              tim.brushDateLeft.style({
-                left: tim.ƒ.x(extent[0]) + 50
-              }).text(d3.time.format("%B %d, %Y")(extent[0]));
-              tim.brushDateRight.style({
-                left: tim.ƒ.x(extent[1]) + 110 + 50
-              }).text(d3.time.format("%B %d, %Y")(extent[1]));
-            }
+            
+            tim.drawDates(extent);
 
             clearTimeout(tim.brushTimer);
             tim.brushTimer = setTimeout(function(){
@@ -151,7 +243,7 @@
           
           tim.svg.on("mousemove", function(){
             var pos = d3.mouse(this),
-                date = new Date(tim.ƒ.x.invert(pos[0]-tim.padding.v));
+                date = new Date(tim.fn.x.invert(pos[0]-tim.padding.v));
             
             tim.pointer.style({
               'opacity': pos[0] < tim.padding.v || pos[0] > tim.availableWidth - tim.padding.v? 0:1
@@ -194,34 +286,39 @@
               }).sort(function (a, b) {
                 return a.t < b.t ? -1 : 1
               }),
-              ratio = dataset.length /  tim.availableWidth,
-              timeExtent = d3.extent(dataset, function(d) {return d.t});
-          if(!timeExtent[0] || !timeExtent[1])
+              ratio = dataset.length /  tim.availableWidth;
+
+          tim.timeExtent = d3.extent(dataset, function(d) {
+            return d.t
+          });
+
+          if(!tim.timeExtent[0] || !tim.timeExtent[1])
             return;
+
           // set date from extent
           tim.dateLeft
-              .text(tim.timeFormat(new Date(timeExtent[0])));
+              .text(tim.timeFormat(new Date(tim.timeExtent[0])));
           tim.dateRight
-              .text(tim.timeFormat(new Date(timeExtent[1])));
+              .text(tim.timeFormat(new Date(tim.timeExtent[1])));
           
           
           $log.log('::timeline -> draw() w:', tim.availableWidth, ' r:', ratio, scope.filters);
           
           // transform filters in other filters.
           var extension = [
-            scope.filters.date__gte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): timeExtent[0],
-            scope.filters.date__lte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): timeExtent[1]
+            scope.filters.date__gte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__gte): tim.timeExtent[0],
+            scope.filters.date__lte? d3.time.format("%Y-%m-%d").parse(scope.filters.date__lte): tim.timeExtent[1]
           ]
 
           //
           tim.svg.attr("width", tim.availableWidth)
-          tim.ƒ.x = d3.time.scale()
+          tim.fn.x = d3.time.scale()
             .range([0, tim.availableWidth - tim.padding.h * 2]);
           
-          tim.ƒ.x.domain(timeExtent);
-          tim.ƒ.y.domain(d3.extent(dataset, function(d) {return d.weight}));
+          tim.fn.x.domain(tim.timeExtent);
+          tim.fn.y.domain(d3.extent(dataset, function(d) {return d.weight}));
           
-          tim.brush.x(tim.ƒ.x).extent(timeExtent);
+          tim.brush.x(tim.fn.x).extent(tim.timeExtent);
           
           tim.extent(extension)
           tim.stream
@@ -246,7 +343,8 @@
           $log.log('::timeline filters:', scope.filters)
           if(scope.filters) {
             $log.log('::timeline -~draw()');
-            tim.draw();
+            if(tim.evaluate())
+              tim.draw();
           }
         })
 
