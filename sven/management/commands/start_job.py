@@ -253,7 +253,7 @@ class Command(BaseCommand):
       logger.debug('import line %s of %s' % (step, total))
       logger.debug(row)
       name = row[u'name'] # change document title (it has to be a complete csv export !!!!)
-      language = row[u'languages'][:2] #first language only
+      language = row[u'language'][:2] #first language only
 
       job.completion = 1.0*step/total
       
