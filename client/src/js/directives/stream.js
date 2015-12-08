@@ -72,7 +72,8 @@ angular.module('sven')
       // draw or redraw
       s.load = function(values) {
         values.sort(function (a,b) {
-          return a.G > b.G
+          // console.log(a)
+          return a.G > b.G? 1: -1
         });
         s.values = values;
         // pivot table in order to match schema for the connecting lines

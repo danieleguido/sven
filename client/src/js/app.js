@@ -76,13 +76,31 @@ angular
         controller: 'StreamCtrl',
         reloadOnSearch: false,
         resolve: {
-          concepts: function(CorpusVisFactory, $route) { // @todo:  CorpusVisFactory
+          concepts: function(CorpusVisFactory, $route, $location, cleaningFilter) { // @todo:  CorpusVisFactory
             // http://localhost:8000/api/corpus/1/concept?filters=%7B%7D&group_by=tm&limit=50&offset=0&order_by=%5B%22-tf%22%5D
-            return CorpusVisFactory.get({
+            var params = cleaningFilter($location.search());
+            // // use q filter insteqd @todo
+            // var filters = {};
+            // var between = $route.current.params.between;
+            // if(['document', 'concept', 'tag'].indexOf(between) == -1)
+            //   between = 'concept';
+
+            // if($route.current.params.start)
+            //   filters.date__gte=$route.current.params.start
+
+            // if($route.current.params.tag)
+            //   filters.tags__slug=$route.current.params.tag
+
+            // if($route.current.params.end)
+            //   filters.date__lte=$route.current.params.end
+            // debugger
+            return CorpusVisFactory.get(angular.extend({
               id: $route.current.params.id,
               vis:   'stream',
               model: 'concept'
-            }).$promise;
+            },{
+              filters: JSON.stringify(params)
+            })).$promise;
           }
         }
       })

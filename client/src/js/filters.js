@@ -9,6 +9,31 @@
  * Filter in the svenClientApp.
  */
 angular.module('sven')
+  /*
+    Remap filters to actual django filters.
+  */
+  .filter('cleaning', function() {
+    return function(params) {
+        var t = {
+              start: 'date__gte',
+              end: 'date__lte',
+              concept: 'segments__cluster',
+              tag: 'tags__slug'
+            },
+            _t = {
+              date__gte: 'start',
+              date__lte: 'end',
+              tags__slug: 'tag',
+              segments__cluster: 'concept',
+            },
+            m = {};
+
+        for(var i in params)
+          m[(t[i]||i)] = params[i];
+        return m;
+      
+    }
+  })
   .filter('tag', function () {
     return function (input) {
       return input.split(' - ').shift();

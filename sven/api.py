@@ -27,6 +27,7 @@ from networkx.algorithms import bipartite
 logger = logging.getLogger("sven")
 
 DATE_GROUPING = {
+  'Y': "%%Y",
   'Ym' : "%%Y-%%m",
   'Ymd' : "%%Y-%%m-%%d"
 }
@@ -789,6 +790,7 @@ def corpus_concepts(request, corpus_pk):
   
     # available data grouping (translations for MYSQL)
     DATE_GROUPING = {
+      'Y': "%%Y",
       'Ym' : "%%Y-%%m",
       'Ymd' : "%%Y-%%m-%%d"
     }
@@ -1061,6 +1063,7 @@ def stream_corpus_concepts(request, corpus_pk):
         select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
       ).values('G').annotate(distribution=Count('id'),date=Max('date'))
   
+  print filters  
   #get number of groups
 
   for g in groups_available:
