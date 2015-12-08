@@ -239,7 +239,7 @@ angular.module('sven')
             $scope.$broadcast(API_PARAMS_CHANGED)
           }
         }, function(err){
-          $log.error(response);
+          $log.error(err);
           $scope.uploadingQueue--;
           $scope.uploadingError++;
           if($scope.uploadingQueue == 0) {
