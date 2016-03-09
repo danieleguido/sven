@@ -129,3 +129,17 @@ WS4REDIS_PREFIX = 'ws'
 
 # sven
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+EN = 'en'
+IT = 'it'
+FR = 'fr'
+NL = 'nl'
+ES = 'es'
+
+LANGUAGE_CHOICES = (
+  (EN, u'english'),
+  (FR, u'french'),
+  (NL, u'dutch'),
+  (IT, u'italian'),
+  (ES, u'spanish'),
+)

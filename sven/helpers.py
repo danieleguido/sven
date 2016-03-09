@@ -21,7 +21,7 @@ def uuslug(model, instance, value, max_length=128):
 
   return slug
 
-  
+
 
 def palette():
   '''
@@ -55,3 +55,23 @@ def colour():
   
   contents = urllib2.urlopen(request).read()
   return json.loads(contents)  
+
+
+def truncatesmart(value, limit=80):
+    """
+    Truncates a string after a given number of chars keeping whole words.
+    
+    Usage as templatetag:
+        {{ string|truncatesmart }}
+        {{ string|truncatesmart:50 }}
+        # Join the words and return
+    """
+    value = unicode(value).strip() # Make sure it's unicode
+    
+    if len(value) <= limit:# Return the string itself if length is smaller or equal to the limit
+      return value
+    
+    value = value[:limit] # Cut the string
+    words = value.split(' ')[:-1] # Break into words and remove the last
+    
+    return ' '.join(words) + '...'
