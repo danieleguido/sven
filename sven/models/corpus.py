@@ -10,6 +10,9 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 
+
+
+
 class Corpus(models.Model):
   name = models.CharField(max_length=32)
   slug = models.CharField(max_length=32, unique=True)
@@ -42,3 +45,15 @@ class Corpus(models.Model):
 
   def __unicode__(self):
     return '%s [%s]' % (self.name, self.slug)
+
+
+@receiver(pre_delete, sender=Corpus)
+def delete_corpus(sender, instance, **kwargs):
+  '''
+  rename or delete the corpus path linked to the corpus instance.
+  We should provide a zip with the whole text content under the name <user>.<YYYYmmdd>.<corpus-name>.zip, @todo
+  '''
+  print 'deleting the corpus'
+  path = instance.get_path()
+
+  shutil.rmtree(path)

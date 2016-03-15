@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from sven.models import Corpus, Profile
+from sven.models import Corpus, Profile, Document
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
 

@@ -1,0 +1,18 @@
+<div class="btn-toolbar" role="toolbar">
+  <div class="btn-group">
+        <label class="btn btn-default" ng-model="between" btn-radio="'document'" > documents</label>
+        <label class="btn btn-default" ng-model="between" btn-radio="'concept'" >concepts</label>
+        <label class="btn btn-default" ng-model="between" btn-radio="'tag'" >tags</label>
+    </div>
+  <!-- <div class="btn-group" tooltip='change node size according to specific concept metrics'>
+        <label class="btn btn-default" ng-model="measure" btn-radio="'tf'" uncheckable> frequence</label>
+        <label class="btn btn-default" ng-model="measure" btn-radio="'tfidf'" uncheckable>specificity</label>
+        <label class="btn btn-default" ng-model="measure" btn-radio="'degree'" uncheckable>degree {{measure}}</label>
+    </div> -->
+</div>
+<div id="tooltip-sigma">
+  <div class="wrapper">
+  <div id="tooltip-sigma-label" class="mouse tooltip"></div>
+  </div>
+</div>
+<div sigma graph="graph" freeze='freeze' id="milkyway" changefilters="changeFilter(key, value)" measure="measure" class="{{hasFilters()? 'filtered': ''}}"></div>

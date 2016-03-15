@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_URL = ''
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SVEN_NAME = 'SVEN'
 
 # Application definition
 
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ws4redis',
-    'rest_framework',
+    # 'rest_framework',
     'sven'
 ]
 
@@ -47,6 +48,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -58,7 +60,9 @@ ROOT_URLCONF = 'sven.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'client'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +74,11 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_DIRS = [
+  os.path.join(BASE_DIR, 'client/src'),
+]
+
 
 WSGI_APPLICATION = 'sven.wsgi.application'
 
@@ -127,7 +136,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 WEBSOCKET_URL = '/ws/'
 WS4REDIS_PREFIX = 'ws'
 
-# sven
+
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 EN = 'en'
@@ -143,3 +152,20 @@ LANGUAGE_CHOICES = (
   (IT, u'italian'),
   (ES, u'spanish'),
 )
+
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_PREFIX = 'session'
+
+WHOOSH_PATH     = os.path.join(BASE_DIR, 'contents/whoosh')
+STOPWORDS_PATH  = os.path.join(BASE_DIR, 'contents/stopwords') # Cfr models.Corpus.get_stopwords_path(). Path where txt stopwords files has to be stored.
+
+MAX_CORPORA_PER_USER = 2 # max number of corpus per not admin user
+STANDALONE_COMMANDS = ['harvest', 'whoosher', 'freebase'] # standalone management commands.
+ADMIN_COMMANDS = ['removecorpus', 'clean', 'cleansegments']
+
+# the settings above are the generic ones. Shall you need to change something, use a local_settings.py file instead.
+try:
+    from local_settings import *
+except ImportError:
+    pass

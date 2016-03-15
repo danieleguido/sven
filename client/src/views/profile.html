@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-lg-6">
+
+    <h2>{{profile.firstname}}'s profile</h2>
+    <form role="form" ng-submit="save()">
+      <div class="form-group">
+
+        <label>firstname</label>
+        <input type="text" ng-model="profile.firstname" class="form-control">
+      
+      </div>
+      <div class="form-group">
+
+        <label>lastname</label>
+        <input type="text" ng-model="profile.lastname" class="form-control">
+      
+      </div>
+      <div class="form-group">
+
+        <label>short bio</label>
+        <textarea ng-model="profile.bio" class="form-control"></textarea>
+      
+      </div>
+      <div class="form-group">
+
+        <label>picture url</label>
+        <input type="url" ng-model="profile.picture" class="form-control">
+      
+      </div>
+      <div class="form-group">
+        
+        <button class="btn btn-default" >save changes</button>
+      
+      </div>  
+    </form>
+  </div>
+</div>

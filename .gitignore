@@ -1,7 +1,7 @@
 local_settings.py
 sven.wsgi
 contents/*/
-migrations/*/
+migrations
 media/*
 static/*
 dist/*
@@ -12,6 +12,7 @@ dist/*
 *.db
 *.sqlite3
 
+*.rdb
 *.log
 *.db-journal
 *.sublime-workspace

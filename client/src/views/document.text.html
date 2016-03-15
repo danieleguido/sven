@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="loader" ng-if="!document.id"></div>
+  <div class="col-lg-6" >
+
+    <h2>{{document.name}}</h2>
+    <form role="form" ng-submit="saveText()">
+      <div class="form-group">
+
+        <label>abstract</label>
+        <textarea ng-model="document.abstract" class="form-control" rows="3"></textarea>
+      
+      </div>
+      <div class="form-group">
+
+        <label>date</label>
+        <div>
+          <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup='dd-MMMM-yyyy' ng-model="document.date" is-open="opened" min-date="'1900-06-22'" max-date="'2015-06-22'" ng-required="false" close-text="Close" />
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="openDatePicker($event)"><i class="fa fa-calendar"></i></button>
+            </span>
+          </p>
+        </div>
+      
+      </div>
+      <div class="form-group">
+
+        <label>text</label>
+        <textarea type="text" ng-model="document.text" class="form-control" rows="20"></textarea>
+     
+      </div>
+      
+      <div class="btn-group">
+        
+        <a class="btn btn-default" ng-href="#/document/{{document.id}}" ><i class="fa fa-angle-left"></i> back without saving</a> 
+        <button class="btn btn-primary">save changes</button>
+      
+      </div>  
+    </form>
+
+  </div>
+  <div class="col-lg-6"></div>
+</div>

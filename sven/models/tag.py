@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from sven import helpers
 from django.db import models
+from django.core.validators import RegexValidator
 
 class Tag(models.Model):
   '''
@@ -47,7 +48,12 @@ class Tag(models.Model):
   name   = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
   corpus = models.ForeignKey('Corpus')
   slug   = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
-  type   = models.CharField(max_length=2, choices=TYPE_CHOICES + TYPE_OEMBED_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
+  type   = models.CharField(max_length=32, validators=[
+              RegexValidator(r'^[0-9a-z-A-Z\s]*$',
+                'Only 0-9 are allowed.',
+                'Invalid Number'
+              ),
+           ], default=FREE) # e.g. 'actor' or 'institution'
 
 
   def save(self, **kwargs):
