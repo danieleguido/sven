@@ -18,6 +18,5 @@ dist/*
 .DS_Store
 
 node_modules
-*.map
 
-*.map
+client/src/js/lib/*.map
