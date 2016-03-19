@@ -85,6 +85,8 @@ angular.module('sven')
   })
   .filter('categorytag', function(){
     return function(input, part) {
+      if(part=='category' && input.indexOf(':') == -1)
+        return 'keyword';
       return part=='category'? input.split(':').shift(): input.split(':').pop()
     }
   })
