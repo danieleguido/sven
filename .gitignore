@@ -19,4 +19,4 @@ dist/*
 
 node_modules
 
-client/src/js/lib/*.map
+*.map
