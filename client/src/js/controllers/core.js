@@ -125,7 +125,7 @@ angular.module('sven')
     /*
       Provide autosuggest for tags.
     */
-    $scope.suggest = function(query) {
+    $scope.suggest = function(query, discard_is_temporary) {
       var q = query.split(':'),
           params = {};
 
@@ -143,6 +143,8 @@ angular.module('sven')
         id: $scope.corpus.id,
         related_model: 'tag',
       }, params)).$promise.then(function(response) {
+        if(discard_is_temporary)
+          return response.objects;
         return response.objects.map(function(d){
           d.temporary=true;
           return d;

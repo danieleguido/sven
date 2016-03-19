@@ -559,7 +559,7 @@ class Tag(models.Model):
 
   class Meta:
     managed= True
-
+   
   def save(self, **kwargs):
     if self.pk is None:
       self.slug = helper_uuslug(model=Tag, instance=self, value=self.name)

@@ -15,7 +15,7 @@
         <label>tag document</label>
         <div class="description">search for already existing tags, or add new ones (format: category:tag)</div>
         <tags-input display-property='name' display-property='name' ng-model="tags" template='{{"views/partials/typeahead-tag.html"|template}}'>
-          <auto-complete load-on-down-arrow="true" select-first-match='true' source="suggest($query)" template='{{"views/partials/typeahead-autocomplete.html"|template}}' display-property='name'></auto-complete>
+          <auto-complete load-on-down-arrow="true" select-first-match='true' source="suggest($query, true)" template='{{"views/partials/typeahead-autocomplete.html"|template}}' display-property='name'></auto-complete>
         </tags-input>
         <!-- <label>url type (optional)</label>
         <select class="form-control" ng-model="document.__url_type" ng-options="typology as typology.name for typology in typesofmedia track by typology.slug">
