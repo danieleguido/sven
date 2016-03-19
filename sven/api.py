@@ -253,7 +253,7 @@ def corpus_documents(request, corpus_pk):
         candidates_tags = epoxy.data['tags']
         
       for t in candidates_tags:
-        print t
+        # print t
         tagsform = TagsForm({'type':t['type'], 'tags': ' '.join(t['tags'])})
       #tagsform = TagsForm()
         if not tagsform.is_valid():
@@ -283,7 +283,7 @@ def corpus_documents(request, corpus_pk):
         return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
   try:
-    epoxy.queryset(Document.objects.filter(corpus=c))
+    epoxy.queryset(Document.objects.filter(corpus=c).prefetch_related('tags'))
   except Exception, e:
     logger.exception(e)
     
@@ -326,6 +326,39 @@ def document(request, pk):
     if not form.is_valid():
       return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
     d.save()
+    
+    candidates_tags = None
+    # tags have to be a json oject
+    if 'tags' in epoxy.data:
+      try:
+        candidates_tags = json.loads(epoxy.data['tags'])
+      except ValueError, e:
+        return epoxy.throw_error(error='json ValueError for tags param. %s'%e, code=API_EXCEPTION_FORMERRORS).json()
+      except TypeError, e:
+        candidates_tags = epoxy.data['tags']
+        
+      for t in candidates_tags:
+        # print t
+        tagsform = TagsForm({'type':t['type'], 'tags': ' '.join(t['tags'])})
+      #tagsform = TagsForm()
+        if not tagsform.is_valid():
+          return epoxy.throw_error(error=tagsform.errors, code=API_EXCEPTION_FORMERRORS).json()
+        epoxy.meta('tags', candidates_tags)
+
+      with transaction.atomic():
+        tags = []
+        if candidates_tags:
+          for candidate_type in candidates_tags:
+            for tag in candidate_type['tags']:
+              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128], corpus=d.corpus)
+              tags.append(t)
+        #save documents and attach tags
+        d.tags.add(*tags)
+        d.save()
+
+        
+
+
     # chec if there is a text param to save ...
     if 'text' in epoxy.data:
       logger.debug('saving text for the given document')

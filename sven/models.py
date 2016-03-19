@@ -628,20 +628,20 @@ class Document(models.Model):
       'date': self.date.strftime("%Y-%m-%d") if self.date else None,
       'date_created': self.date_created.isoformat(),
       'date_last_modified': self.date_last_modified.isoformat(),
-      'tags': {},
+      'tags': [t.json() for t in self.tags.all()],
       'url': self.url
       #[t.json() for t in self.tags.all()]
     }
 
-    for t in self.tags.all():
-      k = t.type
-      if t.type in [Tag.OEMBED_PROVIDER_NAME, Tag.OEMBED_VIDEO_ID]:
-        d['tags'][k] = t.json()
-        continue
-      if k not in d['tags']:
-        d['tags'][k] = []
+    # for t in self.tags.all():
+    #   k = t.type
+    #   if t.type in [Tag.OEMBED_PROVIDER_NAME, Tag.OEMBED_VIDEO_ID]:
+    #     d['tags'][k] = t.json()
+    #     continue
+    #   if k not in d['tags']:
+    #     d['tags'][k] = []
 
-      d['tags'][k].append(t.json())
+    #   d['tags'][k].append(t.json())
 
     if self.raw:
       if self.mimetype != "text/plain":
@@ -898,7 +898,7 @@ class Document(models.Model):
 
     if self.url: # load metadata if is a oembed service.
       # get title from webpage if it is not defined
-      
+
       import micawber
       mic = micawber.bootstrap_basic()
       # add issuu rule...?

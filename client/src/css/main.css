@@ -359,10 +359,25 @@ li.spacer{
   padding-bottom: 20px;
 }
 
+.item h4 a{
+  color: #151515;
+  line-height: 24px;
+}
+
+.item h4 .date{
+  color: #959595;
+}
+
+.item h4 a:hover{
+  
+  text-decoration: underline;
+}
+
 .item .action {
   opacity: 0.17;
   pointer-events: none;
 }
+
 
 .item:hover .action{
   opacity: .5;
@@ -440,11 +455,18 @@ li.spacer{
   color: #bbb;
 }
 
+.big-item .abstract{
+  margin: 10px 0px 20px;
+  color: #999;
+}
+
 .big-item .content{
-  padding: 15px 20px 25px 20px;
+  padding: 20px 0px 40px 0px;
   border-top: 1px solid #eee;
   border-bottom: 2px solid #eee;
   margin-top: 10px;
+  margin-bottom: 10px;
+  
 }
 
 .big-item .content span[data-id] {
@@ -1183,8 +1205,40 @@ text.label {
 
 
 /*
-  ngInputTags
+  ngInputTags hack
 */
-.tag-template .name{
+tags-input .tags .tag-item .tag-template .name{
   font-weight: bold
+}
+
+tags-input .tags .tag-item{
+  color: #151515;
+  border: 0px transparent;
+  background: transparent;
+  padding: 0;
+}
+tags-input .tags .tag-item .tag-template {
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 0 5px;
+    height: 26px;
+    font-size: 13px;
+    background: #f0f0f0;
+}
+tags-input .tags .tag-item .tag-template.temporary{
+    color: #aaa;
+    border: 1px solid #bbb;
+    background: transparent;
+}
+
+tags-input .tags .tag-item.selected {
+  color: #151515;
+  border: 0px transparent;
+  background: transparent;
+}
+
+tags-input .tags .tag-item.selected .tag-template{
+  border: 1px solid crimson;
+  background: transparent;
+  color: crimson;
 }

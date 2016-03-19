@@ -33,7 +33,7 @@ angular.module('sven')
     - corpus/<corpus_id>/documents
     - corpus/<corpus_id>/documents/new
   */
-  .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory, CorpusRelatedFactory) {
+  .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
     // reset orderby
     $scope.$parent.orderBy.choices = [
@@ -74,28 +74,7 @@ angular.module('sven')
       } // end if
     };
 
-    $scope.suggest = function(query) {
-      var q = query.split(':'),
-          params = {};
-
-      if(q.length>1){
-        params.filters = {
-          "type__icontains": q[0].trim(),
-          "name__icontains": q[1].trim() 
-        };
-      } else {
-        params.search = query
-      }
-      console.log('CorpusDocumentsCtrl -> suggest query:', query, '-params:', params)
-      
-      return CorpusRelatedFactory.get(angular.extend({
-        id: $routeParams.id,
-        related_model: 'tag',
-      }, params)).$promise.then(function(response) {
-        return response.objects;
-      });
-
-    };
+    
 
     $scope.saveUrl = function() {
       $log.info('CorpusDocumentsCtrl -> saveUrl: ', $scope.document.url);
@@ -112,22 +91,7 @@ angular.module('sven')
       // load
       if($scope.tags && $scope.tags.length) {
         // group by tags
-        doc.tags = $scope.tags.map(function(d){
-          var _d = {
-              type: d.type || 'keyword',
-              tags: [d.name]
-            }
-          if(d.type)
-            return _d;
-
-          var guessed = d.name.split(':');
-          
-          if(guessed.length > 1){
-            _d.type = guessed[0];
-            _d.tags = [guessed[1]];
-          }
-          return _d;
-        })
+        doc.tags = $scope.prepareTags($scope.tags);
       }
       
       DocumentsFactory.save({

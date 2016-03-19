@@ -43,7 +43,7 @@ function cleanToast () {
  * Controller of the svenClientApp
  */
 angular.module('sven')
-  .controller('CoreCtrl', function ($scope, $location, $log, $upload, $sce, $cookies, $timeout, $filter, CommandFactory, NotificationFactory) {
+  .controller('CoreCtrl', function ($scope, $location, $log, $upload, $sce, $cookies, $timeout, $filter, CommandFactory, NotificationFactory, CorpusRelatedFactory) {
     $log.debug('CoreCtrl ready');
     $scope.status = 'LOADING';
 
@@ -120,6 +120,57 @@ angular.module('sven')
 
     $scope.html = function(html_code) {
       return $sce.trustAsHtml(html_code);
+    }
+
+    /*
+      Provide autosuggest for tags.
+    */
+    $scope.suggest = function(query) {
+      var q = query.split(':'),
+          params = {};
+
+      if(q.length>1){
+        params.filters = {
+          "type__icontains": q[0].trim(),
+          "name__icontains": q[1].trim() 
+        };
+      } else {
+        params.search = query
+      }
+      console.log('CorpusDocumentsCtrl -> suggest query:', query, '-params:', params)
+      
+      return CorpusRelatedFactory.get(angular.extend({
+        id: $scope.corpus.id,
+        related_model: 'tag',
+      }, params)).$promise.then(function(response) {
+        return response.objects.map(function(d){
+          d.temporary=true;
+          return d;
+        });
+      });
+
+    };
+
+    /*
+      Return  set otf tags to be attached everywhere
+    */
+    $scope.prepareTags = function(tags) {
+      return tags.map(function(d){
+        var _d = {
+            type: d.type || 'keyword',
+            tags: [d.name]
+          }
+        if(d.type)
+          return _d;
+
+        var guessed = d.name.split(':');
+        
+        if(guessed.length > 1){
+          _d.type = guessed[0];
+          _d.tags = [guessed[1]];
+        }
+        return _d;
+      });
     }
 
 
@@ -372,13 +423,15 @@ angular.module('sven')
         start: 'date__gte',
         end: 'date__lte',
         concept: 'segments__cluster',
-        tag: 'tags__slug'
+        tag: 'tags__slug',
+        language: 'language'
       },
       _t = {
         date__gte: 'start',
         date__lte: 'end',
         tags__slug: 'tag',
         segments__cluster: 'concept',
+        language: 'language'
       };
 
     $scope.changeFilter = function(key, filter, options) {
@@ -437,7 +490,9 @@ angular.module('sven')
     } 
 
     $scope.removeFilter = function(key, filter) {
-      $log.log('CoreCtrl -> removeFilter', key)
+      if(!key)
+        return;
+      $log.log('CoreCtrl -> removeFilter', key);
       if($scope.filters[key] == filter) {
         delete $scope.filters[key];
         delete $scope.filtersItems[key];

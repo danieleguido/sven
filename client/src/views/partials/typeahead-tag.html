@@ -1,8 +1,8 @@
-<div class="tag-template">
+<div class="tag-template " ng-class='data.temporary?"temporary":""'>
   <div>
     <span class='type' ng-if='data.type'>{{data.type}}:</span>
-    <span class='type' ng-if='!data.type'>{{data.name|categorytag:'category'}}</span>
-    <span class='name'>{{data.name|categorytag:'tag'}}</span>
-    <a class="remove-button" ng-click="$removeTag()">&#10006;</a>
+    <span class='type' ng-if='!data.type'>{{data.name|categorytag:'category'}}:</span>
+    <span class='name'>{{data.name|categorytag:'tag'}} <span class='fa fa-exclamation-circle' ng-if='data.temporary' tooltip='unsaved tag'></span></span>
+    <a class="remove-button" ng-click="$removeTag()"><span class='fa fa-remove'></span></a>
   </div>
 </div>

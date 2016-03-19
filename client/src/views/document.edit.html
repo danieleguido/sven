@@ -23,8 +23,19 @@
         </div>
       
       </div>
-      <div class="form-group">
 
+      <div class="form-group">
+        <label>tag document</label>
+        <div class="description">search for already existing tags, or add new ones (format: category:tag)</div>
+        <tags-input template='{{"views/partials/typeahead-tag.html"|template}}'
+          ng-model="document.tags"
+          replace-spaces-with-dashes="false"
+          on-tag-removed="detachTag(document, $tag)"
+          display-property="name">
+          <auto-complete load-on-down-arrow="true" select-first-match='true' source="suggest($query)" template='{{"views/partials/typeahead-autocomplete.html"|template}}' display-property='name'></auto-complete>
+        </tags-input>
+      <!-- <div class="form-group">
+        on-tag-added="attachTag(document,'tm',$tag)" on-tag-removed="detachTag(document,'tm',$tag)"
         <label>type of media</label>
 
         <tags-input
@@ -47,7 +58,7 @@
         <label>free tags</label>
         <tags-input ng-model="document.tags.tags" replace-spaces-with-dashes="false" display-property="name" on-tag-added="attachTag(document,'fr',$tag)" on-tag-removed="detachTag(document,'fr',$tag)"></tags-input>
 
-      </div>
+      </div> -->
       <div class="form-group">
 
         <label>abstract</label>
@@ -62,7 +73,7 @@
       </div>
       
       <div class="btn-group">
-        <a class="btn btn-default" ng-href="#/document/{{document.id}}" ><i class="fa fa-angle-left"></i> back without saving</a> 
+        <a class="btn btn-default" ng-href="#/document/{{document.id}}" ><i class="fa fa-angle-left"></i> back to the document</a> 
         <button class="btn btn-primary">save changes</button>
       
       </div>

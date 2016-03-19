@@ -26,26 +26,29 @@ angular.module('sven')
             abstract: doc_copy.abstract
           }; // translation for api purposes of some fields
 
+      // debugger
+      doc.tags = $scope.prepareTags(doc_copy.tags);
       // attach new tags
-      for(var tag_type in doc_copy.tags) {
-        if(!doc_copy.tags[tag_type])
-          continue
-        doc_copy.tags[tag_type] = doc_copy.tags[tag_type].filter(function(d){
-          return !d.id; // not having id
-        }).map(function(d){
-          return d.name
-        })
-      };
+      // for(var tag_type in doc_copy.tags) {
+      //   if(!doc_copy.tags[tag_type])
+      //     continue
+      //   doc_copy.tags[tag_type] = doc_copy.tags[tag_type].filter(function(d){
+      //     return !d.id; // not having id
+      //   }).map(function(d){
+      //     return d.name
+      //   })
+      // };
       
 
-      $log.info('DocumentCtrl.save() -->', doc.name,  doc_copy.tags);
+      $log.info('DocumentCtrl.save() -->', doc.name,  doc.tags);
 
-      DocumentFactory.save(doc, function(res) {
+      DocumentFactory.save({id: doc.id}, doc, function(res) {
         console.debug('DocumentCtrl saved',res);
         $scope.document = res.object;
+
         if(res.status == 'ok') {
-          toast('saved');
-          $location.path('/document/' + res.object.id);
+          toast('document saved');
+        //  $location.path('/document/' + res.object.id);
         }
       });
     };
@@ -99,11 +102,18 @@ angular.module('sven')
       });
     }
 
-    $scope.detachTag = function(doc, type, tag) {
-      $log.info('DocumentCtrl.detachTag() -->', type, tag.name);
-      DocumentTagsFactory.remove({id: doc.id, tags: tag.name, type:type}, function(data){
-        console.log('DocumentCtrl.detachTag() success', data);
+    /*
+      tagname
+    */
+    $scope.detachTag = function(doc, tag) {
+      if(tag.temporary) {
+        return;
+      }
+      $log.info('DocumentCtrl -> detachTag() tag name:', tag.name,'-type: ',tag.type);
+      
+      DocumentTagsFactory.remove({id: doc.id, tags: tag.name, type:tag.type}, function(data){
         $scope.document.tags = data.object.tags;
+        toast('untagged '+ tag.type + ':<b>' + tag.name + '</b>')
       });
     }
 
