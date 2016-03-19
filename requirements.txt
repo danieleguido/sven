@@ -10,7 +10,7 @@ langid==1.1.4.dev0
 lorem-ipsum-generator==0.3
 lxml==3.6.0
 Markdown==2.4
-micawber==0.3.0
+micawber==0.3.3
 MySQL-python==1.2.5
 networkx==1.10
 nltk==3.2
