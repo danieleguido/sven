@@ -12,8 +12,8 @@ angular.module('sven')
     $scope.document = {
       date: new Date()
     };
-    $log.info($routeParams, 'loading stuff')
-    
+
+    $log.info('DocumentCtrl', $routeParams, 'loading stuff')
 
 
 

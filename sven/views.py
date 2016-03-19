@@ -9,12 +9,15 @@ from django.utils.translation import ugettext as _
 from django.template import RequestContext
 
 from sven.forms import LoginForm
-from sven.models import Document
+from sven.models import Document, Corpus
 
 
 @login_required
 def home(request):
   d = _shared_context(request)
+
+  cor = Corpus.objects.filter(owners=request.user)[0]
+  d['corpus'] = cor.pk
   return render_to_response("index.html", RequestContext(request, d))
 
 

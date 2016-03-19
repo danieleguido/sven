@@ -23,7 +23,7 @@ apipatterns = patterns('sven.api',
   url(r'^corpus/(?P<corpus_pk>\d+)/stopwords$', 'corpus_stopwords', name='sven_api_corpus_stopwords'), #view modify segment cluster according to the current corpus
   
   url(r'^corpus/(?P<corpus_pk>\d+)/concept$', 'corpus_concepts', name='sven_api_corpus_concepts'), #view modify segment cluster according to the current corpus
-  
+  url(r'^corpus/(?P<corpus_pk>\d+)/related/tag$', 'corpus_tags', name='sven_api_corpus_tags'),
 
   url(r'^job$', 'jobs', name='sven_api_jobs'), #view modify segment cluster according to the current corpus
   url(r'^job/(?P<pk>\d+)$', 'job', name='sven_api_job'), #view modify segment cluster according to the current corpus

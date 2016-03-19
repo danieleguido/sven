@@ -213,6 +213,19 @@ def start(request, corpus_pk, cmd):
   return epoxy.json()
 
 
+@login_required(login_url='/api/login')
+def corpus_tags(request, corpus_pk):
+  '''
+  return corpus related tags
+  '''
+  epoxy = Epoxy(request)
+  # create tag if request is POST request
+  if epoxy.is_POST():
+    pass
+  
+  epoxy.queryset(Tag.objects.filter(corpus__pk=corpus_pk, corpus__owners=request.user))
+  return epoxy.json()
+
 
 @login_required(login_url='/api/login')
 def corpus_documents(request, corpus_pk):
@@ -256,7 +269,7 @@ def corpus_documents(request, corpus_pk):
         if candidates_tags:
           for candidate_type in candidates_tags:
             for tag in candidate_type['tags']:
-              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
+              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128], corpus=c)
               tags.append(t)
         #save documents and attach tags
         d = form.save(commit=False)
@@ -1058,9 +1071,11 @@ def stream_corpus_concepts(request, corpus_pk):
       filters[key.replace('segments__', 'document__segments__')] = value
     else:
       filters['document__%s' % key] = value
+
+  date_format = """strftime("%s", date)""" % '%Y-%m' if settings.DATABASES['default']['ENGINE'].endswith("sqlite3") else """DATE_FORMAT(date, "%s")""" % DATE_GROUPING['Ymd']
   # get group availability with current filters.
   groups_available = Document.objects.exclude(date__isnull=True).filter(corpus__pk=corpus_pk).filter(**epoxy.filters).extra(
-        select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
+        select={'G': date_format } # sqlite users strftime('%m-%Y',pubdate)
       ).values('G').annotate(distribution=Count('id'),date=Max('date'))
   
   print filters  
@@ -1076,7 +1091,7 @@ def stream_corpus_concepts(request, corpus_pk):
     ).filter(
       **filters
     ).extra(
-      select={'G': """DATE_FORMAT(date, "%s")"""% DATE_GROUPING['Ymd']}
+      select={'G': date_format}
     ).order_by(
       '-tf'
     ).values('G', 'segment__cluster').annotate(

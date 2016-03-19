@@ -29,10 +29,11 @@ angular.module('sven')
   })
   /*
     Documents attached to a corpus.
-    url corpus/<corpus_id>/documents
-
+    urls
+    - corpus/<corpus_id>/documents
+    - corpus/<corpus_id>/documents/new
   */
-  .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory) {
+  .controller('CorpusDocumentsCtrl', function ($scope, $filter, $log, $location, $routeParams, DocumentFactory, DocumentsFactory, CorpusRelatedFactory) {
     $log.debug('CorpusDocumentsCtrl ready');
     // reset orderby
     $scope.$parent.orderBy.choices = [
@@ -73,8 +74,31 @@ angular.module('sven')
       } // end if
     };
 
+    $scope.suggest = function(query) {
+      var q = query.split(':'),
+          params = {};
+
+      if(q.length>1){
+        params.filters = {
+          "type__icontains": q[0].trim(),
+          "name__icontains": q[1].trim() 
+        };
+      } else {
+        params.search = query
+      }
+      console.log('CorpusDocumentsCtrl -> suggest query:', query, '-params:', params)
+      
+      return CorpusRelatedFactory.get(angular.extend({
+        id: $routeParams.id,
+        related_model: 'tag',
+      }, params)).$promise.then(function(response) {
+        return response.objects;
+      });
+
+    };
+
     $scope.saveUrl = function() {
-      $log.info('saveUrl: ', $scope.document.url);
+      $log.info('CorpusDocumentsCtrl -> saveUrl: ', $scope.document.url);
       var doc = {
         mimetype: 'text/html',
         date: $filter('date')($scope.document.date, 'yyyy-MM-dd'),//$scope.document.date,
@@ -85,18 +109,27 @@ angular.module('sven')
           .trim().substring(0,64),
         url:$scope.document.url
       }
+      // load
+      if($scope.tags && $scope.tags.length) {
+        // group by tags
+        doc.tags = $scope.tags.map(function(d){
+          var _d = {
+              type: d.type || 'keyword',
+              tags: [d.name]
+            }
+          if(d.type)
+            return _d;
 
-      if($scope.document.__url_type && $scope.document.__url_type.id) {
-        doc.tags = [
-          {
-            type: 'tm',
-            tags:[
-              $scope.document.__url_type.name
-            ]
+          var guessed = d.name.split(':');
+          
+          if(guessed.length > 1){
+            _d.type = guessed[0];
+            _d.tags = [guessed[1]];
           }
-        ];
+          return _d;
+        })
       }
-
+      
       DocumentsFactory.save({
         id: $routeParams.id
       },doc, function(data) {

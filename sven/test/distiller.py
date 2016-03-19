@@ -6,12 +6,12 @@ import os, json
 #  test stopwords and pattern chunking.
 #  python manage.py test sven.test.distiller.DistillerTest --testrunner=sven.test.NoDbTestRunner
 #
-from django.test import SimpleTestCase
+from django.test import TestCase
 
 from sven.distiller import distill, EN_STOPWORDS
 
 
-class DistillerTest(SimpleTestCase):
+class DistillerTest(TestCase):
   def test_distill(self):
     content = u'''
       2.4.  Tunisia’s Jasmine Revolution and the End of the Ancien Régime.

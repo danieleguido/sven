@@ -10,8 +10,8 @@ class LoginForm(forms.Form):
 
 
 class TagsForm(forms.Form):
-  type = forms.ChoiceField(choices=Tag.TYPE_CHOICES)
-  tags = forms.RegexField(regex=r'^[\=\.\?\:\/\s\w,\-\_\']*$',label='tags' )
+  type = forms.RegexField(regex=r'^[\=\.\?\/\s\w,\-\_\']*$',label='tags' )
+  tags = forms.RegexField(regex=r'^[\=\.\?\/\s\w,\-\_\']*$',label='tags' )
 
 
 

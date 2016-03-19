@@ -78,6 +78,16 @@ angular.module('sven')
       return ret;
     }
   })
+  .filter('template', function() {
+    return function(input) {
+      return SVEN_STATIC_URL + input
+    }
+  })
+  .filter('categorytag', function(){
+    return function(input, part) {
+      return part=='category'? input.split(':').shift(): input.split(':').pop()
+    }
+  })
   // convert tsv strings into well formatted javascript objects
   .filter('tsv', function() {
     return function(input) {

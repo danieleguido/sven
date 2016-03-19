@@ -1181,3 +1181,10 @@ text.label {
   opacity: .1; 
 }
 
+
+/*
+  ngInputTags
+*/
+.tag-template .name{
+  font-weight: bold
+}

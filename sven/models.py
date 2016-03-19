@@ -552,10 +552,13 @@ class Tag(models.Model):
     (OEMBED_WIDTH, 'oembed_width'),
   )
 
-  name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
-  slug = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
-  type = models.CharField(max_length=2, choices=TYPE_CHOICES + TYPE_OEMBED_CHOICES, default=FREE) # e.g. 'actor' or 'institution'
+  name   = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
+  slug   = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
+  type   = models.CharField(max_length=32) # e.g. 'actor' or 'institution'
+  corpus = models.ForeignKey(Corpus, related_name='tags', null=True, blank=True)
 
+  class Meta:
+    managed= True
 
   def save(self, **kwargs):
     if self.pk is None:
@@ -565,14 +568,17 @@ class Tag(models.Model):
 
   @staticmethod
   def search(query):
+
     argument_list =[
       Q(name__icontains=query),
-      Q(slug__icontains=query),   # add this only when there are non ascii chars in query. transform query into a sluggish field. @todo: prepare query as a slug
+      Q(slug__icontains=query),
+      Q(type__icontains=query),
+         # add this only when there are non ascii chars in query. transform query into a sluggish field. @todo: prepare query as a slug
     ]
     return reduce(operator.or_, argument_list)
 
   def __unicode__(self):
-    return "%s : %s"% (self.get_type_display(), self.name)
+    return "%s : %s"% (self.type, self.name)
 
 
   def json(self, deep=False):
@@ -605,7 +611,7 @@ class Document(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
   date_last_modified = models.DateTimeField(auto_now=True)
   
-  url = models.URLField(blank=True, null=True, max_length=255) # external url to be boilerplated
+  url = models.URLField(blank=True, null=True, max_length=500) # external url to be boilerplated
 
   segments = models.ManyToManyField(Segment, through="Document_Segment", blank=True, null=True)
   tags = models.ManyToManyField(Tag, blank=True, null=True, related_name='tagdocuments')
@@ -628,7 +634,7 @@ class Document(models.Model):
     }
 
     for t in self.tags.all():
-      k = t.get_type_display()
+      k = t.type
       if t.type in [Tag.OEMBED_PROVIDER_NAME, Tag.OEMBED_VIDEO_ID]:
         d['tags'][k] = t.json()
         continue
@@ -891,6 +897,8 @@ class Document(models.Model):
       self.mimetype = mimetypes.guess_type(self.raw.path)[0]
 
     if self.url: # load metadata if is a oembed service.
+      # get title from webpage if it is not defined
+      
       import micawber
       mic = micawber.bootstrap_basic()
       # add issuu rule...?
@@ -926,6 +934,8 @@ class Document(models.Model):
     # sven magic way to understand filename: from rights-policy-advocacy_EN_20140417_PC230 to doc
     
     super(Document, self).save()
+
+
 
 @receiver(pre_delete, sender=Document)
 def delete_corpus(sender, instance, **kwargs):
