@@ -495,7 +495,7 @@ angular.module('sven')
       if(!key)
         return;
       $log.log('CoreCtrl -> removeFilter', key);
-      if($scope.filters[key] == filter) {
+      if(!filter || $scope.filters[key] == filter) {
         delete $scope.filters[key];
         delete $scope.filtersItems[key];
       };

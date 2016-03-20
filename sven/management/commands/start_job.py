@@ -294,7 +294,7 @@ class Command(BaseCommand):
           logger.debug('import tags %s - %s at line %s of %s' % (tags, tag_label, step, total))
       
           for t in tags:
-            tag, created = Tag.objects.get_or_create(name=t,type=tag_type)
+            tag, created = Tag.objects.get_or_create(name=t,type=tag_type, corpus=job.corpus)
             doc.tags.add(tag)
         
         doc.save()

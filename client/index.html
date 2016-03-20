@@ -182,7 +182,7 @@
               </div>
               <div class="col-sm-8">
               
-                <timeline id="timeline" class="timeline" filters="filters" values="facets.timeline" onbrush="changeFilter(keys,filters)" onclean="removeFilters(keys, filters)">
+                <timeline id="timeline" class="timeline" filters="filters" cxt="facets.timeline" onbrush="changeFilter(keys,filters)" onclean="removeFilters(keys, filters)"></timeline>
               
               </div>
 
@@ -266,6 +266,9 @@
     <script src="{{STATIC_URL}}js/lib/jquery.min.js"></script>
     <script src="{{STATIC_URL}}js/lib/jquery.toastmessage.js"></script>
 
+    <!-- lodash core -->
+    <script src="{{STATIC_URL}}js/lib/lodash.core.min.js"></script>
+      
     <script src="{{STATIC_URL}}js/lib/es5-shim.min.js"></script>
     
     <!-- script src="{{STATIC_URL}}bower_components/json3/lib/json3.js"></script -->

@@ -1954,7 +1954,7 @@ def helper_free_tag(instance, epoxy, append=True):
     tags = list(set([t.strip() for t in form.cleaned_data['tags'].split(',')]))# list of unique comma separated cleaned tags.
     candidates = []
     for tag in tags:
-      t, created = Tag.objects.get_or_create(name=tag, type=form.cleaned_data['type'])
+      t, created = Tag.objects.get_or_create(name=tag, type=form.cleaned_data['type'], corpus=instance.corpus)
       if append:
         instance.tags.add(t)
       else:

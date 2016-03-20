@@ -1012,7 +1012,7 @@ text.label {
   stroke: #555;
 }
 #timeline rect{
-  fill: #555;
+  /*fill: #555;*/
 }
 
 #timeline .brush .extent {

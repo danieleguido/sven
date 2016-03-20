@@ -559,7 +559,7 @@ class Tag(models.Model):
 
   class Meta:
     managed= True
-   
+
   def save(self, **kwargs):
     if self.pk is None:
       self.slug = helper_uuslug(model=Tag, instance=self, value=self.name)
@@ -919,7 +919,7 @@ class Document(models.Model):
           for tag_type, tag_type_value in Tag.TYPE_OEMBED_CHOICES: # e.g. 'OP' 'oembed_provider_name'
             oembed_key = tag_type_value.split('_',1).pop() # eg 'provider_name' from 'oembed_provider_name'
             if oembed_key in oem:
-              t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key])
+              t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key],corpus=self.corpus)
               self.tags.add(t)
 
     # get id because we want to save discovered tags in self.name
@@ -929,7 +929,7 @@ class Document(models.Model):
       with transaction.atomic():
         tags = [t.strip() for t in filter(None,parts.group('tags').split('-'))]
         for tag in tags:
-          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag.lower())
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag.lower(), corpus=self.corpus)
           self.tags.add(t)
     # sven magic way to understand filename: from rights-policy-advocacy_EN_20140417_PC230 to doc
     
