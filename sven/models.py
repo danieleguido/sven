@@ -555,7 +555,7 @@ class Tag(models.Model):
   name   = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
   slug   = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
   type   = models.CharField(max_length=32) # e.g. 'actor' or 'institution'
-  corpus = models.ForeignKey(Corpus, related_name='tags', null=True, blank=True)
+  # corpus = models.ForeignKey(Corpus, related_name='tags', null=True, blank=True)
 
   class Meta:
     managed= True
@@ -919,7 +919,7 @@ class Document(models.Model):
           for tag_type, tag_type_value in Tag.TYPE_OEMBED_CHOICES: # e.g. 'OP' 'oembed_provider_name'
             oembed_key = tag_type_value.split('_',1).pop() # eg 'provider_name' from 'oembed_provider_name'
             if oembed_key in oem:
-              t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key],corpus=self.corpus)
+              t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key])
               self.tags.add(t)
 
     # get id because we want to save discovered tags in self.name
@@ -929,7 +929,7 @@ class Document(models.Model):
       with transaction.atomic():
         tags = [t.strip() for t in filter(None,parts.group('tags').split('-'))]
         for tag in tags:
-          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag.lower(), corpus=self.corpus)
+          t, created = Tag.objects.get_or_create(type=Tag.ACTOR, name=u'%s'%tag.lower())
           self.tags.add(t)
     # sven magic way to understand filename: from rights-policy-advocacy_EN_20140417_PC230 to doc
     

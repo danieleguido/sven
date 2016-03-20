@@ -78,7 +78,7 @@ def notification(request):
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
   # available tags categories. to be cached somehow
-  tags = Tag.objects.filter(corpus__owners=request.user).values('type').annotate(count=Count('id'))
+  tags = Tag.objects.filter(tagdocuments__corpus__owners=request.user).values('type').annotate(count=Count('id'))
 
   epoxy.queryset(corpora)
   # print [j.json() for j in corpora]
@@ -223,7 +223,7 @@ def corpus_tags(request, corpus_pk):
   if epoxy.is_POST():
     pass
   
-  epoxy.queryset(Tag.objects.filter(corpus__pk=corpus_pk, corpus__owners=request.user))
+  epoxy.queryset(Tag.objects.filter(tagdocuments__corpus__owners=request.user).filter(tagdocuments__corpus__pk=corpus_pk))
   return epoxy.json()
 
 
@@ -269,7 +269,7 @@ def corpus_documents(request, corpus_pk):
         if candidates_tags:
           for candidate_type in candidates_tags:
             for tag in candidate_type['tags']:
-              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128], corpus=c)
+              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
               tags.append(t)
         #save documents and attach tags
         d = form.save(commit=False)
@@ -350,7 +350,7 @@ def document(request, pk):
         if candidates_tags:
           for candidate_type in candidates_tags:
             for tag in candidate_type['tags']:
-              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128], corpus=d.corpus)
+              t, created = Tag.objects.get_or_create(type=candidate_type['type'], name=tag[:128])
               tags.append(t)
         #save documents and attach tags
         d.tags.add(*tags)
@@ -829,7 +829,7 @@ def corpus_concepts(request, corpus_pk):
   }
 
   if 'group_by' in epoxy.data and not epoxy.data['group_by'] in DATE_GROUPING.keys():
-    availablegrouping = Tag.objects.filter(corpus=cor).values('type')
+    availablegrouping = Tag.objects.filter(tagdocuments__corpus=cor).values('type')
     epoxy.meta('q', any(epoxy.data['group_by'] in t['type'] for t in availablegrouping))
     grouping['document__tags__type'] = epoxy.data['group_by']
   
@@ -1963,7 +1963,7 @@ def helper_free_tag(instance, epoxy, append=True):
     tags = list(set([t.strip() for t in form.cleaned_data['tags'].split(',')]))# list of unique comma separated cleaned tags.
     candidates = []
     for tag in tags:
-      t, created = Tag.objects.get_or_create(name=tag, type=form.cleaned_data['type'], corpus=instance.corpus)
+      t, created = Tag.objects.get_or_create(name=tag, type=form.cleaned_data['type'])
       if append:
         instance.tags.add(t)
       else:
