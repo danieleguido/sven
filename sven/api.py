@@ -77,8 +77,8 @@ def notification(request):
   # DEPRECATED. too much. 
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
-  # available tags. to be cached somehow
-  tags = Tag.objects.filter(type=Tag.TYPE_OF_MEDIA)
+  # available tags categories. to be cached somehow
+  tags = Tag.objects.filter(corpus__owners=request.user).values('type').annotate(count=Count('id'))
 
   epoxy.queryset(corpora)
   # print [j.json() for j in corpora]
@@ -88,7 +88,7 @@ def notification(request):
   except Document.DoesNotExist, e:
     epoxy.add('jobs', [])
 
-  epoxy.add('tags', [t.json() for t in tags])
+  epoxy.add('tags', [t for t in tags])
   epoxy.add('datetime', datetime.now().isoformat())
 
   return epoxy.json()
@@ -819,9 +819,23 @@ def corpus_concepts(request, corpus_pk):
     else:
       cluster_filters['document__%s' % key] = value
 
-  # print cluster_filters
+  grouping = {}
 
-  clusters = Document_Segment.objects.filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
+  # available data grouping (translations for MYSQL)
+  DATE_GROUPING = {
+    'Y': "%%Y",
+    'Ym' : "%%Y-%%m",
+    'Ymd' : "%%Y-%%m-%%d"
+  }
+
+  if 'group_by' in epoxy.data and not epoxy.data['group_by'] in DATE_GROUPING.keys():
+    availablegrouping = Tag.objects.filter(corpus=cor).values('type')
+    epoxy.meta('q', any(epoxy.data['group_by'] in t['type'] for t in availablegrouping))
+    grouping['document__tags__type'] = epoxy.data['group_by']
+  
+
+  # get cluster belonging to the correct grouping...
+  clusters = Document_Segment.objects.filter(**grouping).filter(document__corpus=cor, segment__status=Segment.IN).filter(**cluster_filters).order_by(*epoxy.order_by).values('segment__cluster').annotate(
     distribution=Count('document', distinct=True),
     tf=Max('tf'),
     tfidf=Max('tfidf'),
@@ -830,16 +844,11 @@ def corpus_concepts(request, corpus_pk):
 
   clusters_objects = []
   
+  
   if 'group_by' in epoxy.data:
     groups_available = None
-    epoxy.meta('q', any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES))
-  
-    # available data grouping (translations for MYSQL)
-    DATE_GROUPING = {
-      'Y': "%%Y",
-      'Ym' : "%%Y-%%m",
-      'Ymd' : "%%Y-%%m-%%d"
-    }
+    
+    
     epoxy.meta('grouping', epoxy.data['group_by']) 
 
     if epoxy.data['group_by'] in DATE_GROUPING.keys():
@@ -864,7 +873,7 @@ def corpus_concepts(request, corpus_pk):
         tfidf=Max('tfidf')
       )
 
-    elif any(epoxy.data['group_by'] in t for t in Tag.TYPE_CHOICES):
+    elif any(epoxy.data['group_by'] in t['type'] for t in availablegrouping):
       # get only clusters related to a dated document...
       clusters = clusters.filter(document__tags__type=epoxy.data['group_by'])
       clusters_objects = [c for c in clusters[epoxy.offset : epoxy.offset + epoxy.limit]]

@@ -19,7 +19,6 @@ angular.module('sven')
     	CorpusFacetsFactory.query({id: $scope.corpus.id}, function(data) {
     		$log.info('FacetsCtrl --> loadAvailableFacets --> ', data.objects); // will contain timeline and tags available
     		$scope.facets = data.objects;
-        $scope.ctxtimeline = data.objects.timeline;
     	});
     };
 

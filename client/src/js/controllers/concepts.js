@@ -105,6 +105,27 @@ angular.module('sven')
 
     });
 
+    /*
+      Cfr related var in coreCtrl. Should be named otherwise, but no time :()
+      Change the current group by.
+    */
+    $scope.$watch('typesofmedia', function(categories) {
+      if(!categories)
+        return;
+      $scope.group_by = {
+        is_open: false,
+        choices: [
+          {label:'-', value: false}
+        ].concat(categories.map(function(d){
+          return {
+            label: d.type,
+            value: d.type
+          }
+        }))
+      };
+      
+    }, true)
+
     /* considering filters and grouping */
     $scope.downloadConcepts = function(grouping) {
       var params = $scope.getParams()

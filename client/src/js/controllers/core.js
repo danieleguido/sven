@@ -156,7 +156,7 @@ angular.module('sven')
     /*
       Return  set otf tags to be attached everywhere
     */
-    $scope.prepareTags = function(tags) {debugger
+    $scope.prepareTags = function(tags) {
       return tags.map(function(d){
         var _d = {
             type: d.type || 'keyword',
