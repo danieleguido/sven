@@ -1502,6 +1502,7 @@ def export_corpus_documents(request, corpus_pk):
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
   writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
+  categories = Tag.objects.filter(tagdocuments__corpus=c).values('type').annotate(c=Count('tagdocuments'))
   # write headers
   headers = [
     u'key',
@@ -1515,16 +1516,17 @@ def export_corpus_documents(request, corpus_pk):
     u'end_date',
     u'url',
     u'url_en',
-  ]+  [u'%s' % label for t,label in Tag.TYPE_CHOICES]
+  ]+  [t['type'] for t in categories] #[u'%s' % label for t,label in Tag.TYPE_CHOICES]
   
   writer.writerow(headers)
   
   for doc in docs:
-    tags = {u'%s' % tag_type:[] for tag_type,tag_label in Tag.TYPE_CHOICES}
+    tags = {u'%s' % t['type']:[] for t in categories}
   
     for tag in doc.tags.all():
       if u'%s' % tag.type in tags:
         tags[u'%s' % tag.type].append(tag.name)
+
     row = [
       doc.id,
       doc.slug,
@@ -1536,11 +1538,11 @@ def export_corpus_documents(request, corpus_pk):
       doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
       doc.date.strftime('%Y-%m-%d') if doc.date is not None else doc.date_created.strftime('%Y-%m-%d'),
       doc.url,
-      os.path.join(doc.corpus.slug, os.path.basename(doc.raw.url)),
+      os.path.join(doc.corpus.slug, os.path.basename(doc.raw.url)) if doc.raw else  os.path.join(doc.corpus.slug, doc.slug),
     ]
 
-    for tag_type,tag_label in Tag.TYPE_CHOICES:
-      row.append(u','.join(tags[tag_type])) # comma separated
+    for category in categories:
+      row.append(u','.join(tags[category['type']])) # comma separated
 
     writer.writerow(row)
 
