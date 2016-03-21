@@ -260,10 +260,19 @@ def corpus_documents(request, corpus_pk):
           return epoxy.throw_error(error=tagsform.errors, code=API_EXCEPTION_FORMERRORS).json()
         epoxy.meta('tags', candidates_tags)
 
+
     form = DocumentForm(epoxy.data)
 
+    if not form.is_valid():
+      return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+
+    if 'url' in form.cleaned_data and Document.objects.filter(corpus=c, url=form.cleaned_data['url']).count() > 0:
+      # check for url uniqueness
+      return epoxy.throw_error(error={'url':['url exists already']}, code=API_EXCEPTION_FORMERRORS).json()
+
+
     with transaction.atomic():
-      if form.is_valid():
+      
         # save tags
         tags = []
         if candidates_tags:
@@ -279,9 +288,8 @@ def corpus_documents(request, corpus_pk):
         d.tags.add(*tags)
         d.save()
         epoxy.item(d, deep=False)
-      else:
-        return epoxy.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
+        
   try:
     epoxy.queryset(Document.objects.filter(corpus=c).prefetch_related('tags'))
   except Exception, e:

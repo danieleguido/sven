@@ -774,7 +774,7 @@ class Document(models.Model):
           except IOError, e:
             logger.error('IOError received while goosing %s: %s' % (self.url, e))
           else:
-            content = goo.cleaned_text
+            content =  goo.title + '\n\n' + goo.cleaned_text if hasattr(goo, 'title') else goo.cleaned_text
             with codecs.open(textified, encoding='utf-8', mode='w') as f:
               f.write(content)
         else:
@@ -921,6 +921,8 @@ class Document(models.Model):
             if oembed_key in oem:
               t, created = Tag.objects.get_or_create(type=tag_type, name=u'%s'%oem[oembed_key])
               self.tags.add(t)
+
+
 
     # get id because we want to save discovered tags in self.name
     if parts:
