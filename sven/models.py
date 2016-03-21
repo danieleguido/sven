@@ -199,9 +199,22 @@ def create_profile(sender, instance, created, **kwargs):
 
 
 class Corpus(models.Model):
-  name = models.CharField(max_length=32)
-  slug = models.CharField(max_length=32, unique=True)
+  NP = 'NP'
+  JJ = 'JJ'
+  NN = 'NN'
+  VP = 'VP'
+  
+  POS_CHOICES = (
+    (NP, u'noun phrase'),
+    (JJ, u'all adjectives'),
+    (NN, u'all nouns'),
+    (VP, u'verb phrases'),
+  )
+
+  name  = models.CharField(max_length=32)
+  slug  = models.CharField(max_length=32, unique=True)
   color = models.CharField(max_length=6, blank=True)
+  partofspeech   = models.CharField(max_length=32, blank=True, default=NP)
 
   date_last_modified = models.DateTimeField(auto_now=True)
   date_created = models.DateTimeField(auto_now_add=True)
@@ -476,8 +489,15 @@ class Segment( models.Model):
   )
 
   NP = 'NP'
+  JJ = 'JJ'
+  NN = 'NN'
+  VP = 'VP'
+  
   POS_CHOICES = (
     (NP, u'noun phrase'),
+    (JJ, u'all adjectives'),
+    (NN, u'all nouns'),
+    (VP, u'verb phrases'),
   )
 
   content = models.CharField(max_length=128)

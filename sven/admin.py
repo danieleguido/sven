@@ -13,6 +13,7 @@ class DocumentAdmin(admin.ModelAdmin):
 
 class CorpusAdmin(admin.ModelAdmin):
   search_fields = ['name']
+  exclude = ['slug']
 
 
 

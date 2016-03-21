@@ -343,7 +343,7 @@ class Command(BaseCommand):
       else:
         stopwords = EN_STOPWORDS
 
-      segments = distill(content, language=language, stopwords=stopwords)
+      segments = distill(content, language=language, stopwords=stopwords, query=job.corpus.partofspeech)
       #print segments
       
 
