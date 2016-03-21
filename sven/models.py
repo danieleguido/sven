@@ -214,7 +214,7 @@ class Corpus(models.Model):
   name  = models.CharField(max_length=32)
   slug  = models.CharField(max_length=32, unique=True)
   color = models.CharField(max_length=6, blank=True)
-  partofspeech   = models.CharField(max_length=32, blank=True, default=NP)
+  partofspeech   = models.CharField(choices=POS_CHOICES, max_length=32, blank=True, default=NP)
 
   date_last_modified = models.DateTimeField(auto_now=True)
   date_created = models.DateTimeField(auto_now_add=True)

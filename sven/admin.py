@@ -15,6 +15,8 @@ class CorpusAdmin(admin.ModelAdmin):
   search_fields = ['name']
   exclude = ['slug']
 
+ 
+
 
 
 class JobAdmin(admin.ModelAdmin):
