@@ -11,27 +11,31 @@
         <input type="url" autofocus required ng-model="document.url" class="form-control">
           
       </div>
-      <div class="form-group">
-        <label>tag document</label>
-        <div class="description">search for already existing tags, or add new ones (format: category:tag)</div>
-        <tags-input display-property='name' display-property='name' ng-model="tags" template='{{"views/partials/typeahead-tag.html"|template}}'>
-          <auto-complete load-on-down-arrow="true" select-first-match='true' source="suggest($query, true)" template='{{"views/partials/typeahead-autocomplete.html"|template}}' display-property='name'></auto-complete>
-        </tags-input>
-        <!-- <label>url type (optional)</label>
-        <select class="form-control" ng-model="document.__url_type" ng-options="typology as typology.name for typology in typesofmedia track by typology.slug">
-        </select> -->
-      </div>
       <div  class="form-group">
         
         <label>date</label>
+        <div class="description">format: dd-mm-YYYY</div>
+        
+
         <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup='dd-MMMM-yyyy' ng-model="document.date" is-open="opened" min-date="'1900-06-22'" max-date="'2015-06-22'" ng-required="true" close-text="Close" />
+            <input type="text" class="form-control" datepicker-popup='dd-MMMM-yyyy' ng-model="document.date" is-open="opened" min-date="'1000-06-22'" max-date="'4015-06-22'" ng-required="true" close-text="Close" />
             <span class="input-group-btn">
               <button type="button" class="btn btn-default" ng-click="openDatePicker($event)"><i class="fa fa-calendar"></i></button>
             </span>
         </p>
 
       </div>
+      <div class="form-group">
+        <label>tag document</label>
+        <div class="description">search for already existing tags, or add new ones (please use the following format: "category: tag". For example: "type of media: us newspapers")</div>
+        <tags-input display-property='name' replace-spaces-with-dashes="false" allowed-tags-pattern='[\-0-9A-Za-z: ]+' ng-model="tags" template='{{"views/partials/typeahead-tag.html"|template}}'>
+          <auto-complete load-on-down-arrow="true" select-first-match='true' source="suggest($query, true)" template='{{"views/partials/typeahead-autocomplete.html"|template}}' display-property='name'></auto-complete>
+        </tags-input>
+        <!-- <label>url type (optional)</label>
+        <select class="form-control" ng-model="document.__url_type" ng-options="typology as typology.name for typology in typesofmedia track by typology.slug">
+        </select> -->
+      </div>
+      
       <div class="form-group">
 
         <button class="btn btn-primary btn-block">add document</button>

@@ -1242,3 +1242,13 @@ tags-input .tags .tag-item.selected .tag-template{
   background: transparent;
   color: crimson;
 }
+
+tags-input .autocomplete .suggestion-list{
+  max-height: 100px;
+}
+/*
+  UI bootstrap hack
+*/
+.form-group .description{
+  margin-bottom: 10px
+}

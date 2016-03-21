@@ -223,7 +223,7 @@ def corpus_tags(request, corpus_pk):
   if epoxy.is_POST():
     pass
   
-  epoxy.queryset(Tag.objects.filter(tagdocuments__corpus__owners=request.user).filter(tagdocuments__corpus__pk=corpus_pk))
+  epoxy.queryset(Tag.objects.filter(tagdocuments__corpus__owners=request.user, tagdocuments__corpus__pk=corpus_pk).distinct())
   return epoxy.json()
 
 
@@ -1501,7 +1501,7 @@ def export_corpus_documents(request, corpus_pk):
     response = HttpResponse(content_type='text/plain; charset=utf-8')
   
   docs = Document.objects.filter(corpus=c).filter(**epoxy.filters)
-  writer = unicodecsv.writer(response, delimiter=',', encoding='utf-8')
+  writer = unicodecsv.writer(response, delimiter=';', encoding='utf-8')
   categories = Tag.objects.filter(tagdocuments__corpus=c).values('type').annotate(c=Count('tagdocuments'))
   # write headers
   headers = [

@@ -244,7 +244,7 @@ class Command(BaseCommand):
     total = sum(1 for line in open(options['csv']))
 
     f = open(options['csv'], 'rb')
-    rows = unicodecsv.DictReader(f, encoding='utf-8', delimiter=',')
+    rows = unicodecsv.DictReader(f, encoding='utf-8', delimiter=';')
     #rows = unicodecsv.DictReader(f)
     # get number of rows
     logger.debug('%s lines in csv file, starting import' % total)
