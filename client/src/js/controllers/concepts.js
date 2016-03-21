@@ -16,7 +16,7 @@ angular.module('sven')
     $scope.group_by = {
       is_open: false,
       choices: [
-        {label:'-', value: false},
+        {label:'all types of tags', value: false},
         {label:'actors', value:'ac'},
         {label:'type of media', value:'tm'},
       ]
@@ -115,7 +115,7 @@ angular.module('sven')
       $scope.group_by = {
         is_open: false,
         choices: [
-          {label:'-', value: false}
+          {label:'choose category', value: false}
         ].concat(categories.map(function(d){
           return {
             label: d.type,
@@ -123,6 +123,7 @@ angular.module('sven')
           }
         }))
       };
+      $scope.group_by.choice =  $scope.group_by.choices[0]
       
     }, true)
 

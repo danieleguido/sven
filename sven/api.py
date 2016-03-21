@@ -78,7 +78,7 @@ def notification(request):
   corpora = Corpus.objects.filter(owners=request.user)
   jobs = Job.objects.filter(corpus__owners=request.user)
   # available tags categories. to be cached somehow
-  tags = Tag.objects.filter(tagdocuments__corpus__owners=request.user).values('type').annotate(count=Count('id'))
+  tags = Tag.objects.exclude(type__in=[t for (t,v) in Tag.TYPE_OEMBED_CHOICES]).filter(tagdocuments__corpus__owners=request.user).values('type').annotate(count=Count('id')).order_by('-count')
 
   epoxy.queryset(corpora)
   # print [j.json() for j in corpora]
